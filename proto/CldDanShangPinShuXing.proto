@@ -1,0 +1,61 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+
+/* 单商品-单商品属性 */
+message DanShangPinShuXing {
+	required string obj = 1;					// 单商品OBJ CO
+	optional string shangShiShiJian = 2;		// 上市时间 C1
+	optional string zhongWenJianCheng = 3;		// 中文简称 C4 
+	optional string yingWenQuanCheng = 4;		// 英文简称 C5 
+	optional int32 xiaoShuDianWeiShu = 5;		// 小数据位数 C8
+	optional int32 jiaoYiShiJianLeiXin = 6;		// 交易时间类型 C9
+	optional string jiaoYiBiZhong = 7;			// 交易币种 C10
+	optional string tuiShiShiJian = 8;			// 退市时间 C14
+	optional int32 shangShiZhuangTai = 9;		// 上市状态 C30 (0:上市,1:未上市,2:暂停上市)
+	optional string zhengQuanLeiBie = 10;		// 证券类别 C37 
+	optional int32 tingPai = 11;                // 停牌 dzh_stock.tEQ9112.C5 
+}
+
+/* 市场交易日期列表(最近两年) */
+message MarketTradeDate {
+	required string Market = 1;        // 交易市场
+	repeated string TradeDate = 2;     //　最近两年可交易日期列表
+}
+
+/* 期货基本信息 */
+message FutureInfo {
+	required string Obj = 1;   // 期货合约代码 CO
+	optional string Name = 2;  // 合约名称    C7
+	optional string BeginDate = 3; //上市时间 C10
+	optional string EndDate = 4;  // 退市时间 C11
+	optional string DeliveryDay = 5; //交割日期 C14
+	optional double TradeUnit = 6;   // 合约单位量 28003.C12
+	optional double MarginRate = 7;   // 保证金比例 28003.C26
+}
+
+/* 新股申购数据 */
+message NewStockInfo {//->MSG
+	required string StockCode = 1;  //股票代码
+	optional string StockName = 2;  //股票简称
+	optional string StockSummary = 3; //股票概要
+	optional string BuyCode = 4;  //申购代码
+	optional string IssueTotal = 5;  //发行总数(股)
+	optional string OnlineTotal = 6;  //网上发行总数(股)
+	optional string BuyLimit = 7;  //申购上限(股)
+	optional string IssuePrice = 8;  //发行价格
+	optional string FirstClose = 9; //首日收盘价
+	optional string BuyDate = 10; //申购日期
+	optional string PubDate = 11; //中签公布日期
+	optional string PayDate = 12; //中签缴款日期
+	optional string TradeDate = 13; //上市日期
+	optional string IssuePE = 14; //发行市盈率
+	optional string IndustryPE = 15; //行业市盈率
+	optional string SuccessRate = 16; //中签率（%）
+	optional string OfferTotal = 17; //配售对象报价家数
+	optional string OfferTimes = 18; //询价累计报价倍数
+	optional string SeriesNum = 19; //连续一字板数量
+	optional string IncreaseTotal = 20; //总涨幅(一字板打开时的)
+}
+

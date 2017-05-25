@@ -1,0 +1,66 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+message NewsInfoValue { // ->MSG
+	required string ver = 1;
+	required uint32 act = 2;
+	required uint64 newsID = 3;
+	optional string newsTitle = 4;
+}
+
+message XinWenXinXiEx {   
+	optional string source	= 1;	// 新闻:来源		
+	optional string date = 2; 		// 新闻日期
+	optional string title = 3;		// 新闻标题
+	optional string context = 4;	// 新闻:内容压缩文件下载url
+}
+
+/* 个股新闻数据 */
+message XinWenXinXiOutput {             // ->MSG
+	required string Obj = 1; 	    	// 个股新闻:股票代码	
+	required int64 TotalCount = 2; 		// 服务端缓存总条目数量
+	repeated XinWenXinXiEx Data = 3;		 
+}
+
+message XinWenXinXiZhongXin {  
+	optional string date = 1; 		// 新闻日期
+	optional string title = 2;		// 新闻标题
+	optional string context = 3;	// 新闻:内容压缩文件下载url 
+	optional string source	= 4;	// 新闻:来源	
+}
+
+/* 新闻中心数据 */
+message XinWenXinXiZhongXinOutput {   // ->MSG
+	required int64 TotalCount = 1; 		        // 服务端缓存总条目数量
+	repeated XinWenXinXiZhongXin data = 2;		
+}
+
+message GongGaoXinXi {  
+	optional string source	= 1;	// 公告:类型		
+	optional string date = 2; 		// 公告日期
+	optional string title = 3;		// 公告标题
+	optional string context = 4;	// 公告:pdf文件下载url 
+}
+
+/* 个股公告数据 */
+message GongGaoXinXiOutput {            // ->MSG
+	required  string Obj = 1;	       	// 个股公告:股票代码
+	required  int64  TotalCount = 2;    //服务器缓存总数量
+	repeated  GongGaoXinXi Data = 3; 	
+}
+
+message GongGaoXinXiZhongXin {   
+	optional string date = 1; 		// 公告日期
+	optional string title = 2;		// 公告标题
+	optional string context = 3;	// 公告:pdf文件下载url 
+	optional string source	= 4;	// 公告:类型		
+}
+
+/* 公告中心数据 */
+message GongGaoXinXiZhongXinOutput {   // ->MSG
+	required int64 TotalCount = 1; 		      // 服务器缓存总数量
+	repeated GongGaoXinXiZhongXin data = 2;	
+}
+
+

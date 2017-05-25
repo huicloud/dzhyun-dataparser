@@ -1,0 +1,14 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+
+message BlockObjOutput	// ->MSG
+{
+    repeated string obj = 1;
+}
+
+message BlockPropOutput // ->MSG
+{
+    repeated string name = 1;
+}

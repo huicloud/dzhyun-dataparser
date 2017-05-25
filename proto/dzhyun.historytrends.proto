@@ -1,0 +1,36 @@
+// 针对周期性走势的数据结构
+// 
+// protoc --go_out=../dzhyun.git dzhyun.historytrends.proto
+// 需要安装 https://github.com/google/protobuf
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+import "dzhyun.topicinvest.proto";
+
+message YueKXianShuJu
+{
+  required int64 Nian =1; //年份
+  optional int64 ZhangFu= 2; //涨幅
+}
+
+message YueZouShiShuJu
+{
+  required int64 Yue = 1;//月
+  repeated YueKXianShuJu YueKXian = 2; //月K线
+  optional int64 ShangZhangGaiLv = 3;  //上涨概率
+  optional int64 PingJunZhangFu = 4; //平均涨幅
+}
+
+
+message HistoryTrends // ->MSG
+{
+  required string Obj = 1;  // 股票名称
+  repeated YueZouShiShuJu  YueZouShi = 2;  //所有月个数
+}
+
+message MonthTrends // ->MSG
+{
+  required string Obj = 1;  // 股票名称
+  repeated LiShiHangQing HangQing = 2;  //任意历史 N(1~36)个月
+}

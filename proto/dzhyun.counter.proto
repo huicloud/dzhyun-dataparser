@@ -1,0 +1,115 @@
+package dzhyun; 
+
+option java_package = "com.dzhyun.proto";
+
+//柜台管理响应数据部分
+message RepCounterRsp         //->MSG
+{
+	required uint32 RspNo = 1;    //应答编码(0代表成功)
+	optional string RspDesc = 2;  //应答描述
+	optional uint32 Status = 3;  //状态码
+	optional string StatusDesc = 4;  //状态描述
+}
+
+message CounterRsp { //->MSG
+	required  int64  RspNo = 1;   // 响应码   0:代表成功　其它值代码失败
+    optional string  RspDesc = 2; //　响应描述 
+}
+
+message QueryCapitalRsp { //->MSG
+	required int64  RspNo = 1;   		 // 响应码   0:代表成功　其它值代码失败
+	optional string RspDesc = 2; 		 // 响应描述 
+	optional int64 AvailCapital = 3; // 可用资金
+	optional int64 FreezeCapital = 4; // 冻结资金
+	optional int64 Margin = 5; 			 // 保证金(股票类无此字段)	
+	optional int64 TotalValue = 6;    // 总市值
+	optional int64 TotalCapital = 7;  // 总资产=总市值+冻结资金+可用资金+保证金
+}
+
+message HoldItem {
+    required string HoldNo = 1; 			//持仓编号
+    optional string ProductCode = 2; //股票代码
+	optional string ProductName = 3; //股票名称
+	optional string BuyOrSell = 4;   //多空方向(股票类无此字段)
+	optional int64 Margin = 5;     	//保证金(股票类无此字段)
+	optional int64 PosAmount = 6; 	  //持仓量
+	optional int64 AvailAmount = 7;  //可用量=PosAmount-TodayPosAmount((保证金类无此字段)
+	optional int64 AvgPosPrice = 8;  //平均持仓成本
+	optional int64 NewPrice = 9; 		//现价
+	optional int64 Value = 10;    		//市值
+	optional int64 Profit = 11;    		//盈亏
+}
+
+message QueryHoldRsp { //->MSG
+	required int64  RspNo = 1;   		 // 响应码   0:代表成功　其它值代码失败
+	optional string RspDesc = 2; 		 // 响应描述 
+	optional int64 AvailCapital = 3;  //可用资金
+	optional int64 FreezeCapital = 4; //冻结资金
+	optional int64 TotalMargin = 5; 	 //总保证金(股票类无此字段)	
+	optional int64 TotalValue = 6;    //总市值
+	optional int64 TotalCapital = 7;  //总资产=总市值+冻结资金+可用资金+保证金
+	optional int64 TotalProfit = 8;   //总盈亏
+	repeated HoldItem HoldList = 9;  //持仓列表
+	optional string CapitalId = 10;	 //资金id
+}
+
+message OrderItem {
+    required string OrderNo = 1; 			//委托编号
+    optional string OrderTime = 2; //委托时间
+	optional string ProductCode = 3; //股票代码
+	optional string ProductName = 4;   //股票名称
+	optional string BuyOrSell = 5;     	//买卖/多空方向
+	optional string OpenOrClose = 6; 	  //开平方向(股票类无此字段)
+	optional string OrderType = 7;  //委托类型(保证金类无此字段)
+	optional int64 OrderAmount = 8;  //委托量
+	optional int64 OrderPrice = 9; 		//委托价格
+	optional string Status = 10;    		//状态
+}
+
+message QueryOrderRsp { //->MSG
+	required int64  RspNo = 1;   		 // 响应码   0:代表成功　其它值代码失败
+	optional string RspDesc = 2; 		 //　响应描述 
+	repeated OrderItem OrderList = 3; // 委托列表
+	optional string CapitalId = 4;	 //资金id
+}
+
+message DealItem {
+    required string DealNo = 1; 			//成交编号
+    optional string DealTime = 2; //成交时间
+	optional string ProductCode = 3; //股票代码
+	optional string ProductName = 4;   //股票名称
+	optional string BuyOrSell = 5;     	//买卖/多空方向
+	optional string OpenOrClose = 6; 	  //开平方向(股票类无此字段)
+	optional int64 DealAmount = 7;  //成交数量
+	optional int64 DealPrice = 8;  //成交价格
+	optional int64 Fee = 9; 		//手续费
+}
+
+message QueryDealRsp { //->MSG
+	required int64  RspNo = 1;   		 // 响应码   0:代表成功　其它值代码失败
+	optional string RspDesc = 2; 		 //　响应描述 
+	repeated DealItem DealList = 3; //成交列表
+	optional string CapitalId = 4;	 //资金id
+}
+
+message CounterSettleRsp { //->MSG
+	required  int64  RspNo = 1;   // 响应码   0:代表成功　其它值代码失败
+	optional string  RspDesc = 2; //　响应描述
+	optional string  SettleTime = 3; // 结算时间（最近一次）
+	optional int64   Status = 4;   //　状态（最近一次）
+}
+
+message TradeRuleRsp { //->MSG
+	required  int64  RspNo = 1;   // 响应码   0:代表成功　其它值代码失败
+	optional string  RspDesc = 2; //　响应描述
+	optional string UpdateTime = 3;    // 更新时间
+	optional int64 TradeRate = 4; 			// 交易费率 初始值:股票0.08% 股指0.003%
+	optional int64 MinTradeFee = 5; 		// 最低交易费用　初始值:股票5元/笔　股指无此项 
+	optional int64 MaxPosAmount = 6; 	// 最大持仓　初始值:-1 不限定 
+	optional int64 MaxOrderAmount = 7; // 单笔最大委托量 初始值:-1 不限定
+	optional string SettleTime = 8; 		// 结算时间 初始值:1700
+	optional int64 StopTrade = 9;  		// 停止交易: 0:否 1:是
+	optional int64 TradeRule = 10;  		// 交易规则: 0:T+0, 1:T+1（缺省）
+	optional int64 MarginRate = 11;    //保证金比率 初始值:期货0.15 股指无此项 
+	optional int64 ForceCloseRate = 12; //强制平仓率 初始值:期货0.2 股指无此项 
+}

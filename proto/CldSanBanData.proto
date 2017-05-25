@@ -1,0 +1,148 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+/* 三板总体信息 */
+message OverallInfo { //->MSG
+	optional int64 TotalStockNum = 1;    	//总挂牌股票数
+	optional int64  AgreementStockNum = 2;  //协议股票数
+	optional int64  BrokerStockNum = 3;     //做市股票数
+	optional int64  WaitStockNum = 4;       //等待挂牌股票数
+	optional int64  ApplyStockNum = 5;      //申请的股票数
+}
+
+/* 今日挂牌 */
+message TodayListStock {
+	required string StockCode = 1;      //股票代码
+	optional string StockName = 2;     //股票名称
+	optional string MainBroker = 3;    //主办券商
+	optional string Industry = 4;      //所属行业		
+}
+message TodayListStocks { //->MSG
+   required int64 ListStockNum = 1;   //挂牌股票数
+   repeated TodayListStock Data = 2;  //今日挂牌股票数据
+}
+
+/* 今日新增做市 */
+message TodayBrokerStock {
+	required string StockCode = 1;      //股票代码
+	optional string StockName = 2;     	//股票名称
+	optional int64 BrokerNum = 3;    	//做市商数
+	optional int64 NewAddNum = 4;      	//新添加数
+}
+message TodayBrokerStocks { //->MSG
+   required int64 BrokerStockNum = 1;   //新增做市股票数
+   repeated TodayBrokerStock Data = 2;  //股票数据
+}
+
+/* 今日协议转做市 */
+message TodayConvertStock {
+	required string StockCode = 1;      //股票代码
+	optional string StockName = 2;      //股票名称
+	optional int64 BrokerNum = 3;    	//做市商数	
+}
+message TodayConvertStocks { //->MSG
+   required int64 ConvertStockNum = 1;   //今日协议转做市股票数
+   repeated TodayConvertStock Data = 2;  //今日协议转做市股票数据
+}
+
+/* 今日增发 */
+message	TodayIssueStock {
+	required string StockCode = 1;      //股票代码
+	optional string StockName = 2;     	//股票名称
+	optional string ProjectAdvance = 3; //方案进度
+	optional string IssuePrice = 4;   	//增发价格
+}
+message TodayIssueStocks { //->MSG
+	required int64 IssueStockNum = 1; 	 //增发股票数
+	repeated TodayIssueStock  Data = 2;  //今日增发股票数据
+}
+
+
+/* 做市商详细信息 */
+message	BrokerStock {
+	required string StockCode = 1;      //股票代码
+	optional string StockName = 2;     	//股票名称
+	optional int64 	Price = 3;			//最新价
+	optional int64 	InitAmount = 4;   	//初始库存
+	optional int64 	InitCost = 5; 	 	//初始库存成本		
+}	
+message	BrokerDetaileInfo { //->MSG
+	required string BrokerName = 1;  	//做市商名称
+	optional int64 	FirstStockNum = 2;  //首批做市数
+	optional int64 	LastStockNum = 3;   //最近做市数
+	optional int64 	MainStockNum = 4;   //主办兼做市数
+	optional int64 	AvgPE = 5;          //平均市盈率
+	optional int64 	AvgPB = 6;          //平均市净率
+	optional int64 	TotalValue = 7;		//总市值
+	repeated BrokerStock Data = 8; 	 	//做市商股票数据
+}
+
+
+/* 股票做市商列表明细 */
+message	BrokerInfo{
+	 required string BrokerName = 1;    //做市商名称
+	 required string BeginDate = 2;     //做市开始日期
+	 optional int64 InitAmount = 3;     //初始库存
+}
+message	StockBrokerInfo { //->MSG
+	required string StockCode = 1;      //股票代码
+	optional string StockName = 2;     	//股票名称
+	repeated BrokerInfo Data = 3; 		//做市商数据
+}
+
+/* 股票定增详情 */
+message	IssueDetaileInfo { //->MSG
+	required string StockCode = 1;      //股票代码
+	optional string StockName = 2;     	//股票名称
+	optional int64 IssueAmount = 3;     //定增发行量
+	optional int64 CollectCapital = 4;  //募集资金
+	optional string IssuePrice = 5;		//定增价格
+	optional int64 LastClose = 6;       //最新收盘价
+	optional int64 IssuePE = 7;         //增发市盈率
+	optional int64 OverflowRatio = 8;   //溢价率
+	optional string ProjectAdvance = 9;	//方案进度
+	optional string IssueDate = 10;     //发行日期
+	optional string IssueTarget = 11;   //发行对象
+}
+
+/* 最近一周/近一月/近三月/近一年定增统计信息 */
+message	IssueStock {
+	required string StockCode = 1;     	//股票代码
+	optional string StockName = 2;     	//股票名称
+	optional string NoticeDate = 3;     //定增公告日期
+	optional int64 IssueScale = 4;      //发行规模
+	optional string IssuePrice = 5;		//发行价格
+	optional string ProjectAdvance = 6; //方案进度
+	optional int64  PE = 7;				//市盈率	
+	optional string LatestNoticeDate = 8; //最新公告日期		 
+}		
+message	IssueStatInfo { //->MSG
+	optional int64 StockNum = 1;   	//发行数量
+	optional int64 TotalScale = 2;  //发行总规模
+	optional int64 AvgPE = 3;      	//平均市盈率
+	repeated  IssueStock Data = 4; 	//定向增发股票数据
+}
+
+/* 做市商列表 */
+message BrokerData {
+	required string BrokerName = 1;      //做市商名称
+	optional int64 	LastStockNum = 2;    //做市数
+	optional int64 	FirstStockNum = 3;   //首批做市数
+}
+message BrokerList { //->MSG
+   required int64 BrokerNum = 1;   	//做市商数量
+   repeated BrokerData Data = 2;  	//做市商列表数据
+}
+
+/* 财务快报列表 */
+message QuickReportData {
+	required string StockCode = 1;     	//股票代码
+	optional string StockName = 2;     	//股票名称
+	optional string	ReportDate = 3;     //报告日期
+	optional string ReportTitle = 4;    //报告标题
+	optional int64  ClassTag = 5;          //分类tag
+}
+message FinanceQuickReport { //->MSG
+   repeated QuickReportData Data = 2;  //快报数据列表
+}

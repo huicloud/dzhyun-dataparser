@@ -1,0 +1,72 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+
+/* 一致性业绩预测 */
+message YiZhiXinYeJiYuCe
+{
+	required string baoGaoRiQi = 1;     // 研报日期C2 YYMMDDhhmmss
+	required string yuCeNianDu = 2;	   // 预测年度C9 YYMMDDhhmmss
+	optional int64 jingLiRun = 3;		// 净利润C12
+	optional int64 meiGuShouYi = 4;		// 每股收益C14 EPS
+}
+
+message YiZhiXinYeJiYuCeOutPut //->MSG
+{
+	required  string Obj = 1;		// 股票代码;
+	repeated  YiZhiXinYeJiYuCe Data = 2; // 数据列表
+}
+ 
+
+/*一致性投资评级*/
+message YiZhiXinTouZiPinJi
+{
+	required string pinJiRiQi = 1;     // 评级日期C2 YYMMDDhhmmss
+	required string zhengTiPinJi = 2;  // 整体评级C8
+}
+
+message YiZhiXinTouZiPinJiOutPut //->MSG
+{
+	required  string Obj = 1;		// 股票代码;
+	repeated  YiZhiXinTouZiPinJi Data = 2; // 数据列表(最多存2条，首条上期，第二条本期)
+}
+
+/*个股业绩预测*/
+message GeGuYeJiYuCe
+{	
+	required string yuCeNianDu = 1;	   // 预测年度C12 YYMMDDhhmmss
+	optional int64 meiGuShouYi = 2;		// 每股收益C22 EPS
+}
+
+message GeGuYeJiYuCeData
+{
+	required string yanJiuJiGou = 1;     // 研究机构名称C40
+	required string baoGaoRiQi = 2;       // 研报日期C10 YYMMDDhhmmss
+	repeated GeGuYeJiYuCe data = 3;  	 // 业绩预测数据
+}
+
+message GeGuYeJiYuCeOutPut //->MSG
+{
+	required  string Obj = 1;		// 股票代码;
+	repeated  GeGuYeJiYuCeData data = 2; // 个股业绩机构预测数据
+}
+
+/*个股投资研报*/
+message GeGuTouZiYanBao
+{
+	required string baoGaoRiQi = 1;      // 研报日期C4 YYMMDDhhmmss
+	optional string yanJiuJiGou = 2;     // 研究机构名称C7
+	optional string pinJiLeiBie = 3;     // 评级类别C24(dzh_dd.tDD0026.C3)
+	optional string pinJiBianDong = 4;   // 评级变动C26(dzh_dd.tDD0026.C3)
+	optional string yanBaoBiaoTi = 5;    // 研报标题C5
+	optional string yanBaoNeiRong = 6;	 // 研报内容tRS0003.C3
+	optional string yanJiuZuoZhe = 7;    // 研究作者C12
+	optional string muBiaoJiaGe = 8;    // 目标价格C30
+}
+
+message GeGuTouZiYanBaoOutPut //->MSG
+{
+	required  string Obj = 1;		// 股票代码;
+	repeated  GeGuTouZiYanBao Data = 2; // 研报数据
+}

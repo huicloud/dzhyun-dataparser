@@ -1,0 +1,43 @@
+{
+  "name": "dzhyun-dataparser",
+  "version": "1.0.0",
+  "description": "大智慧云平台数据解析",
+  "main": "lib/DzhyunDataParser",
+  "browser": {
+    "./src/dzhyunProto.js": "./lib/dzhyunProto.js",
+    "protobufjs": "protobufjs/light"
+  },
+  "scripts": {},
+  "author": "jiagang <jiagang1985@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/huicloud/dzhyun-dataparser.git"
+  },
+  "devDependencies": {
+    "babel-core": "^6.24.0",
+    "babel-eslint": "^7.2.1",
+    "babel-loader": "^6.4.1",
+    "babel-preset-es2015": "^6.24.0",
+    "babel-preset-stage-2": "^6.22.0",
+    "babel-runtime": "^6.23.0",
+    "del": "^2.2.2",
+    "eslint": "^3.18.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-html": "^2.0.1",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.3",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-if": "^2.0.2",
+    "null-loader": "^0.1.1",
+    "through-gulp": "^0.5.0",
+    "webpack": "^2.2.1",
+    "webpack-stream": "^3.2.0"
+  },
+  "dependencies": {
+    "protobufjs": "^6.7.3",
+    "snappyjs": "^0.5.0"
+  }
+}

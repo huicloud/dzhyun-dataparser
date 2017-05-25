@@ -1,0 +1,25 @@
+// 针对排序的数据结构
+// 
+// protoc --go_out=../dzhyun.git dzhyun.paixu.proto
+// 需要安装 https://github.com/google/protobuf
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+// 排序存储结构
+message PaiXu // ->MSG
+{
+  required string Obj = 1;  // 股票名称
+  optional int64 Value = 2; // yfloat
+  optional string Text = 3;
+}
+
+
+// 排名存储结构
+message PaiMing // ->MSG
+{
+  required string Obj = 1;  // 股票名称
+  optional int64 Value = 2; // yfloat
+  optional string Text = 3;
+  optional int64 MingCi = 4; //名次
+}

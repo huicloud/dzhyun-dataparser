@@ -1,0 +1,33 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+
+// 业务类型
+enum JPBLeiXing {
+    TYPE_OBJ  = 0; // 股票代码
+    TYPE_INDI = 1; // 指标
+    TYPE_TOPIC = 2;// 主题
+    TYPE_LHB = 3;//龙虎榜
+    TYPE_BLKOBJ = 4;//block obj
+    TYPE_TOPICANALY = 5;//topic analysis
+    TYPE_OBJPHONE = 6;//topic phone
+}
+
+message JPBShuJu {
+  required string  DaiMa     = 1; // 代码
+  required string  MingCheng = 2; // 名称
+  optional string  ShuXing   = 3; // 属性
+  optional string  KuoZhan   = 4; // 扩展
+}
+
+message JPBShuChu {
+  required JPBLeiXing LeiXing = 1; // 类型
+  repeated JPBShuJu   ShuJu   = 2; // 数据
+}
+
+message JianPanBaoShuChu { // -> MSG
+  required string    GuanJianZi = 1; // 关键字
+  repeated JPBShuChu JieGuo     = 2; // 查询结果
+}
+

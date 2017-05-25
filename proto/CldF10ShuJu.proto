@@ -1,0 +1,2054 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+
+/*操盘必读_最新指标*/
+message F10CpbdZxzbOutput { //->MSG
+	required string obj = 1;		// 股票代码
+	required string date = 2;		//日期
+	optional string shiq = 3;		//时期 varchar(40) 
+	optional int64 mgsy  = 4;		//每股收益 numeric(9,4) 
+	optional int64 mgjzc  = 5;		//每股净资产 numeric(9,4) 
+	optional int64 zgb  = 6;		//总股本 numeric(19,4) 
+	optional int64 ltag  = 7;		//目前流通 numeric(19,4) 
+	optional int64 jzcsyl = 8; 		//净资产收益率 numeric(9,2) 
+	optional int64 mgxjl  = 9;		//每股经营现金流 numeric(14,4) 
+	optional int64 mggjj = 10;		//每股公积金 numeric(14,4) 
+	optional int64 mgwfplr  = 11; 	//每股未分配利润 numeric(14,4) 
+	optional int64 zylrtbzz	 = 12; 	//主营收入同比增长 numeric(10,2) 
+	optional int64 jlrtbzz  = 13;	//净利润同比增长 numeric(10,2) 
+	optional string fpyan  = 14;	//分配预案 varchar(100) 
+	optional string cq 	 = 15;		//最新除权 varchar(100) 
+	optional string cym	 = 16;		//曾用名   varchar(1000)
+}
+
+/*操盘必读_控盘情况*/
+message F10CpbdKpqk {
+	required string date = 1; 		//截止日期       
+	optional int64 gdhs = 2;  		//股东户数  int                       
+	optional int64 rjcltg = 3; 		//人均持流通股  numeric(20,2)      
+	optional int64 tcsdrjcltg = 4;  //剔除十大流通股人均持流通股数  numeric(20,2)
+}
+
+/*操盘必读_成交回报*/
+message CpbdCjhbData {
+	optional int64 cjl = 1;  		//成交量(手)  numeric(20,2)                
+	optional int64 cjje = 2;  		//成交金额（万）  numeric(20,2)    
+	optional string zdlx = 3;  		//涨跌类型  varchar(50)        
+	optional int64 zdz = 4; 		//涨跌值  numeric(20,2)          
+	optional string yybmc = 5;  	//营业部名称  varchar(50)            
+	optional int64 mlje = 6;  		//买入金额（万）  numeric(20,2)         
+	optional int64 mcje = 7;  		//卖出金额（万）  numeric(20,2)
+}
+message F10CpbdCjhb {
+	required string date = 1;			//日期 
+	repeated CpbdCjhbData data = 2;                  
+	
+}
+
+/*操盘必读_封闭式基金周净值*/
+message FundCpbdFbsjjzjzData {          
+	optional int64 dwjz = 1;  		//单位净值  numeric(19,4)       
+	optional int64 dwljjz = 2;  	//单位累计净值  numeric(19,4)    
+}
+message F10FundCpbdFbsjjzjz {
+	required string date = 1;			//日期 
+	repeated FundCpbdFbsjjzjzData data = 2;                  
+	
+}
+message F10FundCpbdFbsjjzjzOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundCpbdFbsjjzjz Data = 2;
+}
+
+/*操盘必读_基金份额变动情况 */
+message FundCpbdJjfebdqkData {          
+	optional int64 qczfe = 1;  	//期初总份额  numeric(19,4)       
+	optional int64 bqzsg = 2;  	//本期总申购  numeric(19,4)    
+	optional int64 bqzsh = 3;  	//本期总赎回  numeric(19,4)       
+	optional int64 qmzfe = 4;  	//期末总份额  numeric(19,4)   
+	optional int64 bqjsg = 5;  	//本期净申购  numeric(19,4)          
+}
+message F10FundCpbdJjfebdqk {
+	required string date = 1;			//日期 
+	repeated FundCpbdJjfebdqkData data = 2;                  
+	
+}
+message F10FundCpbdJjfebdqkOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundCpbdJjfebdqk Data = 2;
+}
+
+/*操盘必读_基金公布季报 */
+message FundCpbdJjgbjbData {          
+	optional int64 bqjsy = 1;  	//本期净收益（万元）  numeric(19,4)         
+	optional int64 qmjzc = 2;  	//期末资产净值（亿元）  numeric(19,4)     
+	optional int64 qmfejz = 3;  //期末份额净值（元）  numeric(19,4)       
+	optional int64 gpsz = 4;  	//股票市值（亿元）  numeric(19,4) 
+	optional int64 zqsz = 5;  	//债券市值（亿元）  numeric(19,4)  
+	optional int64 gpbl = 6;  	//股票比例  numeric(19,2)         
+	optional int64 zqbl = 7;  	//债券比例  numeric(19,2)
+	optional int64 hjsz = 8;  	//合计市值（亿元）  numeric(19,4)       
+}
+message F10FundCpbdJjgbjb {
+	required string date = 1;			//日期 
+	repeated FundCpbdJjgbjbData data = 2;                  
+	
+}
+message F10FundCpbdJjgbjbOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundCpbdJjgbjb Data = 2;
+}
+
+/*操盘必读_基金净值表现 */
+message FundCpbdJjjzbxData {          
+	optional string qj = 1;  	//区间  varchar(10)      
+	optional int64 jzzzl = 2;  	//净值增长率  numeric(19,4)     
+	optional int64 bjjzsyl = 3; //比较基准收益率  numeric(19,4)       
+	optional int64 cz = 4;  	//差值  numeric(19,4)         
+}
+message F10FundCpbdJjjzbx {
+	required string date = 1;			//日期 
+	repeated FundCpbdJjjzbxData data = 2;                  
+	
+}
+message F10FundCpbdJjjzbxOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundCpbdJjjzbx Data = 2;
+}
+
+/*操盘必读_基金详细 */
+message F10FundCpbdJjxxOutput {//->MSG
+    required string Obj = 1;
+    required string date = 2;	
+    optional string jjtzmb = 3;  //基金投资目标  varchar(4000)         
+	optional string fxsytz = 4;  //风险收益特征  varchar(4000)    
+	optional string ywbjjz = 5;  //业务比较基准  varchar(4000)  		
+}
+
+/*操盘必读_总份额 */
+message F10FundCpbdZfeOutput {//->MSG
+    required string Obj = 1;	
+    required string gxrq = 2;	//更新日期  datetime  
+    optional string jjjc = 3;  	//基金简称  varchar(200)       
+	optional string jjlx = 4;  	//基金类型  varchar(20)
+	optional string ggrq = 5;   //公告日期  datetime      
+	optional int64 zfe = 6;  	//总份额  numeric(19,2)   
+	optional int64 ltfe = 7;  	//份额  numeric(19,2)  
+}
+
+/*财务数据_经营业绩 */
+message FundCwsjJyyjData {          
+	optional string dw = 1;  	//单位  varchar(4)   
+	optional int64 srhj = 2;  	//收入合计  numeric(19,2)  
+	optional int64 gpcjsr = 3; 	//股票差价收入  numeric(19,2)         
+	optional int64 zqcjsr = 4;  //债券差价收入  numeric(19,2)
+	optional int64 zqlxsr = 5; 	//债券利息收入  numeric(19,2)
+	optional int64 cklxsr = 6;  //存款利息收入  numeric(19,2) 
+	optional int64 gxsr = 7; 	//股息收入  numeric(19,2)       
+	optional int64 fyhj = 8;  	//费用合计  numeric(19,2)  
+	optional int64 jjglf = 9; 	//基金管理费  numeric(19,2)  
+	optional int64 jjtgf = 10;  //基金托管费  numeric(19,2)  
+	optional int64 jjjsy = 11; 	//基金净收益  numeric(19,2)  
+
+}
+message F10FundCwsjJyyj {
+	required string jzrq = 1;			//日期 
+	repeated FundCwsjJyyjData data = 2;                  
+}
+message F10FundCwsjJyyjOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundCwsjJyyj Data = 2;
+}
+
+/*财务数据_资产负债 */
+message FundCwsjZcfzData {          
+	optional string dw = 1;  		//单位  varchar(4)   
+	optional int64 yhck = 2;  		//银行存款  numeric(19,2)   
+	optional int64 qsbfj = 3; 		//清算备付金  numeric(19,2)          
+	optional int64 jybzj = 4;  		//交易保证金  numeric(19,2)  
+	optional int64 gptzsz = 5; 		//股票投资市值  numeric(19,2)  
+	optional int64 zqtzsz = 6;  	//债券投资市值  numeric(19,2)  
+	optional int64 yslx = 7; 		//应收利息  numeric(19,2)      
+	optional int64 yssgk = 8;  		//应收申购款  numeric(19,2) 
+	optional int64 zczj = 9; 		//资产总计  numeric(19,2)    
+	optional int64 yfjyqsk = 10;  	//应付交易清算款  numeric(19,2)    
+	optional int64 yfjjglf = 11; 	//应付基金管理费  numeric(19,2)  
+	optional int64 yfjjtgf = 12; 	//应付基金托管费  numeric(19,2)   
+	optional int64 yfshk = 13;  	//应付赎回款  numeric(19,2)   
+	optional int64 fzzj = 14; 		//负债总计  numeric(19,2)           
+	optional int64 ssjj = 15;  		//实收基金  numeric(19,2)  
+	optional int64 cyrqyhj = 16; 	//持有人权益合计  numeric(19,2) 
+	optional int64 fzjqyhj = 17;  	//负债及权益合计  numeric(19,2)   
+}
+message F10FundCwsjZcfz {
+	required string jzrq = 1;			//日期 
+	repeated FundCwsjZcfzData data = 2;                  
+}
+
+message F10FundCwsjZcfzOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundCwsjZcfz Data = 2;
+}
+
+/*财务数据_主要财务指标*/
+message FundCwsjZycwzbData {          
+	optional int64 bqjsy = 1;  		//本期净收益（万元）  numeric(19,2)  
+	optional int64 kgfpsy = 2;  	//可供分配收益（万元）  numeric(19,2)  
+	optional int64 mfkgfpsy = 3; 	//每份可供分配收益（元）  numeric(19,2)         
+	optional int64 qmzcjz = 4;  	//期末资产净值（亿元）  numeric(19,2)  
+	optional int64 qmfejz = 5; 		//期末份额净值（元）  numeric(19,2)   
+	optional int64 jqpjjzsyl = 6;  	//加权平均净值收益率（%）  numeric(19,2)   
+	optional int64 mfjzzzl = 7; 	//每份净值增长率（%）  numeric(19,2)      
+	optional int64 mfljjzzzl = 8;  	//每份累计净值增长率（%）  numeric(19,2) 
+	optional int64 mfjsy = 9; 		//每份净收益（元）  numeric(19,2) 
+}
+message F10FundCwsjZycwzb {
+	required string jzrq = 1;			//截止日期 
+	repeated FundCwsjZycwzbData data = 2;                  
+}
+
+message F10FundCwsjZycwzbOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundCwsjZycwzb Data = 2;
+}
+
+/*持有人_户数和结构*/
+message FundCyrHshjgData {          
+	optional int64 cyrhs = 1;  		//持有人户数	int
+	optional int64 hjfe = 2;  		//户均份额	numeric(19,2)  
+	optional int64 jgcyfe = 3; 		//机构投资者持有份额（万）	numeric(19,4)   
+	optional int64 jgcybl = 4;  	//机构投资者持有比例	numeric(19,2)  
+	optional int64 grcyfe = 5; 		//个人投资者持有份额（万）	numeric(19,4) 
+	optional int64 grcybl = 6;  	//个人投资者持有比例	numeric(19,2)   
+}
+message F10FundCyrHshjg {
+	required string jzrq = 1;			//日期 
+	repeated FundCyrHshjgData data = 2;                  
+}
+
+message F10FundCyrHshjgOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundCyrHshjg Data = 2;
+}
+
+/*份额分红_封闭式基金持有人结构*/
+message FundFefhFbsjjcyrjgData {          
+	optional int64 zfe = 1;  		//总份额	numeric(19,4)
+	optional int64 ltfe = 2;  		//流通份额	numeric(19,4) 
+	optional int64 fqrcylt = 3; 	//发起人持有（流通）	numeric(19,4) 
+	optional int64 gzcy = 4;  		//公众持有	numeric(19,4)
+	optional int64 wltfe = 5; 		//未流通份额	numeric(19,4)
+	optional int64 fqrcywlt = 6;  	//发起人持有（未流通）	numeric(19,4)  
+	optional string bdyy = 7; 		//变动原因	varchar(300) 
+}
+message F10FundFefhFbsjjcyrjg {
+	required string bdrq = 1;			//变动日期 
+	repeated FundFefhFbsjjcyrjgData data = 2;                  
+}
+
+message F10FundFefhFbsjjcyrjgOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundFefhFbsjjcyrjg Data = 2;
+}
+
+/*份额分红_分红*/
+message FundFefhFhData {          
+	optional string dwfh = 1;  		//每10份单位分红	varchar(10)
+	optional string cffe = 2;  		//每10份拆分份额	varchar(10)
+	optional string qydjr = 3; 		//权益登记日	varchar(10) 
+	optional string cxr = 4;  		//除息日	varchar(10)
+	optional string hlffr = 5; 		//红利发放日	varchar(10)
+}
+message F10FundFefhFh {
+	required string ggrq = 1;			//公告日期
+	repeated FundFefhFhData data = 2;                  
+}
+
+message F10FundFefhFhOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundFefhFh Data = 2;
+}
+
+/*份额分红_开放式基金季度份额变动*/
+message FundFefhKfsjjjdfebdData {          
+	optional int64 qcze = 1;  		//期初总额	numeric(19,4)
+	optional int64 bqsg = 2;  		//本期申购	numeric(19,4) 
+	optional int64 cfzj = 3; 		//拆分增加	numeric(19,4) 
+	optional int64 bqsh = 4;  		//本期赎回	numeric(19,4)
+	optional int64 qmze = 5; 		//期末总额	numeric(19,4)
+}
+message F10FundFefhKfsjjjdfebd {
+	required string bbrq = 1;			//报表日期 
+	repeated FundFefhKfsjjjdfebdData data = 2;                  
+}
+
+message F10FundFefhKfsjjjdfebdOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundFefhKfsjjjdfebd Data = 2;
+}
+
+/*股票明细_本期重大卖出股票*/
+message FundGpmxBqzdmcgpData {          
+	optional string gpdm = 1;  		//股票代码	varchar(10)
+	optional string gpjc = 2;  		//股票简称	varchar(10)
+	optional int64 ljmcjz = 3; 		//累计卖出价值	numeric(19,2) 
+	optional int64 zjzbl = 4;  		//占期初基金资金净值比例	numeric(19,2)
+}
+message F10FundGpmxBqzdmcgp {
+	required string jzrq = 1;			//截止日期
+	repeated FundGpmxBqzdmcgpData data = 2;                  
+}
+
+message F10FundGpmxBqzdmcgpOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundGpmxBqzdmcgp Data = 2;
+}
+
+/*股票明细_本期重大买入股票*/
+message FundGpmxBqzdmrgpData {          
+	optional string gpdm = 1;  		//股票代码	varchar(10)
+	optional string gpjc = 2;  		//股票简称	varchar(10)
+	optional int64 ljmrjz = 3; 		//累计买入价值	numeric(19,2) 
+	optional int64 zjzbl = 4;  		//占期初基金资金净值比例	numeric(19,2)
+}
+message F10FundGpmxBqzdmrgp {
+	required string jzrq = 1;			//截止日期
+	repeated FundGpmxBqzdmrgpData data = 2;                  
+}
+
+message F10FundGpmxBqzdmrgpOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundGpmxBqzdmrgp Data = 2;
+}
+
+/*股票明细_全部持股*/
+message FundGpmxQbcgData {          
+	optional string gpdm = 1;  		//股票代码	varchar(10)
+	optional string gpjc = 2;  		//股票简称	varchar(10)
+	optional int64 gpsl = 3; 		//股票数量（股）	int
+	optional int64 sz = 4;  		//市值（元）	numeric(19,2)
+	optional int64 zjzbl = 5;  		//市值占基金净值比列	numeric(19,2)
+}
+message F10FundGpmxQbcg {
+	required string jzrq = 1;			//截止日期
+	repeated FundGpmxQbcgData data = 2;                  
+}
+
+message F10FundGpmxQbcgOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundGpmxQbcg Data = 2;
+}
+
+/*回顾展望*/
+message FundHgzwData {          
+	optional int64 lb = 1;  	//类别	int
+	optional string nr = 2;  	//内容	varchar(max)
+	optional int64 zq = 3; 		//周期	int
+}
+message F10FundHgzw {
+	required string jzrq = 1;			//截止日期
+	repeated FundHgzwData data = 2;                  
+}
+
+message F10FundHgzwOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundHgzw Data = 2;
+}
+
+/*行业投资*/
+message FundHytzData {          
+	optional string hydm = 1;  	//行业代码	varchar(10)
+	optional string hymc = 2;  	//行业名称	varchar(100)
+	optional int64 sz = 3; 		//市值（万元）	numeric(19,2)
+	optional int64 zjzbl = 4;  	//占净值比例	numeric(19,2)
+}
+message F10FundHytz {
+	required string jzrq = 1;			//截止日期
+	repeated FundHytzData data = 2;                  
+}
+
+message F10FundHytzOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundHytz Data = 2;
+}
+
+/*行业投资_QDII*/
+message FundHytzQdiiData {          
+	optional string hydm = 1;  	//行业代码	varchar(10)
+	optional string hymc = 2;  	//行业名称	varchar(100)
+	optional int64 sz = 3; 		//市值（万元）	numeric(19,2)
+	optional int64 zjzbl = 4;  	//占净值比例	numeric(19,2)
+	optional string bz = 5;		//币种	varchar(10)
+}
+message F10FundHytzQdii {
+	required string jzrq = 1;			//截止日期
+	repeated FundHytzQdiiData data = 2;                  
+}
+
+message F10FundHytzQdiiOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundHytzQdii Data = 2;
+}
+
+/*客户端基金基本信息表*/
+message F10FundJbxxOutput {//->MSG
+    required string Obj = 1 ;    	// 基金代码	varchar(10)		
+    optional string dsymbol = 2 ;   // 大智慧代码	varchar(200)
+    optional string jjqc = 3 ;    	// 基金全称	varchar(200)
+    optional string jjmc = 4 ;    	// 基金名称	varchar(30)
+    optional int64 jjlx = 5 ;    	// 基金类型	int
+    optional int64 tzlx = 6 ;    	// 投资类型	int
+    optional int64 jylb = 7 ;    	// 交易类别	int
+    optional string fxrq = 8 ;    	// 发行日期	datetime
+    optional string clrq = 9 ;    	// 成立日期	datetime
+    optional string jzrq = 10 ;    	// 截止日期	datetime
+    optional string glgsqc = 11 ;   // 管理公司全称	varchar(200)
+    optional string tzmb = 12 ;    	// 投资目标	varchar(2000)
+    optional string tzfw = 13 ;    	// 投资范围	varchar(2000)
+    optional string fxsytz = 14 ;   // 风险收益特征	varchar(2000)
+    optional string tgrmc = 15 ;    // 托管人名称	varchar(200)
+    optional string yjbjjz = 16 ;   // 业绩比较基准	varchar(2000)
+    optional int64 isauto = 17 ;    // 是否自动生成	int
+}
+
+/*封闭式基金概况*/
+message F10FundFbsjjgkOutput {//->MSG
+    required string Obj = 1 ;    	// 基金代码	varchar(12)		
+    optional string jjqc = 2 ;   	// 基金全称	varchar(100))
+    optional string jjjc = 3 ;    	// 基金简称	varchar(50)
+    optional string jjlx = 4 ;    	// 基金类型	varchar(56)
+    optional string tzlx = 5 ;    	// 投资类型	varchar(500)
+    optional string jjmz = 6 ;    	// 基金面值	varchar(12)
+    optional string fxrq = 7 ;    	// 发行日期	varchar(10)
+    optional string ssrq = 8 ;    	// 上市日期	varchar(10)
+    optional string jjclr = 9 ;    	// 基金成立日	varchar(10)
+    optional string jjzzr = 10 ;    // 基金终止日	varchar(10)
+    optional string jjcxq = 11 ;   	// 基金存续期	varchar(12)
+    optional string jjtgr = 12 ;    // 基金托管人	varchar(100)
+    optional string glgs = 13 ;    	// 管理公司	varchar(200)
+    optional string clrq = 14 ;   	// 成立日期	varchar(10)
+    optional string bgdz = 15 ;    	// 办公地址	varchar(200)
+    optional string zcdz = 16 ;   	// 注册地址	varchar(200)
+    optional string fddbr = 17 ;    // 法定代表人	varchar(100)
+    optional string lxdh = 18 ;    	// 联系电话	varchar(102)
+    optional string cz = 19 ;    	// 传真	varchar(102)
+    optional string gswz = 20 ;    	// 公司网址	varchar(50)
+    optional string dzyx = 21 ;   	// 电子信箱	varchar(50)
+    optional string lssws = 22 ;    // 律师事务所	varchar(100)
+    optional string kjssws = 23 ;   // 会计师事务所	varchar(100)
+    optional string jjyjbjjz = 24 ; // 基金业绩比较基准	varchar(500)
+    optional string fxsytz = 25 ;   // 风险收益特征	varchar(500)
+    optional string tzmb = 26 ;    	// 投资目标	varchar(4000)
+    optional string tzfw = 27 ;    	// 投资范围	varchar(4000)
+    optional string tzcl = 28 ;    	// 投资策略	varchar(4000)
+    optional string tzln = 29 ;    	// 投资理念	varchar(4000)
+}
+
+/*开放式基金概况*/
+message F10FundKfsjjgkOutput {//->MSG
+    required string Obj = 1 ;    	// 基金代码	varchar(12)		
+    optional string jjqc = 2 ;   	// 基金全称	varchar(100))
+    optional string jjjc = 3 ;    	// 基金简称	varchar(50)
+    optional string jjlx = 4 ;    	// 基金类型	varchar(56)
+    optional string tzlx = 5 ;    	// 投资类型	varchar(500)
+    optional string jjmz = 6 ;    	// 基金面值	varchar(12)
+    optional string bz = 7 ;    	// 币种	varchar(500)
+    optional string fxrq = 8 ;    	// 发行日期	varchar(10)
+    optional string ssrq = 9 ;    	// 上市日期	varchar(10)
+    optional string jjclr = 10 ;    // 基金成立日	varchar(10)
+    optional string jjcxq = 11 ;   	// 基金存续期	varchar(12)
+    optional string jjtgr = 12 ;    // 基金托管人	varchar(100)
+    optional string glgs = 13 ;    	// 管理公司	varchar(200)
+    optional string clrq = 14 ;   	// 成立日期	varchar(10)
+    optional string bgdz = 15 ;    	// 办公地址	varchar(200)
+    optional string zcdz = 16 ;   	// 注册地址	varchar(200)
+    optional string fddbr = 17 ;    // 法定代表人	varchar(100)
+    optional string lxdh = 18 ;    	// 联系电话	varchar(102)
+    optional string cz = 19 ;    	// 传真	varchar(102)
+    optional string gswz = 20 ;    	// 公司网址	varchar(50)
+    optional string dzyx = 21 ;   	// 电子信箱	varchar(50)
+    optional string lssws = 22 ;    // 律师事务所	varchar(100)
+    optional string kjssws = 23 ;   // 会计师事务所	varchar(100)
+    optional string jjyjbjjz = 24 ; // 基金业绩比较基准	varchar(500)
+    optional string fxsytz = 25 ;   // 风险收益特征	varchar(500)
+    optional string tzmb = 26 ;    	// 投资目标	varchar(4000)
+    optional string tzfw = 27 ;    	// 投资范围	varchar(4000)
+    optional string tzcl = 28 ;    	// 投资策略	varchar(4000)
+    optional string tzln = 29 ;    	// 投资理念	varchar(4000)
+}
+
+/*经理高管_基金公司高管人员*/
+message FundJlggJjgsggryData {          
+	optional string xb = 1;  	//性别	varchar(2)
+	optional string xl = 2;  	//学历	varchar(4)
+	optional string zw = 3; 	//职务	varchar(50)
+	optional string jl = 4;  	//简历	varchar(4000)
+	optional int64 lb = 5;  	//类别	int
+}
+message F10FundJlggJjgsggry {
+	required string xm = 1;			//姓名	varchar(50)
+	repeated FundJlggJjgsggryData data = 2;                  
+}
+
+message F10FundJlggJjgsggryOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundJlggJjgsggry Data = 2;
+}
+
+/*经理高管_基金经理*/
+message FundJlggJjjlData {          
+	optional string xb = 1;  	//性别	varchar(2)
+	optional string xl = 2;  	//学历	varchar(4)
+	optional string zw = 3; 	//职务	varchar(50)
+	optional string	rzkssj=4;	//入职开始时间 datetime
+	optional string jl = 5;  	//简历	varchar(4000)
+}
+message F10FundJlggJjjl {
+	required string xm = 1;			//姓名	varchar(20)
+	repeated FundJlggJjjlData data = 2;                  
+}
+
+message F10FundJlggJjjlOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundJlggJjjl Data = 2;
+}
+
+/*交易佣金*/
+message FundJyyjData {          
+	optional string qsmc = 1;  	//券商名称	varchar(50)
+	optional int64 xw = 2;  	//席位	int
+	optional int64 yj = 3; 		//佣金（元）	numeric(19,2)
+	optional int64 bl = 4;  	//比例	numeric(19,2)
+	optional int64 gpcjje = 5; 	//股票成交金额（元）	numeric(19,2)
+	optional int64 gpcjbl = 6;  //股票成交比例	numeric(19,2)
+	optional int64 zqcjje = 7; 	//债券成交金额（元）	numeric(19,2)
+	optional int64 zqbl = 8; 	//债券比例	numeric(19,2)
+	optional int64 zqhgje = 9;  //债券回购金额（元）	numeric(19,2)
+	optional int64 zqhgbl = 10; //债券回购比例	numeric(19,2)
+	optional int64 qzcjje = 11; //权证成交金额（元）	numeric(19,2)
+	optional int64 qzbl = 12; 	//权证比例	numeric(19,2)
+}
+message F10FundJyyj {
+	required string jzrq = 1;			//截止日期
+	repeated FundJyyjData data = 2;                  
+}
+message F10FundJyyjOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundJyyj Data = 2;
+}
+
+/*重仓持股_前十名股票明细*/
+message FundZccgQsmgpmxData {          
+	optional string gpdm = 1;  	// 股票代码	varchar(10)
+	optional string gpjc = 2;  	// 股票简称	varchar(10)
+	optional int64 sl = 3; 		// 数量（万股）	numeric(19,3)
+	optional int64 sz = 4;  	// 市值（万元）	numeric(19,2)
+	optional int64 zjzb = 5; 	// 占净值比（%）	numeric(19,2)
+	optional string tbzjc = 6;  	// 同比增减仓	varchar(20)
+}
+message F10FundZccgQsmgpmx {
+	required string jzrq = 1;	//截止日期
+	repeated FundZccgQsmgpmxData data = 2;                  
+}
+message F10FundZccgQsmgpmxOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundZccgQsmgpmx Data = 2;
+}
+
+/*重仓持股_QDII*/
+message FundZccgQdiiData {          
+	optional string gpdm = 1;  	// 股票代码	varchar(20)
+	optional string gpjc = 2;  	// 股票简称	varchar(200)
+	optional int64 sl = 3; 		// 数量（万股）	numeric(19,3)
+	optional int64 sz = 4;  	// 市值（万元）	numeric(19,2)
+	optional int64 zjzb = 5; 	// 占净值比（%）	numeric(19,2)
+}
+message F10FundZccgQdii {
+	required string jzrq = 1;	//截止日期
+	repeated FundZccgQdiiData data = 2;                  
+}
+message F10FundZccgQdiiOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundZccgQdii Data = 2;
+}
+
+/*债券投资_投资组合*/
+message FundZqtzTzzhData {          
+	optional string zqlx = 1;  	// 债券类型	varchar(20)
+	optional int64 sz = 2;  	// 市值（万元）	numeric(19,4)
+	optional int64 bl = 3; 		// 比例	numeric(19,2)
+}
+message F10FundZqtzTzzh {
+	required string bgrq = 1;	// 报告日期	datetime
+	repeated FundZqtzTzzhData data = 2;                  
+}
+message F10FundZqtzTzzhOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundZqtzTzzh Data = 2;
+}
+
+/*债券投资_投资组合_QDII*/
+message FundZqtzTzzhQdiiData {          
+	optional string xydj = 1;  	// 信用等级	varchar(20)
+	optional int64 sz = 2;  	// 市值（万元）	numeric(19,4)
+	optional int64 bl = 3; 		// 比例	numeric(19,2)
+	optional string bz = 5;		// 币种	varchar(10)
+	
+}
+message F10FundZqtzTzzhQdii {
+	required string jzrq = 1;	// 截止日期	datetime
+	repeated FundZqtzTzzhQdiiData data = 2;                  
+}
+message F10FundZqtzTzzhQdiiOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundZqtzTzzhQdii Data = 2;
+}
+
+/*债券投资_重仓债券明细*/
+message FundZqtzZcmxData {          
+	optional string zqdm = 1;  	// 债券代码	varchar(10)
+	optional string zqjc = 2;  	// 债券简称	varchar(20)
+	optional int64 sz = 3;  	// 市值（万元）	numeric(19,3)
+	optional int64 bl = 4;  	// 占净值比例	numeric(19,2)
+	optional int64 zytz = 5;  	// 债券数量自有投资（张）	int
+}
+message F10FundZqtzZcmx {
+	required string jzrq = 1;	// 截止日期	datetime
+	repeated FundZqtzZcmxData data = 2;                  
+}
+message F10FundZqtzZcmxOutput {//->MSG
+    required string Obj = 1;			
+    repeated F10FundZqtzZcmx Data = 2;
+}
+
+/*主要持有人*/
+message FundZycyrData {          
+	optional string cyrmc = 1;  // 持有人名称	varchar(100)
+	optional int64 cyfe = 2;  	// 持有份额	numeric(19,2)
+	optional int64 szbl = 3;  	// 所占比列	numeric(19,2)
+	optional string cyzjqk = 4;  //持有增减情况	varchar(10)
+}
+message F10FundZycyr {
+	required string jzrq = 1;	// 截止日期	datetime
+	repeated FundZycyrData data = 2;                  
+}
+message F10FundZycyrOutput {//->MSG
+    required string Obj = 1;
+    repeated F10FundZycyr Data = 2;
+}
+
+/*货币基金业务限额 */
+message FundHbjjxeData {          
+	optional string scdm = 1;  		// 市场代码  varchar(6)  
+	optional string jynm = 2;  		// 交易内码  varchar(10)  
+	optional int64 jshsx = 3;  		// 基金净赎回上限(单位:万元)  numeric(19,2)  
+	optional int64 jsgsx = 4;  		// 基金净申购上限(单位:万元)  numeric(19,2)  
+	optional int64 zshsx = 5; 		// 基金总赎回上限(单位:万元)  numeric(19,2)
+	optional int64 zsgsx = 6;		// 基金总申购上限(单位:万元)  numeric(19,2)  
+	optional int64 dzhjshsx = 7;  	// 单账户净赎回上限(单位:万元)  numeric(19,2)   
+	optional int64 dzhjsgsx = 8;  	// 单账户净申购上限(单位:万元)  numeric(19,2)  
+	optional int64 dzhzshsx = 9;	// 单账户总赎回上限(单位:万元)  numeric(19,2)  
+	optional int64 dzhzsgsx = 10;	// 单账户总申购上限(单位:万元)  numeric(19,2) 
+	optional string cptx = 11;  	// 产品特性  varchar(max)  
+}
+message F10FundHbjjxe {
+	required string xerq = 1;	// 限额日期  int  
+	repeated FundHbjjxeData data = 2;                  
+}
+message F10FundHbjjxeOutput {//->MSG
+    required string Obj = 1; 	//基金代码  varchar(10)  
+    repeated F10FundHbjjxe Data = 2;
+}
+
+/*财务透视_利润分配表摘要*/
+message F10CwtsLrfpbzy {
+	required string date = 1;	//日期                
+	optional string dw = 2;  	//单位  varchar(4)
+	optional int64 yysr = 3;  	//营业收入  numeric(20,2)          
+	optional int64 yycb = 4;  	//营业成本  numeric(20,2)   
+	optional int64 glfy = 5;  	//管理费用  numeric(20,2)        
+	optional int64 yyfy = 6;  	//营业费用  numeric(20,2)            
+	optional int64 cwfy = 7;  	//财务费用  numeric(20,2)  
+	optional int64 yylr = 8;  	//营业利润  numeric(20,2)          
+	optional int64 tzsy = 9;  	//投资收益  numeric(20,2)             
+	optional int64 yywszje = 10;//营业外收支净额  numeric(20,2)            
+	optional int64 lrze  = 11; 	//利润总额  numeric(20,2)         
+	optional int64 jlr = 12; 	//净利润  numeric(20,2)
+}
+
+/*财务透视_资产负债表摘要*/
+message F10CwtsZcfzbzy {
+	required string date = 1;	//日期              
+	optional string dw   = 2;	//单位  varchar(4)             
+	optional int64 zzc   = 3;	//总资产  numeric(20,2)                
+	optional int64 ldzc   = 4;	//流动资产  numeric(20,2)
+	optional int64 hbzj   = 5;	//货币资金  numeric(20,2)             
+	optional int64 jyxjrzc = 6; //交易性金融资产  numeric(20,2)                  
+	optional int64 ch = 7;		//存货  numeric(20,2)            
+	optional int64 yszkze = 8;  //应收账款  numeric(20,2)          
+	optional int64 qtysk = 9; 	//其他应收款  numeric(20,2)          
+	optional int64 gdzcje = 10; //固定资产净额  numeric(20,2)           
+	optional int64 kgcsjrzc = 11; //可供出售金融资产  numeric(20,2)              
+	optional int64 wxzc = 12; 	//无形资产  numeric(20,2)              
+	optional int64 dqjk = 13; 	//短期借款  numeric(20,2)               
+	optional int64 yszk = 14; 	//预收账款  numeric(20,2)           
+	optional int64 yfzk = 15; 	//应付账款  numeric(20,2)               
+	optional int64 ldfz = 16; 	//流动负债  numeric(20,2)              
+	optional int64 cqfz = 17; 	//长期负债  numeric(20,2)               
+	optional int64 zfz = 18;	//总负债  numeric(20,2)               
+	optional int64 gdqy = 19;	//股东权益  numeric(20,2)            
+	optional int64 zbgjj = 20;	//资本公积金  numeric(20,2) 
+}
+
+
+/*主营构成*/
+message ZygcData {                     
+	optional string lb= 1;  	//类别  varchar(10)   
+	optional string hy = 2; 	//行业  varchar(200)               
+	optional int64 zysr = 3; 	//主营收入(万元)  numeric(20,2)            
+	optional int64 zysrzb = 4; 	//主营收入占比(%)  numeric(20,2)             
+	optional int64 zysrtbbh= 5; //主营收入同比变化(%)  numeric(20,2)      
+	optional int64 zycb = 6;  	//主营成本(万元)  numeric(20,2)      
+	optional int64 zycbtbbh = 7;//主营成本同比变化(%)  numeric(20,2)              
+	optional int64 zylr = 8;  	//主营利润(万元)  numeric(20,2)     
+	optional int64 mll = 9; 	//毛利率(%)  numeric(20,2)          
+	optional int64 mlltbbh = 10;//毛利率同比变化(%)  numeric(20,2)
+}
+message F10Zygc {
+	required string date = 1;	//日期                         
+	repeated ZygcData data = 2;
+}
+
+/*大事提醒_解禁流通*/
+message F10DstxJjlt {
+	required string date = 1;	//日期                                                      
+	optional int64 jjgf = 2;  	//解禁股份(万股)  numeric(20,2)          
+	optional int64 zzgf = 3; 	//占总股份(%)  numeric(20,2)           
+	optional string gflx = 4; 	//股份类型  varchar(20)
+}
+
+/*大事提醒_融资融券*/
+message F10DstxRzrq {
+	required string date = 1;	//日期                                      
+	optional int64 rzje = 2;  	//融资余额(万元)  numeric(20,2)
+	optional int64 rzmre = 3;	//融资买入额(万元)  numeric(20,2)   
+	optional int64 rqyl = 4;  	//融券余量(万股)  numeric(20,2)    
+	optional int64 rqye = 5;  	//融券余额(万元)  numeric(20,2)      
+	optional int64 rqmcl = 6; 	//融券卖出量(万股)  numeric(20,2)
+}
+
+/*大事提醒_机构持仓*/
+message DstxJgccData {                                                   
+	optional int64 cgjs = 2; 	//[持股家数]  int
+	optional int64 cgs = 3;  	//[持股数(万股)]  numeric(20,2)   
+	optional int64 zltgbl = 4;  //[占流通股比例(%)]  numeric(20,2)       
+	optional int64 type = 5; 	//类型 int 1:QFII 2：保险 3:基金  4:卷商 5：社保  6:信托   
+}
+message F10DstxJgcc {
+	required string date = 1;	//日期                                                    
+	repeated DstxJgccData data = 2;
+}
+
+/*大事提醒_股东增减持*/
+message F10DstxGdzjc {
+	required string date = 1;	//日期                                                   	
+	optional string gdmc = 2; 	//股东名称  varchar(100)            
+	optional string bdfx = 3; 	//变动方向  varchar(10)             
+	optional string gdlx = 4; 	//股东类型  varchar(20)        
+	optional int64 bdsl = 5;  	//变动数量（万股）  numeric(20,2)        
+	optional int64 zzgb = 6; 	//占总股本（%）  numeric(20,2)
+}
+
+/*大事提醒_大宗交易*/
+message F10DstxDzjy {
+	required string date = 1;	//日期                                                  
+	optional int64 jg = 2; 		//价格  numeric(20,2)                
+	optional int64 drspj = 3;	//当日收盘价  numeric(20,2)      
+	optional string zjl = 4; 	//折价率(%)  varchar(50)            
+	optional int64 cjl = 5;		//成交量  numeric(20,2)             
+	optional string cjje = 6; 	//成交金额  varchar(50)              
+	optional string mf = 7;		//买方  varchar(100)         
+	optional string mf2 = 8; 	//卖方  varchar(100)
+}
+
+/*大事提醒_董事、监事、高管及相关人员持股变动情况*/
+message F10DstxCgbdqk {
+	required string date = 1;	//日期                                              
+	optional string bdr = 2;  	//变动人  varchar(40)                 
+	optional int64 bdsl = 3; 	//变动数量  int       
+	optional int64 jj = 4;		//均价  numeric(20,2)            
+	optional int64 jcgs = 5; 	//结存股数  int        
+	optional string djg = 6; 	//董监高  varchar(40)               
+	optional string bdyy = 7; 	//变动原因  varchar(30)
+}
+
+/*管理层_高层人员情况*/
+message GlcData {
+	optional string xm  = 1; 		//姓名  varchar(100)         
+	optional string zw = 2; 		//职务  varchar(500)                       
+	optional string lb  = 3;		//类别  varchar(50)     
+	optional string rzsj = 4;		//任职时间  datetime      
+	optional string xl  = 5;		//学历  varchar(50)     
+	optional int64 qmcgs = 6; 		//期末持股数(万股)  numeric(20,2)               
+	optional string xcjzrq = 7;		//薪酬截止日期  datetime     
+	optional int64 xc  = 8;			//薪酬(万元)  numeric(20,2)         
+	optional string xb = 9; 		//性别  varchar(2)             
+	optional string csrq = 10; 		//出生日期  varchar(50)          
+	optional string jl = 11; 		//简历  varchar(8000)               
+	optional int64 px  = 12;		//排序  int
+}
+message F10GlcOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated GlcData data = 2;       // 管理层列表
+}
+
+/*管理层_董事、监事和高管人员年度报酬情况*/
+message F10GlcNdbcqk {
+	required string date = 1;			//日期                                                         
+	optional int64 ndbcze = 2; 			//年度报酬总额  numeric(20,2)     
+	optional int64 zgqswdsbcze = 3; 	//最高前三位董事报酬总额  numeric(20,2)      
+	optional int64 zgqswgjglrybcze = 4; //最高前三位高级管理人员报酬总额  numeric(20,2)    
+	optional int64 dldsjt = 5;			//独立董事津贴(平均)  numeric(20,2)
+}
+
+/*最新季报_单季度现金流量表摘要*/  
+message F10ZxjbDjdxjllb {
+	required string date = 1;		//日期                                    
+	optional int64 jyxjlr = 2;  	//经营现金流入小计  numeric(20,2)万元   
+	optional int64 jyxjlc = 3;  	//经营现金流出小计  numeric(20,2)万元
+	optional int64 jyxjje = 4; 		//经营现金流量净额  numeric(20,2)万元            
+	optional int64 tzxjlr = 5;  	//投资现金流入小计  numeric(20,2)万元      
+	optional int64 tzxjlc = 6;  	//投资现金流出小计  numeric(20,2)万元     
+	optional int64 tzxjje = 7;  	//投资现金流量净额  numeric(20,2)万元
+	optional int64 czxjlr = 8;  	//筹资现金流入小计  numeric(20,2)万元 
+	optional int64 czxjlc = 9;  	//筹资现金流出小计  numeric(20,2)万元
+	optional int64 czxjje = 10;  	//筹资现金流量净额  numeric(20,2)万元
+	optional int64 xjjzje = 11;  	//现金等的净增加额  numeric(20,2)万元
+}
+
+/*股东新出_控股股东*/  
+message F10GdjcKggdOutPut { //->MSG
+	required string obj = 1;	// 股票代码
+	optional string mc = 2; 	//名称  varchar(100)  
+	optional string frdb = 3; 	//法人代表  varchar(50)        
+	optional int64 zczb = 4; 	//注册资本(万元)  numeric(20,2)         
+	optional string clrq = 5;  	//成立日期  varchar(10)         
+	optional string jyyw = 6;	//经营业务  varchar(2000)           
+	optional string qylx = 7;	//企业类型  varchar(20)
+}
+
+/*股东新出_实际控制人*/ 
+message F10GdjcSjkzrOutPut { //->MSG
+	required string obj = 1;	// 股票代码
+	optional string mc  = 2; 	//名称  varchar(100)
+	optional string sm  = 3; 	//说明  varchar(4000)
+}
+
+
+/*股本分红_股本变动*/ 
+message F10GbfhGbbd {
+	required string date = 1;		//日期                                                                     
+	optional int64 zgb = 2; 		//总股本(万股)  numeric(20,2)      
+	optional int64 yltag  = 3; 		//已流通A股(含高管)(万股)  numeric(20,2)        
+	optional int64 yltbg  = 4; 	  	//已流通B股(含高管)(万股)  numeric(20,2)        
+	optional string bdrqgbsm = 5; 	//变动日期股本说明  varchar(50)         
+	optional int64 zxjg  = 6; 		//增发/配股执行价格  numeric(19,4)
+}
+
+
+/*资本运作_持有其他上市证券*/ 
+message ZbyzCyqtsszqData {                                                                
+	optional string btzzqdm = 1; 	//被投资证券代码  varchar(10)         
+	optional string btzzqjc = 2; 	//被投资证券简称  varchar(200)              
+	optional int64 cgsl = 3;   		//持股数量（万股）  numeric(20,2)              
+	optional int64 zbl = 4;  		//占该公司股权比例  numeric(20,2)            
+	optional int64 cstzje = 5;  	//初始投资金额（万元）  numeric(20,2)
+}
+message F10ZbyzCyqtsszq {
+	required string date = 1;		//日期                                                                      
+	repeated ZbyzCyqtsszqData data = 2;
+}
+
+
+/*资本运作_持有非上市股权情况*/ 
+message ZbyzCyfssgqData {                                                                  
+	optional string scdxmc = 1; 	//所持对象名称  varchar(200)       
+	optional int64 cstzje = 2;	//初始投资金额（万元）  numeric(20,2)        
+	optional int64 cgsl = 3;	//持股数量（万股）  numeric(20,2)             
+	optional int64 zbl = 4; 	//占该公司股权比例  numeric(20,2)         
+	optional int64 qmzmjz = 5;	//期末账面价值（万元）  numeric(20,2)
+}
+message F10ZbyzCyfssgq {
+	required string date = 1;		//日期                                                                       
+	repeated ZbyzCyfssgqData data = 2;
+}
+
+
+/*资本运作_ 融资情况增发（已实施)*/
+message F10zbyzRzqkzfyss {
+	optional string rzlb = 1; 			//融资类别  varchar(10)  
+	optional string yarq = 2;  			//预案日期  datetime         
+	optional string gddh = 3;  			//股东大会  datetime     
+	optional string zgyxspl = 4;  		//招股意向书披露  datetime           
+	optional string lgdgqdjr = 5;  		//老股东股权登记日  datetime           
+	optional string sgr = 6; 			//申购日  datetime            
+	optional string fajc = 7; 			//方案进程  varchar(50)          
+	optional string fxfs = 8; 			//发行方式  varchar(50)              
+	optional string fxgplx = 9; 		//发行股票类型  varchar(50)         
+	optional int64 zzfx = 10; 			//最终发行（万股）  numeric(20,2)             
+	optional int64 fxjg = 11; 			//发行价格  numeric(20,2)        
+	optional string zcxs = 12;  		//主承销商  varchar(2000)
+}
+
+/*资本运作_ 募集资金情况*/
+message F10ZbyzXmtzMjzjqk {
+	required string date = 1;	//日期                                                      
+	optional int64 mjzjze = 2;  //募集资金总额  numeric(20,4)
+	optional int64 bqsyje = 3;  //本报告期已使用募集资金总额   numeric(20,4)        
+	optional int64 jlsyje = 4;  //已累计使用募集资金总额   numeric(20,4) 
+}
+
+/*资本运作_募集资金承诺项目*/
+message ZbyzXmtzMjzjcnxmData {
+	optional string cnxmmc= 1; 		//承诺项目名称  varchar(200)       
+	optional int64 ntrje = 2;		//拟投入金额  numeric(20,4)                
+	optional string sfbgxm = 3;	 	//是否变更项目  varchar(5) 
+	optional int64 sjtrje = 4;  	//实际投入金额  numeric(20,4)                  
+	optional int64 sjsy = 5;  		//实际收益  numeric(20,4)         
+	optional string sffhjd = 6; 	//是否符合计划进度  varchar(5)              
+	optional string bgyycxsm = 7; 	//变更原因及变更程序说明  varchar(4000) 
+}
+message F10ZbyzXmtzMjzjcnxm {
+	required string date = 1;	//日期       
+	repeated ZbyzXmtzMjzjcnxmData data = 2;
+}
+
+/*资本运作_募集资金变更项目*/
+message ZbyzXmtzMjzjbgxmData {
+	optional string bghxmmc = 1;  	//变更后项目名称  varchar(200)            
+	optional string ycnxmmc = 2; 	//对应原承诺项目名称  varchar(200)                
+	optional int64 ntrje = 3; 		//变更后项目拟投入金额  numeric(20,4)          
+	optional int64 sjtrje = 4;	 	//更后项目实际投入金额  numeric(20,4)          
+	optional int64 sjsy = 5; 		//变更后项目实际收益  numeric(20,4)               
+	optional string xmjd = 6;  		//变更后项目进度  varchar(500)           
+	optional string bgxmqksm = 7;   //募集资金变更项目情况说明  varchar(1000)
+}
+message F10ZbyzXmtzMjzjbgxm {
+	required string date = 1;	//日期       
+	repeated ZbyzXmtzMjzjbgxmData data = 2;
+}
+
+/*资本运作_非募集资金项目*/
+message ZbyzXmtzFmjzjxmData {
+	optional string xmmc = 1;  	//项目名称  varchar(200)
+	optional int64 xmje = 2;  	//项目金额  numeric(20,4)           
+	optional string xmjd = 3;  	//项目进度  varchar(500)        
+	optional string xmsyqk = 4;  //项目收益情况  varchar(1000)
+}
+message F10ZbyzXmtzFmjzjxm {
+	required string date = 1;	//日期       
+	repeated ZbyzXmtzFmjzjxmData data = 2;
+}
+
+
+/*行业地位*/
+message HydwData{
+	required string obj = 1;  	//股票代码
+	optional string gpmc = 2;	//股票名称
+	optional int64 ltg = 3; 	//流通股 numeric(20,4)
+	optional int64 pm1 = 4; 	//流通股排名 int
+	optional int64 zzc = 5; 	//总资产 numeric(20,4)
+	optional int64 pm2 = 6; 	//总资产排名 int
+	optional int64 zysr = 7; 	//主营收入 numeric(20,4)
+	optional int64 pm3 = 8; 	//主营收入排名 int
+	optional int64 mgsy  = 9;	//每股收益 numeric(20,4)
+	optional int64 pm4  = 10;	//每股收益排名 int
+	optional int64 zgb = 11; 	//总股本 numeric(20,4)
+	optional int64 pm5 = 12; 	//总股本排名 int
+	optional int64 jzc = 13; 	//净资产 numeric(20,4)
+	optional int64 pm6 = 14; 	//净资产排名 int
+	optional int64 jlr  = 15;	//净利润 numeric(20,4)
+	optional int64 pm7 = 16; 	//净利排名 int
+	optional int64 jzcsyl = 17; //净资产收益率 numeric(20,4)
+	optional int64 pm8 = 18; 	//净资产收益率排名 int
+}
+message F10HydwOutPut {   //->MSG
+	required string obj = 1;		// 股票代码
+	required string date = 2;	//日期      
+	optional string sshy = 3;    //所属行业
+	optional string zjhhy = 4;   //证监会行业
+	repeated HydwData data = 5;
+}
+
+/*盈利预测_盈利预测表*/
+message RsrProForecastData{  
+	required string enddate = 1;   // 预测年度
+	optional int64 mgsy = 2;  		// 每股收益  numeric(19,6)    
+	optional int64 jlr  = 3;  		// 净利润  numeric(19,6)      
+	optional int64 jlrtb  = 4;  	// 净利润同比  numeric(19,6)            
+	optional int64 zysr = 5;    	// 主营收入  numeric(19,6)   
+	optional int64 zysrtb = 6;  	// 主营收入同比  numeric(19,6)             
+	optional int64 yyyqbhl = 7;  	// 一月预期变化率  numeric(19,6)           
+	optional int64 itnum = 8;  		// 预测机构数  numeric(19,6)        
+	optional int64 mgjzc  = 9; 		// 每股净资产  numeric(19,6)            
+	optional int64 lnzz  = 10; 		// 两年复合增长率  numeric(19,6)           
+	optional int64 syl  = 11; 			// 预测PE  numeric(19,6)             
+	optional int64 sjl  = 12; 			// 预测PB  numeric(19,6)                  
+	optional int64 peg2  = 13; 		// 预测PEG  numeric(19,6)                 
+	optional int64 sxl  = 14; 			// 预测PB  numeric(19,6) 
+}
+message F10RsrProForecastOutPut{ //->MSG
+	required string obj = 1;     //股票代码
+	required string date = 2;	//日期      
+	repeated RsrProForecastData data = 3;
+}
+
+
+/*盈利预测_投资评级表*/
+message RsrInvestRatingData{
+	optional string sjdValue = 1;	//数据段名称  varchar(10)              
+	optional int64 mr = 2;   		//买入  int               
+	optional int64 zc = 3;   		//增持  int        
+	optional int64 zx = 4;  		//中性  int                 
+	optional int64 jc = 5;  		//减持  int                
+	optional int64 mc = 6;   		//卖出  int                 
+	optional int64 jgzs = 7; 		//机构总数  int
+}
+message F10RsrInvestRatingOutPut{ //->MSG
+	required string obj = 1;    //股票代码
+	required string date = 2;	//日期      
+	repeated RsrInvestRatingData data = 3;
+}
+
+/*盈利预测_每股收益预测明细表*/
+message RsrEarnPSForeData{     
+	optional string endDate = 1;  	//预测年度  datetime              
+	optional string pj = 2;  		//评级名称  varchar(30)         
+	optional int64 value = 3;  		//数据  numeric(15,4)
+}
+message F10RsrEarnPSFore{
+	required string companyName = 1; //机构名称  varchar(50)    
+	required string date = 2;	//日期      
+	repeated RsrEarnPSForeData data = 3;
+}
+
+/*盈利预测_研报格式表*/
+message F10RsrResReport {
+	required string date = 1;			//日期                                                                            
+	optional string companyName = 2;  	//机构名称  varchar(200)                                
+	optional string titles = 3; 		//标题  varchar(200)      
+	optional string investAdvice = 4; 	//投资建议  varchar(2000)   
+	optional string psName = 5; 		//作者  varchar(100) 
+} 
+
+
+message F10GsgkOutput    //->MSG
+{
+	required string obj = 1;		// 股票代码
+	optional string zqlx = 2;		// 证券类型 
+	optional string gsdm = 3;		// 公司代码 
+	optional string gsmc = 4;		// 公司名称 
+	optional string ywqc = 5;		// 英文全称 
+	optional string zcdz = 6;		// 注册地址 
+	optional string bgdz = 7;		// 办公地址 
+	optional string ssqy = 8;		// 所属区域 
+	optional string sshy = 9;		// 所属行业 
+	optional string gswz = 10;		//公司网址 
+	optional string dzxx = 11;		//电子信箱 
+	optional string ssrq = 12;		//上市日期 
+	optional string zgrq = 13;		//招股日期 
+	optional int64 fxl = 14;		//发行量(万股) 
+	optional int64 fxj = 15;		//发行价(元) 
+	optional int64 srkpj = 16;		//首日开盘价(元) 
+	optional string sstjr = 17;		//上市推荐人 
+	optional string zcxs = 18;		//主承销商 
+	optional string frdb = 19;		//法人代表 
+	optional string dsz = 20;		//董事长 
+	optional string zjl = 21;		//总经理 
+	optional string dm = 22;		//董秘 
+	optional string zqdb = 23;		//证券代表 
+	optional string dh = 24;		//电话 
+	optional string cz = 25;		//传真 
+	optional string yb = 26;		//邮编 
+	optional string kjsws = 27;		//会计事务所 
+	optional string zyfw = 28;		//主营范围 
+	optional string gsjs = 29;		//公司简史 
+	optional string dmdh = 30;		//董秘电话 
+	optional string dmcz = 31;		//董秘传真 
+	optional string dmdzyx = 32;	//董秘电子邮箱 
+	optional string RegionName = 33;//地区(市) 
+}
+
+message F10CwtsZycwzb
+{
+	optional string kjssjyj = 1;  	// 会计师事务所审计意见 
+	required string date = 2;		//截止日期 
+	optional int64 jbmgsy = 3;  	// 基本每股收益(元) 
+	optional int64 kchjbmgsy = 4;  //  基本每股收益(扣除后) 
+	optional int64 tbmgsy = 5;  	//  摊薄每股收益(元) 
+	optional int64 mgjzc = 6;  	//  每股净资产(元) 
+	optional int64 mgwfplr = 7;  	//  每股未分配利润(元) 
+	optional int64 mggjj = 8;  	//  每股公积金(元) 
+	optional int64 xsmll = 9;  	//  销售毛利率(%) 
+	optional int64 yylrl = 10;  	//  营业利润率(%) 
+	optional int64 jlrl = 11;  	//  净利润率(%) 
+	optional int64 jqjzcsyl = 12;  //  加权净资产收益率(%) 
+	optional int64 tbjzcsyl = 13;  //  摊薄净资产收益率(%) 
+	optional int64 gdqy = 14;  	//  股东权益(%) 
+	optional int64 ldbl = 15;  	//  流动比率 
+	optional int64 sdbl = 16;  	//  速动比率 
+	optional int64 mgjyxjll = 17;  //  每股经营现金流量(元) 
+	optional string bbgbr = 18;  //报表公布日
+}
+
+/*财务透视_主要财务指标*/
+message F10CwtsZycwzbOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10CwtsZycwzb Data = 2;
+}
+
+message F10CwtsXjllbzy
+{
+	optional int64 xjjzje = 1;		// 现金等的净增加额 
+	required string date = 2;		//截止日期
+	optional string dw = 3;			//单位 
+	optional int64 jyxjlr = 4;		// 经营现金流入小计 
+	optional int64 jyxjlc = 5;		// 经营现金流出小计 
+	optional int64 jyxjje = 6;		// 经营现金流量净额 
+	optional int64 tzxjlr = 7;		// 投资现金流入小计 
+	optional int64 tzxjlc = 8;		// 投资现金流出小计 
+	optional int64 tzxjje = 9;		// 投资现金流量净额 
+	optional int64 czxjlr = 10;		// 筹资现金流入小计 
+	optional int64 czxjlc = 11;		// 筹资现金流出小计 
+	optional int64 czxjje = 12;		// 筹资现金流量净额 
+}
+
+/*财务透视_现金流量表*/
+message F10CwtsXjllbzyOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10CwtsXjllbzy Data = 2;
+}
+
+message F10ZxjbDjdcwzb
+{
+	optional int64 jlrhb = 1; 	// [净利润环比增长(%)] 
+	required string date = 2;		// 截止日期
+	optional int64 mgsy = 3;		// [每股收益(元)] 
+	optional int64 xsjll = 4;		// [销售净利率(%)] 
+	optional int64 jzcsyl = 5;		// [净资产收益率(%)] 
+	optional int64 mgjyxjll = 6;	// [每股经营现金流量(元)] 
+	optional int64 zysrtb = 7; 	// [主营收入同比增长(%)] 
+	optional int64 jlrtb = 8; 		// [净利润同比增长(%)] 
+	optional int64 zysrhb = 9; 	// [主营收入环比增长(%)] 
+}
+
+/*最新季报_单季财务指标*/
+message F10ZxjbDjdcwzbOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10ZxjbDjdcwzb Data = 2;
+}
+
+message F10Zxjbdjdleb{
+	optional int64 ssgdsy = 1;		// [少数股东损益] 	
+	required string date = 2;		// 截止日期
+	optional int64 yysr = 3;		// [营业收入] 
+	optional int64 yycb = 4;		// [营业成本] 
+	optional int64 yysjjfj = 5;	// [营业税金及附加] 
+	optional int64 xsfy = 6;		// [销售费用] 
+	optional int64 glfy = 7;		// [管理费用] 
+	optional int64 cwfy = 8;		// [财务费用] 
+	optional int64 tzsy = 9;		// [投资收益] 
+	optional int64 yylr = 10;		// [营业利润] 
+	optional int64 yywsr = 11;		// [营业外收入] 
+	optional int64 yywzc = 12;		// [营业外支出] 
+	optional int64 lrze = 13;		// [利润总额] 
+	optional int64 sdsfy = 14;		// [所得税费用] 
+	optional int64 jlr = 15;			// [净利润(新准则)] 
+	optional int64 mgzjlr = 16;		// [母公司所有者净利润] 
+}
+
+/*最新季报_单季度利润表*/
+message F10ZxjbdjdlebOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10Zxjbdjdleb Data = 2;
+}
+
+/*股东进出_股东户数*/
+message F10GdjcGdhs{
+	optional int64 Gdzhs = 1;		// 	股票代码
+	required string date = 2;		//   截止日期
+	optional int64 Hbzj = 3;		// 环比增减 
+	optional int64 Hbbh = 4;		//  环比变化 	
+	optional int64 Rjcg = 5;		//人均持股 
+	optional int64 Ltgdhs = 6;		// 	流通股东户数 
+
+}
+
+// 股东进出_股东户数
+message F10GdjcGdhsOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10GdjcGdhs Data = 2;
+}
+
+message F10GdjcGd {
+	optional int64 Gdrs = 1;       //   股东人数 
+	optional int64 Xh = 2;         //   序号 
+	optional string Gdmc = 3;      //   股东名称 
+	optional int64 Cgs = 4;        //   持股数(万股)     
+	optional int64 Zzgs = 5;       //   占总股数(%) 
+	optional string Zjqk = 6;      // 	增减情况(万股)    
+	optional string Gbxz = 7;      //    股本性质  
+	optional string Gsdm = 8;      // 	公司代码    
+}
+
+message F10GdjcSdgd {
+	required string Date = 1;      // 	 截止日期
+	repeated F10GdjcGd Data =2;  
+}
+
+// 股东进出_十大股东
+message F10GdjcSdgdOutput {         //->MSG
+	required string Obj = 1;        // 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+	repeated F10GdjcSdgd Data = 2;
+}
+
+message F10GdjcSdltgd {
+	required string Date = 1;       // 	截止日期
+	repeated F10GdjcGd Data = 2;        
+}
+
+// 股东进出_十大流通股东
+message F10GdjcSdltgdOutput {       //->MSG
+	required string Obj = 1;        // 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+	repeated F10GdjcSdltgd Data = 2;
+}
+
+message F10GbfhFhkg{
+	required string Date = 1;		// 	 时间
+	optional int64 Mgsg = 2;		// 每10股送股(股) 
+	optional int64 Mgzz = 3;		// 每10股转增(股) 
+	optional int64 Mgfh = 4;		//  每10股分红(元/税前) 	
+	optional int64 Mgp = 5;	    	// 每10股配(股) 
+	optional int64 Pgjg = 6;		// 	配股价格(元) 
+	optional int64 Zfgfsl = 7;		// 	 增发股份数量(万股) 
+	optional int64 Zfjg = 8;		// 	增发价格(元) 
+	optional string Gqdjr = 9;		// 	 股权登记日 
+	optional string Cqcxr = 10;		// 	除权除息日 
+	optional string Zhjyr = 11;		// 	最后交易日 
+
+}
+// 股东分红_分红扩股
+message F10GbfhFhkgOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10GbfhFhkg Data = 2;
+}
+
+message F10GbfhGbjg
+{
+	required string Date = 1;		// 	 截止日期
+	optional int64 Zgb = 2;		    // 	  总股本(万股)             
+	optional int64 Ltgf = 3;		// 	  流通股份(万股) 
+	optional int64 Ltag = 4;		// 	  流通A股(含高管)(万股)
+	optional int64 Ltbg = 5;		// 	  流通B股(含高管)(万股)
+	optional int64 Lthg = 6;		// 	   流通H股(含高管)(万股) 
+	optional int64 Qtltgf = 7;		// 	  其他流通股份(万股) 
+	optional int64 Xsltg = 8;		// 	  限售流通股(万股) 
+	optional int64 Xsltag = 9;		// 	   限售流通A股(万股) 
+	optional int64 Xsltbg = 10;		// 	  限售流通B股(万股) 
+	optional int64 Xslthg = 11;		// 	  限售流通H股(万股) 
+	optional int64 Xsgjcg = 12;		// 	   限售国家持股(万股) 
+	optional int64 Xsgyfrcg = 13;		// 	  限售国有法人持股(万股)
+	optional int64 Xsjnfrcg = 14;		// 	   限售境内法人持股(万股) 
+	optional int64 Xsjnzrrcg = 15;		// 	  限售境内自然人持股(万股)
+	optional int64 Xsggcg = 16;		// 	  限售高管持股(万股) 
+	optional int64 Xsjwfrcg = 17;		// 	  限售境外法人持股(万股) 
+	optional int64 Xsjwzrrcg = 18;		// 	  限售境外自然人持股(万股) 
+	optional int64 Wltg = 19;		// 	  未流通股(万股) 
+	optional int64 Gjg = 20;		// 	  国家股(万股) 
+	optional int64 Gyfrg = 21;		// 	  国有法人股(万股) 
+	optional int64 Jnfgyfr = 22;		// 	  境内非国有法人(万股) 
+	optional int64 Zpg = 23;		// 	   转配股(万股) 
+	optional int64 Nbzgg = 24;		// 	   内部职工股(万股) 
+	optional int64 Yxg = 25;		// 	   优先股(万股) 
+	optional int64 Jwfrg = 26;		// 	   境外法人股(万股) 
+	optional int64 Qtwltgf = 27;		// 	   其他未流通股份(万股)
+}
+// 股本分红_股本结构
+message F10GbfhGbjgOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10GbfhGbjg Data = 2;
+}
+
+/*操盘必读_控盘情况*/
+message F10CpbdKpqkOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10CpbdKpqk Data = 2;
+}
+
+/*操盘必读_成交回报*/
+message F10CpbdCjhbOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10CpbdCjhb Data = 2;
+}
+
+/*财务透视_利润分配表摘要*/
+message F10CwtsLrfpbzyOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10CwtsLrfpbzy Data = 2;
+}
+
+/*财务透视_资产负债表摘要*/
+message F10CwtsZcfzbzyOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10CwtsZcfzbzy Data = 2;
+}
+
+/*主营构成*/
+message F10ZygcOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10Zygc Data = 2;
+}
+
+/*大事提醒_解禁流通*/
+message F10DstxJjltOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10DstxJjlt Data = 2;
+}
+
+/*大事提醒_融资融券*/
+message F10DstxRzrqOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10DstxRzrq Data = 2;
+}
+
+/*大事提醒_机构持仓*/
+message F10DstxJgccOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10DstxJgcc Data = 2;
+}
+
+/*大事提醒_股东增减持*/
+message F10DstxGdzjcOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10DstxGdzjc Data = 2;
+}
+
+/*大事提醒_大宗交易*/
+message F10DstxDzjyOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10DstxDzjy Data = 2;
+}
+
+/*大事提醒_董事、监事、高管及相关人员持股变动情况*/
+message F10DstxCgbdqkOutput    //->MSG
+{
+    required string Obj = 1;				// 品种Obj     SUBSTRING_INDEX(CO,'.',1) 
+    repeated F10DstxCgbdqk Data = 2;
+}
+
+/*管理层_董事、监事和高管人员年度报酬情况*/
+message F10GlcNdbcqkOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10GlcNdbcqk data = 2;       
+}
+
+
+/*最新季报_单季度现金流量表摘要*/  
+message F10ZxjbDjdxjllbOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10ZxjbDjdxjllb data = 2;       
+}
+
+/*股本分红_股本变动*/ 
+message F10GbfhGbbdOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10GbfhGbbd data = 2;       
+}
+
+/*资本运作_持有其他上市证券*/ 
+message F10ZbyzCyqtsszqOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10ZbyzCyqtsszq data = 2;       
+}
+
+/*资本运作_持有非上市股权情况*/ 
+message F10ZbyzCyfssgqOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10ZbyzCyfssgq data = 2;       
+}
+
+/*资本运作_ 融资情况增发（已实施)*/
+message F10zbyzRzqkzfyssOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10zbyzRzqkzfyss data = 2;       
+}
+
+/*资本运作_ 募集资金情况*/
+message F10ZbyzXmtzMjzjqkOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10ZbyzXmtzMjzjqk data = 2;       
+}
+
+/*资本运作_募集资金承诺项目*/
+message F10ZbyzXmtzMjzjcnxmOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10ZbyzXmtzMjzjcnxm data = 2;       
+}
+
+/*资本运作_募集资金变更项目*/
+message F10ZbyzXmtzMjzjbgxmOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10ZbyzXmtzMjzjbgxm data = 2;       
+}
+
+/*资本运作_募集资金变更项目*/
+message F10ZbyzXmtzFmjzjxmOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10ZbyzXmtzFmjzjxm data = 2;       
+}
+
+/*盈利预测_每股收益预测明细表*/
+message F10RsrEarnPSForeOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10RsrEarnPSFore data = 2;       
+}
+
+/*盈利预测_研报格式表*/
+message F10RsrResReportOutPut { //->MSG
+	required string obj = 1;		// 股票代码
+	repeated F10RsrResReport data = 2;       
+}
+
+/*地方政府债发行*/
+message F10BondDfzfzfxOutput {//->MSG  
+	optional string zqzhdm = 1;	// 债券组合代码  varchar(15) 	   
+	optional string zqmc = 2;  	// 债券名称  varchar(50)  
+	optional string fxrmc = 3; 	// 发行人名称  varchar(100)  
+	optional string fxqsr = 4;	// 发行起始日  datetime  
+	optional string fxzzr = 5;  // 发行终止日  datetime  
+	optional int64 zqze = 6;  	// 债券总额  numeric(19,4)  
+	optional int64 fxjg = 7;	// 发行价格  numeric(19,4)  
+	optional string ssrq = 8;	// 上市日期  varchar(10)
+}
+
+
+/*地方政府债券信息*/
+message F10BondDfzfzqxxOutput {//->MSG
+    required string zqzhdm = 1; // 债券组合代码  varchar(15)  
+	optional string zqjc = 2;  	// 债券简称  varchar(10)  
+	optional string zqqc = 3;  	// 债券全称  varchar(100)  
+	optional string jxqsr = 4; 	// 计息起始日  varchar(10)  
+	optional string dqr = 5;	// 到期日  varchar(10) 
+	optional int64 cxqx = 6;  	// 存续期限  int  
+	optional int64 pmll = 7;  	// 票面利率  numeric(19,2) 
+	optional string xppz = 8;	// 息票品种  varchar(10)  
+	optional int64 jxfs = 9;	// 计息方式  int  
+	optional int64 lllx = 10;	// 利率类型  int  
+	optional int64 fxcs = 11;	// 付息次数  int  
+	optional string fxrsm = 12;	// 付息日说明  varchar(10)  
+	optional string chfs = 13;	// 偿还方式  varchar(10)  
+	optional string sfms = 14;	// 是否免税  varchar(5)  
+	optional string ktqdf = 15;	// 可提前兑付  varchar(5)  
+	optional int64 bzqzsl = 16;	// 标准券折算率  numeric(5,2)
+}
+
+/*分离式转债发行*/
+message F10BondFlszzfxOutput {//->MSG
+    required string zqzhdm = 1; 	// 债券组合代码  varchar(15)  
+	optional string zqmc = 2;  		// 债券名称  varchar(100)  
+	optional string fxrq = 3;  		// 发行日期  datetime  
+	optional string hzwh = 4; 		// 获准文号  varchar(30)  
+	optional string fxfs = 5;		// 发行方式  varchar(500)  
+	optional string fxdx = 6;  		// 发行对象  varchar(500)  
+	optional int64 fxjg = 7;  		// 发行价格  numeric(19,4)  
+	optional int64 fxsl = 8;		// 发行数量  numeric(19,4)  
+	optional string bjjg = 9;		// 保荐机构  varchar(300)  
+	optional int64 cxfs = 10;		// 承销方式  int  
+	optional string zxpgjg = 11;	// 资信评估机构  varchar(50)  
+	optional string xydj = 12;		// 信用等级  varchar(10)  
+	optional string dbr = 13;		// 担保人  varchar(50)  
+	optional string dbrlx = 14;		// 担保人类型  varchar(300)  
+	optional int64 xygdpsje = 15;	// 向原股东配售金额  numeric(19,4)  
+	optional string wssgrq = 16;	// 网上申购日  datetime   
+	optional string wszqlggr = 17;  // 网上中签率公告日  datetime  
+	optional int64 wszql = 18;		// 网上中签率  numeric(19,4)  
+	optional int64 zzfx = 19;		// 最终发行  numeric(19,4)  
+	optional string sstjr = 20;		// 上市推荐人  varchar(300)  
+	optional string kzzdjjg = 21;	// 可转债登记机构  varchar(300)  
+	optional int64 mjzjze = 22;		// 募集资金总额  numeric(19,4)  
+	optional int64 fyhj = 23;		// 费用合计  numeric(19,4)   
+	optional int64 mjzjje = 24;		// 募集资金净额  numeric(19,4)  
+	optional string tzjyr = 25;		// 停止交易日  varchar(10)  
+}
+
+/*分离式转债条款*/
+message F10BondFlszztkOutput {//->MSG
+    required string zqzhdm = 1;		// 债券组合代码  varchar(15) 	   
+	optional string ybhstk = 2;  	// 一般回售条款  varchar(2000)  
+	optional string mjzjtxsm = 3; 	// 募集资金投向说明  varchar(2000)  
+}
+
+/*分离式转债信息 */
+message F10BondFlszzxxOutput {//->MSG
+    required string zqzhdm = 1; // 债券组合代码  varchar(15)  
+	optional string zqjc = 2;  	// 债券简称  varchar(10)  
+	optional string zqmc = 3;  	// 债券名称  varchar(100)    
+	optional int64 zqmz = 4; 	// 债券面值  numeric(19,4)  
+	optional int64 zqqx = 5;	// 债券期限  int  
+	optional string jxqsr = 6;  // 计息起始日  varchar(10)  
+	optional string dqr = 7;  	// 到期日  varchar(10)  
+	optional int64 ll = 8;		// 利率  numeric(19,2) 
+	optional int64 fxpl = 9;	// 付息频率  int  
+	optional string fxrsm = 10;	// 付息日说明  varchar(10)  
+	optional string ssqsr = 11;	// 上市起始日  varchar(10)  
+	optional int64 scssgm = 12;	// 首次上市规模  numeric(19,2)  
+	optional int64 bzqzsl = 13;	// 标准券折算率  numeric(5,2)
+}
+
+/*国债信息*/
+message F10BondGzxxOutput {//->MSG
+    required string zqzhdm = 1; 	// 债券组合代码  varchar(15)  
+	optional string gzqc = 2;  		// 国债全称  varchar(100)   
+	optional int64 zqlx = 3;  		// 国债类型  int  
+	optional int64 nd = 4; 			// 年度  int  
+	optional string fxr = 5;		// 发行人  varchar(20)  
+	optional int64 zfe = 6;  		// 总份额  numeric(19,4)  
+	optional int64 mz = 7;  		// 面值  numeric(19,4)  
+	optional int64 fxjg = 8;		// 发行价格  numeric(19,4)   
+	optional int64 pmll = 9;		// 票面利率  numeric(19,4)    
+	optional int64 qx = 10;			// 期限  int  
+	optional int64 jxfs = 11;		// 计息方式  int  
+	optional int64 lllx = 12;		// 利率类型  int   
+	optional string qxrq = 13;		// 起息日期  varchar(10)    
+	optional string dqrq = 14;		// 到期日期  varchar(10)  
+	optional string xppz = 15;		// 息票品种  varchar(10)  
+	optional int64 fxcs = 16;		// 付息次数  int    
+	optional string fxr2 = 17;  	// 付息日  varchar(10)   
+	optional string chfs = 18;		// 偿还方式  varchar(10)  
+	optional string sfms = 19;		// 是否免税  varchar(5)  
+	optional int64 sl = 20;			// 税率  numeric(19,2)  
+	optional string ktqdf = 21;		// 可提前兑付  varchar(5)  
+	optional string ssrq = 22;		// 上市日期  varchar(10)  
+	optional string zyssgdm = 23;	// 质押式申购代码  varchar(10)  
+	optional string hgdm7 = 24;		// 7天回购代码  varchar(10)  
+	optional string hgdm28 = 25;	// 28天回购代码  varchar(10)   
+  	optional string	hgdm91 = 26;	// 91天回购代码  varchar(10)  
+	optional string dfqsrq = 27;	// 兑付起始日期  varchar(10)  
+	optional int64 bzqzsl = 28;		// 标准券折算率  numeric(5,2)
+}
+
+/*回购信息*/
+message F10BondHgxxOutput {//->MSG
+    required string hgzhdm = 1;  	// 回购组合代码  varchar(15)   		
+    optional string hgjc = 2;		// 回购简称  varchar(10)
+	optional string hgpz = 3;  		// 回购品种  varchar(10) 
+}
+
+/*可转债发行*/
+message F10BondKzzfxOutput {//->MSG
+    required string zqzhdm = 1; 	// 债券组合代码  varchar(15)  
+	optional string zqmc = 2;  		// 债券名称  varchar(100)  
+	optional string faxr = 3;  		// 发行日期  datetime  
+	optional string hzwh = 4; 		// 获准文号  varchar(30)   
+	optional string fxfs = 5;		// 发行方式  varchar(1000)  
+	optional string fxdx = 6;  		// 发行对象  varchar(1000)  
+	optional int64 fxjg = 7;  		// 发行价格（元）  numeric(19,4)  
+	optional int64 fxsl = 8;		// 发行数量（万元）  numeric(19,4)  
+	optional string bjjg = 9;		// 保荐机构  varchar(300)   
+	optional int64 cxfs = 10;		// 承销方式  int   
+	optional string zxpgjg = 11;	// 资信评估机构  varchar(50)   
+	optional string xydj = 12;		// 信用等级  varchar(8)  
+	optional int64 psje = 13;		// 向原股东配售金额（元/每股）  numeric(19,4)   
+	optional string wssgr = 14;		// 网上申购日  datetime   
+	optional string wszqggr = 15;	// 网上中签公告日  datetime  
+	optional int64 wszql = 16;		// 网上中签率  numeric(19,4)  
+	optional int64 zzfx = 17;  		// 最终发行（万元）  numeric(19,4)  
+	optional string sstjr = 18;		// 上市推荐人  varchar(300)  
+	optional string kzzdjjg = 19;	// 可转债登记机构  varchar(300) 
+	optional int64 mjzjze = 20;		// 募集资金总额（亿元）  numeric(19,4)  
+	optional int64 fyhj = 21;		// 费用合计（元）  numeric(19,4)  
+	optional int64 mjzjje = 22;		// 募集资金净额（亿元）  numeric(19,4)  
+	optional string zgqsr = 23;		// 可转债转股起始日  datetime  
+	optional string zgzzr = 24;		// 可转债转股终止日  datetime   
+	optional string zgdm = 25;		// 转股代码  varchar(10)   
+	optional string zgjc = 26;		// 转股简称  varchar(10) 
+}
+
+/*可转债条款*/
+message F10BondKzztkOutput {//->MSG
+    required string zqzhdm = 1;	// 债券组合代码  varchar(15) 	   
+	optional string tztk = 2;  	// 转股价格调整条款  varchar(2000)    
+	optional string xztk = 3; 	// 转股价格修正条款  varchar(2000)  
+	optional string dqshtk = 4; // 到期赎回条款  varchar(500)  
+	optional string ybhstk = 5;	// 一般回售条款  varchar(2000)   
+	optional string mjzjtX = 6; // 募集资金投向  varchar(2000) 
+}
+
+/*可转债调整转股价 */
+message BondKzztzzgj{      
+	optional string zqmc = 1;  		// 债券名称  varchar(100)    
+	optional string sjlx = 2;		// 事件类型  varchar(10)   
+	optional int64 bdqzgj = 3;  	// 变动前转股价  numeric(19,2)  
+	optional int64 bdhzgj = 4;  	// 变动后转股价  numeric(19,2)  
+	optional string xzgjsxrq = 5; 	// 新转股价生效日期  datetime  
+}
+message F10BondKzztzzgj {
+	required string ggrq = 1;  		// 公告日期  datetime  
+	repeated BondKzztzzgj data = 2;                  
+}
+message F10BondKzztzzgjOutput {//->MSG
+    required string zqzhdm = 1; 	// 债券组合代码  varchar(15)		
+    repeated F10BondKzztzzgj Data = 2;
+}
+
+/*可转债信息 */
+message F10BondKzzxxOutput {//->MSG
+    required string zqzhdm = 1; 	// 债券组合代码  varchar(15)  
+	optional string zqjc = 2;  		// 债券简称  varchar(10)  
+	optional string zqmc = 3;  		// 债券名称  varchar(100)  
+	optional int64 zqmz = 4; 		// 债券面值（元）  numeric(19,4)     
+	optional int64 zqqx = 5;		// 债券期限（年）  int  
+	optional string jxqsr = 6;  	// 计息起始日  varchar(10)   
+	optional string dqr = 7;  		// 到期日  varchar(10)  
+	optional string llsm = 8;		// 利率说明  varchar(2000)  
+	optional int64 fxpl = 9;		// 付息频率（次/年）  int     
+	optional string fxrsm = 10;		// 付息日说明  varchar(10)   
+	optional int64 cszgj = 11;		// 初始转股价（元）  numeric(19,4)      
+	optional int64 zxzgj = 12;		//  最新转股价（元）  numeric(19,4)  
+	optional string cszgsm = 13;	// 初始转股说明  varchar(2000)  
+	optional string ssqsr = 14;		// 上市起始日  varchar(10) 
+	optional int64 scssgm = 15;		// 首次上市规模（亿元）  numeric(19,2)
+	optional int64 bzqzsl = 16;		// 标准券折算率  numeric(5,2) 
+}
+
+/*债券持有人 */
+message BondQycyr {   
+	required int64 cyrmc = 1; 	// 持有人名次  int        
+	required string cyrmc2 = 2;  // 持有人名称  varchar(100)
+	optional int64 cyje = 3;  	// 持有金额（千元）  numeric(19,2)    
+	optional int64 cyl = 4;  	// 持有量（张）  numeric(19,0)  
+	optional int64 cybl = 5;	// 持有比例  numeric(19,4)  
+	optional int64 sid = 6;		// 基础表ID  int    
+}
+message F10BondQycyr {
+	required string jzrq = 1;  	// 截止日期  datetime 
+	repeated BondQycyr data = 2;                  
+}
+message F10BondQycyrOutput {//->MSG
+    required string zqzhdm = 1; // 债券组合代码  varchar(15)		
+    repeated F10BondQycyr Data = 2;
+}
+
+/*企业债发行*/
+message F10BondQyzfxOutput {//->MSG
+    required string zqzhdm = 1; 	// 债券组合代码  varchar(15)  
+	optional string zqmc = 2;  		// 债券名称  varchar(100)  
+	optional string fxrmc = 3;  	// 发行人名称  varchar(100)  
+	optional string ywmc = 4; 		// 英文名称  varchar(100)  
+	optional string fxqsr = 5;		// 发行起始日  datetime   
+	optional int64 zqze = 6;  		// 债券总额  numeric(19,4)  
+	optional int64 fxjg = 7;  		// 发行价格  numeric(19,4)  
+	optional string ssrq = 8;		// 上市日期  varchar(10)  
+	optional string sstjr = 9;		// 上市推荐人  varchar(100)    
+	optional string fzcxs = 10;		// 副主承销商  varchar(500)  
+	optional string tgr = 11;		// 托管人  varchar(100)  
+	optional string zcdz = 12;		// 注册地址  varchar(200)  
+	optional string bgdz = 13;		// 办公地址  varchar(100)    
+	optional string frdb = 14;		// 法人代表  varchar(50) 
+	optional string yzbm = 15;		// 邮政编码  varchar(10) 
+	optional string hlwdz = 16;		// 互联网地址  varchar(50)  
+	optional string cz = 17;  		// 传真  varchar(100)  
+	optional int64 zczb = 18;		// 注册资本  numeric(19,4)  
+	optional string kjsws = 19;		// 会计事务所  varchar(100)  
+	optional string lssws = 20;		// 律师事务所  varchar(100)  
+	optional string fxrdm = 21;		// 发行人代码  varchar(10)
+}
+
+/*企业债信息*/
+message F10BondQyzxxOutput {//->MSG
+    required string zqzhdm = 1; 	// 债券组合代码  varchar(15)  
+	optional string zqmc = 2;  		// 债券名称  varchar(100)  
+	optional string ssrq = 3;  		// 上市日期  varchar(10) 
+	optional string jxqsr = 4; 		// 计息起始日  varchar(10)   
+	optional string dqr = 5;		// 到期日  varchar(10)  
+	optional int64 cxqx = 6;  		// 存续期限（年）  int  
+	optional int64 pmll = 7;  		// 票面利率（%）  numeric(19,4)   
+	optional string xppz = 8;		// 息票品种  varchar(10)  
+	optional int64 jxfs = 9;		// 计息方式  int  
+	optional int64 lllx = 10;		// 利率类型  int  
+	optional int64 fxcs = 11;		// 付息次数（次/年）  int  
+	optional string fxr = 12;		// 付息日  varchar(10)  
+	optional string chfs = 13;		// 偿还方式  varchar(10)      
+	optional string sfms = 14;		// 是否免税  varchar(5)  
+	optional int64 sl = 15;			// 税率（%)  numeric(19,2)  
+	optional string ktqdf = 16;		// 可提前兑付  varchar(5)  
+	optional string pjjg = 17;  	// 评级机构  varchar(100)  
+	optional string xydj = 18;		// 信用等级  varchar(10)  
+	optional string dbr = 19;		// 担保人  varchar(100)    
+	optional string dfqsr = 20;		// 兑付起始日  varchar(10)   
+	optional int64 bzqzsl = 21;		// 标准券折算率  numeric(5,2)
+}
+
+/*债券公告*/
+message BondZqgg {           
+	optional string ggbt = 1;  	// 公告标题  varchar(200)  
+	optional string qw = 2; 	// 全文  varchar(max)   
+	optional string zlly = 3;	// 资料来源  varchar(30)  
+	optional int64 sid = 4;  	// 基础表ID  int  
+}
+message F10BondZqgg {
+	required string ggrq = 1;  		// 公告日期  datetime  
+	repeated BondZqgg data = 2;                  
+}
+message F10BondZqggOutput {//->MSG
+    required string zqzhdm = 1; // 债券组合代码  varchar(15)  		
+    repeated F10BondZqgg Data = 2;
+}
+
+/*债券现金流*/
+message BondZqxjl {           
+	optional string fxrq = 1;  	// 付息日期  datetime  
+	optional string xjlllx = 2; // 现金流量类型  varchar(2) 
+	optional int64 je = 3;		// 金额（元/每百元）  numeric(19,4)  
+	optional string zqdjr = 4;  // 债券登记日  datetime  
+	optional string cqcxr = 5;  // 除权除息日  datetime  
+	optional int64 sid = 6;	// 基础表ID  int  
+}
+message F10BondZqxjl {
+	required string ggrq = 1;  		// 公告日期  datetime  
+	repeated BondZqxjl data = 2;                  
+}
+message F10BondZqxjlOutput {//->MSG
+    required string zqzhdm = 1; // 债券组合代码  varchar(15) 	
+    repeated F10BondZqxjl Data = 2;
+}
+
+/*债券转股*/
+message BondZqzg {           
+	optional int64 ljzgje = 1;  // 累计转股金额（万元）  numeric(19,4)  
+	optional int64 ljzgs = 2; 	// 累计转股数（万股）  numeric(19,4)  
+	optional int64 bqzgje = 3;	// 本期转股金额（万元）  numeric(19,4)  
+	optional int64 bqzgs = 4;  	// 本期转股数（万股）  numeric(19,4)  
+	optional int64 sybj = 5;  	// 剩余本金（万元）  numeric(19,4)  
+}
+message F10BondZqzg {
+	required string jzrq = 1;  		// 截止日期  datetime  
+	repeated BondZqzg data = 2;                  
+}
+message F10BondZqzgOutput {//->MSG
+    required string zqzhdm = 1; // 债券组合代码  varchar(15)	
+    repeated F10BondZqzg Data = 2;
+}
+
+/*掉期简介-外汇币种*/
+message F10ForexDqjj {
+    optional int64 rn = 1; 		// 排序  int  
+	optional string zdzwmc = 2; // 字段中文名称  nvarchar(250)   
+	optional string zdz = 3;  	// 字段值  nvarchar(-1)  
+	optional int64 stype = 4; 	// 证券类型  int
+}
+message F10ForexDqjjOutput {//->MSG
+    required string zhdm = 1;	// 组合代码  varchar(25)
+    repeated F10ForexDqjj data = 2; 		// 排序  int  
+}
+
+/*即期简介-外汇币种*/
+message F10ForexJqjj {
+	required int64 rn = 1; 		// 排序  int  
+	optional string zdzwmc = 2; // 字段中文名称  nvarchar(250)   
+	optional string zdz = 3;  	// 字段值  nvarchar(-1)  
+	optional int64 stype = 4; 	// 证券类型  int           
+}
+message F10ForexJqjjOutput {//->MSG
+    required string zhdm = 1;		// 组合代码  varchar(25)
+    repeated F10ForexJqjj Data = 2;
+}
+
+/*利率互换-外汇币种*/
+message F10ForexLlhh {
+	required int64 rn = 1; 		// 排序  int  
+	optional string zdzwmc = 2; // 字段中文名称  nvarchar(250)   
+	optional string zdz = 3;  	// 字段值  nvarchar(-1)  
+	optional int64 stype = 4; 	// 证券类型  int           
+}
+message F10ForexLlhhOutput {//->MSG
+    required string zhdm = 1;		// 组合代码  varchar(25)
+    repeated F10ForexLlhh Data = 2;
+}
+
+/*全球外汇基本资料表*/
+message F10ForexQqwhjbzlOutput {//->MSG
+    required string whdm = 1;		// 外汇代码  varchar(20) 
+   	optional string whmc = 2; 		// 外汇名称  nvarchar(50)  
+	optional string sjly = 3;  		// 数据来源  varchar(200)  
+	optional string jysj = 4;  		// 交易时间  varchar(20) 
+	optional string jchbdm = 5; 	// 基础货币代码  varchar(3)  
+	optional string jchbmc = 6;		// 基础货币名称  nvarchar(10)  
+	optional string jchbgjmc = 7;  	// 基础货币国家名称  nvarchar(100)  
+	optional int64 jchbssz = 8;  	// 基础货币所属洲  int  
+	optional string jchbsszmc = 9;	// 基础货币所属洲名称  varchar(100)  
+	optional string jchbssdq = 10;	// 基础货币所属地区  nvarchar(100)  
+	optional string jchbjj = 11;	// 基础货币简介  nvarchar(-1)  
+	optional string bjhbdm = 12;	// 报价货币代码  varchar(3)   
+	optional string bjhbmc = 13;	// 报价货币名称  nvarchar(10)   
+	optional string bjhbgjmc = 14;	// 报价货币国家名称  nvarchar(100)     
+	optional int64 bjhbssz = 15;	// 报价货币所属洲  int   
+	optional string bjhbsszmc = 16;	// 报价货币所属洲名称  varchar(100)   
+	optional string bjhbssdq = 17;	// 报价货币所属地区  nvarchar(100)  
+	optional string bjhbjj = 18;  	// 报价货币简介  nvarchar(-1)    
+}
+
+/*SHIBOR利率-外汇币种*/
+message F10ForexShiborlv {
+	required int64 rn = 1; 		// 排序  int  
+	optional string zdzwmc = 2; // 字段中文名称  nvarchar(250)   
+	optional string zdz = 3;  	// 字段值  nvarchar(-1)  
+	optional int64 stype = 4; 	// 证券类型  int           
+}
+message F10ForexShiborlvOutput {//->MSG
+    required string zhdm = 1;		// 组合代码  varchar(25)
+    repeated F10ForexShiborlv Data = 2;
+}
+
+/*外币对即期-外汇币种*/
+message F10ForexWbdjq {
+	required int64 rn = 1; 		// 排序  int  
+	optional string zdzwmc = 2; // 字段中文名称  nvarchar(250)   
+	optional string zdz = 3;  	// 字段值  nvarchar(-1)  
+	optional int64 stype = 4; 	// 证券类型  int           
+}
+message F10ForexWbdjqOutput {//->MSG
+    required string zhdm = 1;		// 组合代码  varchar(25)
+    repeated F10ForexWbdjq Data = 2;
+}
+
+/*外汇币种模板*/
+message F10ForexWhbzMb{
+	required int64 rn = 1; 		// 排序  int  
+	optional int64 whbzlx = 2; 	// 外汇币种类型  int  
+	optional int64 clfs = 3;  	// 处理方式  int    
+	required string zdmc = 4; 	// 字段名称  nvarchar(4000)  
+	optional string zdzwmc = 5; // 字段中文名称  nvarchar(250)  
+	optional string bz = 6;  	// 备注  nvarchar(500)   
+}
+message F10ForexWhbzMbOutput {//->MSG
+    required string stype = 1; 	// 证券类型  int   
+    repeated F10ForexWhbzMb Data = 2;
+}
+
+/*信用拆借-外汇币种*/
+message F10ForexXycj {
+	required int64 rn = 1; 		// 排序  int  
+	optional string zdzwmc = 2; // 字段中文名称  nvarchar(250)   
+	optional string zdz = 3;  	// 字段值  nvarchar(-1)  
+	optional int64 stype = 4; 	// 证券类型  int           
+}
+message F10ForexXycjOutput {//->MSG
+    required string zhdm = 1;		// 组合代码  varchar(25)
+    repeated F10ForexXycj Data = 2;
+}
+
+/*远期简介-外汇币种 */
+message F10ForexYqjj {
+	required int64 rn = 1; 		// 排序  int  
+	optional string zdzwmc = 2; // 字段中文名称  nvarchar(250)   
+	optional string zdz = 3;  	// 字段值  nvarchar(-1)  
+	optional int64 stype = 4; 	// 证券类型  int           
+}
+message F10ForexYqjjOutput {//->MSG
+    required string zhdm = 1;		// 组合代码  varchar(25)
+    repeated F10ForexYqjj Data = 2;
+}
+
+/*期货_标准合约*/
+message F10FuturesBzhyOutput {//->MSG
+    required string Obj = 1;		// 合约代码  varchar(25)  
+   	optional string jydm = 2; 		// 交易代码  varchar(20)  
+	optional string jypz = 3;  		// 交易品种  varchar(200)  
+	optional string ssjys = 4;  	// 上市交易所  varchar(500)  
+	optional string jydw = 5; 		// 交易单位  varchar(100) 
+	optional string bjdw = 6;		// 报价单位  varchar(100)  
+	optional string zxjwbd = 7;  	// 最小价位变动  varchar(100)    
+	optional string zdbdxz = 8;  	// 最大波动限制  varchar(500)  
+	optional string zdbzj = 9;		// 最低保证金  varchar(500)  
+	optional int64 hyjzj = 10;		// 合约基准价  numeric(19,4)  
+	optional string jysxf = 11;		// 交易手续费  varchar(500)   
+	optional string hyjgyf = 12;	// 合约交割月份  varchar(500)  
+	optional string zhjyr = 13;		// 最后交易日  varchar(500) 
+	optional string zhjgr = 14;		// 最后交割日  varchar(500)      
+	optional string jgpj = 15;		// 交割品级  varchar(2000)  
+	optional string jgdd = 16;		// 交割地带  varchar(500)  
+	optional string jysjysj = 17;	// 交易所交易时间  varchar(500)  
+	optional string bdjysj = 18;  	// 本地交易时间  varchar(500)  
+	optional string jgfs = 19;		// 交割方式  varchar(500)  
+	optional string jyfs = 20;		// 交易方式  nvarchar(500)   
+	optional string jybcj = 21;		// 交易补偿金  nvarchar(500)  
+   	optional string jgyq = 22; 		// 交割要求  nvarchar(500)  
+	optional string wtjgsxf = 23;  	// 委托交割手续费  nvarchar(500)  
+	optional string qtfy = 24;  	// 其他费用  nvarchar(500)  
+	optional string jchbssdq = 25; 	// 基础货币所属地区  nvarchar(100)  
+	optional string jchbssgj = 26;	// 基础货币所属国家  nvarchar(100)  
+	optional string jchbsd = 27;  	// 基础货币首都  nvarchar(100)  
+	optional string bjhbssdq = 28;  // 报价货币所属地区  nvarchar(100)  
+	optional string bjhbssgj = 29;	// 报价货币所属国家  nvarchar(100)
+	optional string bjhbsd = 30;	// 报价货币首都  nvarchar(100)  
+	optional string pzdm = 31;		// 品种代码  varchar(10)  
+   	optional string pzmc = 32; 		// 品种名称  nvarchar(100)  
+	optional string jgdw = 33;  	// 交割单位  nvarchar(max)  
+	optional string jgjy = 34;  	// 交割交易  nvarchar(max)  
+	optional string jgq = 35; 		// 交割期  varchar(500)  
+	optional string bjfs = 36;		// 报价方式  varchar(50)  
+	optional string hybd = 37;  	// 合约标的  varchar(200)      
+	optional string ssrq = 38;  	// 上市日期  varchar(500)        
+}
+
+message F10FuturesCpgk {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 正文  varchar(max)           
+}
+message F10FuturesCpgkOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10FuturesCpgk Data = 2;
+}
+
+/*期货_风控办法*/
+message F10FuturesFkbf {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 正文  varchar(max)           
+}
+message F10FuturesFkbfOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10FuturesFkbf Data = 2;
+}
+
+/*期货_结算细则*/
+message F10FuturesJsxz {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 正文  varchar(max)           
+}
+message F10FuturesJsxzOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10FuturesJsxz Data = 2;
+}
+
+/*期货_交易规则*/
+message F10FuturesJygz {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 正文  varchar(max)           
+}
+message F10FuturesJygzOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10FuturesJygz Data = 2;
+}
+
+/*期货_外盘合约*/
+message F10FuturesWphy {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 正文  varchar(max)           
+}
+message F10FuturesWphyOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10FuturesWphy Data = 2;
+}
+
+/*期货_外盘合约*/
+message F10FuturesYxys {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 正文  varchar(max)           
+}
+message F10FuturesYxysOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10FuturesYxys Data = 2;
+}
+
+/*现货_标准合约*/
+message F10SpotBzhy {
+	required int64 rn = 1; 			// 排序  int  
+	optional string title = 2; 		// 字段中文名称  varchar(250)    
+	optional string content = 3;	// 字段值  varchar(250) 
+	optional string sourcetable = 4;// 源表  int            
+}
+message F10SpotBzhyOutput {//->MSG
+    required string Obj = 1;		// HYDM  合约代码  varchar(25)  
+    repeated F10SpotBzhy Data = 2;
+}
+
+/*现货_基本资料附加说明 */
+message F10SpotFjsm {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 条款内容  nvarchar(max)         
+}
+message F10SpotFjsmOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10SpotFjsm Data = 2;
+}
+
+/*现货_交易规则 */
+message F10SpotJygz {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 条款内容  nvarchar(max)         
+}
+message F10SpotJygzOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10SpotJygz Data = 2;
+}
+
+/*现货_品种概况*/
+message F10SpotPzgk {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 条款内容  nvarchar(max)         
+}
+message F10SpotPzgkOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10SpotPzgk Data = 2;
+}
+
+/*现货_外盘合约 */
+message F10SpotWphy {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 条款内容  nvarchar(max)         
+}
+message F10SpotWphyOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10SpotWphy Data = 2;
+}
+
+/*现货_影响因素 */
+message F10SpotYxys {
+	required int64 rn = 1; 		// 排序  int  
+	optional string title = 2; 	// 标题  varchar(500)  
+	optional string content = 3;// 条款内容  nvarchar(max)         
+}
+message F10SpotYxysOutput {//->MSG
+    required string Obj = 1;		// 交易品种  varchar(20)  
+    repeated F10SpotYxys Data = 2;
+}

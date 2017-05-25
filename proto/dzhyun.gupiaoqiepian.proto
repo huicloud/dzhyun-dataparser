@@ -1,0 +1,286 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+message FenBiChengJiao	 //分笔成交
+{
+	required int64 Id = 1; 							//序号
+	required int64 ShiJian = 2; 					//时间
+    optional int64 ChengJiaoJia = 3; 				//成交价
+    optional int64 ChengJiaoLiang = 4; 				//成交量
+    optional int64 ChengJiaoE = 5; 					//成交额
+    optional int64 ChengJiaoDanBiShu = 6; 			//成交单笔数
+    optional int64 ShiFouZhuDongXingMaiDan = 7; 	//是否主动性买单
+    optional int64 MaiMaiFangXiang = 8;     //买卖方向1:买入;0:卖出
+    optional int64 DanCiChengJiaoLiang = 9; //单次成交量
+    optional int64 DanCiChengJiaoE = 10;    //单次成交额
+    optional int64 DanCiChengJiaoDanBiShu = 11; //单次成交笔数
+}
+
+
+
+message GeGuDongTai			//个股动态
+{
+	required int64 Id = 1; 							//序号
+	required int64 ShiJian = 2; 					//时间
+
+    optional int64 ZuiXinJia = 3; 					//最新价
+    optional int64 KaiPanJia = 4; 					//今开
+    optional int64 ZuiGaoJia = 5; 					//最高
+    optional int64 ZuiDiJia = 6; 					//最低
+    optional int64 ZuoShou = 7; 					//昨收
+    optional int64 JunJia = 8; 						//均价
+    optional int64 ZhangDie = 9; 					//涨跌
+    optional int64 ZhangFu = 10; 					//涨幅
+    optional int64 ZhenFu = 11; 					//振幅
+
+    optional int64 ChengJiaoLiang = 12; 			//总手-总成交量，单位股
+    optional int64 XianShou = 13; 					//现手-最新一笔交量，单位股
+    optional int64 ChengJiaoE = 14; 				//总成交额
+    optional int64 ZongChengJiaoBiShu = 15; 		//总成交笔数
+    optional int64 MeiBiChengJiaoGuShu = 16; 		//每笔成交股数
+    optional int64 HuanShou = 17; 					//换手,千分比
+    optional int64 LiangBi = 18; 					//量比,千分比
+    optional int64 NeiPan = 19; 					//内盘
+    optional int64 WaiPan = 20; 					//外盘
+
+	//lv2数据
+    optional int64 ZongMaiRu = 21; 					//总买
+    optional int64 ZongMaiChu = 22; 				//总卖
+    optional int64 ZongMaiRuJunJia = 23; 			//总买均价
+    optional int64 ZongMaiChuJunJia = 24; 			//总卖均价
+    optional int64 ZhangTing = 25;                     //涨停
+    optional int64 DieTing = 26;                     //跌停
+
+    optional int64 FenZhongZhangFu1 = 27;          //1分钟涨幅
+    optional int64 FenZhongZhangFu2 = 28;          //2分钟涨幅
+    optional int64 FenZhongZhangFu3 = 29;          //3分钟涨幅
+    optional int64 FenZhongZhangFu4 = 30;          //4分钟涨幅
+    optional int64 FenZhongZhangFu5 = 31;          //5分钟涨幅
+
+    //买卖盘
+    optional int64 WeiTuoMaiRuJia1 = 32;  //委托买入价1
+    optional int64 WeiTuoMaiRuLiang1 = 33;   //委托买入量1，单位股
+    optional int64 WeiTuoMaiRuJia2 = 34;     //委托买入价2
+    optional int64 WeiTuoMaiRuLiang2 = 35;   //委托买入量2，单位股
+    optional int64 WeiTuoMaiRuJia3 = 36;     //委托买入价3
+    optional int64 WeiTuoMaiRuLiang3 = 37;   //委托买入量3，单位股
+    optional int64 WeiTuoMaiRuJia4 = 38;     //委托买入价4
+    optional int64 WeiTuoMaiRuLiang4 = 39;  //委托买入量4，单位股
+    optional int64 WeiTuoMaiRuJia5 = 40;    //委托买入价5
+    optional int64 WeiTuoMaiRuLiang5 = 41;  //委托买入量5，单位股
+    optional int64 WeiTuoMaiChuJia1 = 42;   //委托卖出价1
+    optional int64 WeiTuoMaiChuLiang1 = 43; //委托卖出量1，单位股
+    optional int64 WeiTuoMaiChuJia2 = 44;   //委托卖出价2
+    optional int64 WeiTuoMaiChuLiang2 = 45; //委托卖出量2，单位股
+    optional int64 WeiTuoMaiChuJia3 = 46;   //委托卖出价3
+    optional int64 WeiTuoMaiChuLiang3 = 47; //委托卖出量3，单位股
+    optional int64 WeiTuoMaiChuJia4 = 48;   //委托卖出价4
+    optional int64 WeiTuoMaiChuLiang4 = 49; //委托卖出量4，单位股
+    optional int64 WeiTuoMaiChuJia5 = 50;   //委托卖出价5
+    optional int64 WeiTuoMaiChuLiang5 = 51; //委托卖出量5，单位股
+    optional int64 WeiBi = 52;   //委比
+    optional int64 WeiCha = 53; //委差
+
+    //扩展买卖盘
+    optional int64 JiaQuanPingJunWeiTuoMaiRuJia = 54;        //avgbuyprice   f   加权平均委买价格
+    optional int64 WeiTuoMaiRuZongLiang = 55;                //allbuyvol f   委买总量
+    optional int64 JiaQuanPingJunWeiTuoMaiChuJia = 56;       //avgsellprice  f   加权平均委卖总量
+    optional int64 WeiTuoMaiChuZongLiang = 57;               //allselvol f   委卖总量
+    optional int64 KuoZhanMaiRuJia1 = 58;        //buyprice  5f  委买价
+    optional int64 KuoZhanMaiRuJia2 = 59;
+    optional int64 KuoZhanMaiRuJia3 = 60;
+    optional int64 KuoZhanMaiRuJia4 = 61;
+    optional int64 KuoZhanMaiRuJia5 = 62;
+    optional int64 KuoZhanMaiRuLiang1 = 63; //buyvol    5f  委买量
+    optional int64 KuoZhanMaiRuLiang2 = 64;
+    optional int64 KuoZhanMaiRuLiang3 = 65;
+    optional int64 KuoZhanMaiRuLiang4 = 66;
+    optional int64 KuoZhanMaiRuLiang5 = 67;
+    optional int64 KuoZhanMaiChuJia1 = 68;      //sellprice 5f  委卖价
+    optional int64 KuoZhanMaiChuJia2 = 69;
+    optional int64 KuoZhanMaiChuJia3 = 70;
+    optional int64 KuoZhanMaiChuJia4 = 71;
+    optional int64 KuoZhanMaiChuJia5 = 72;
+    optional int64 KuoZhanMaiChuLiang1 = 73;    //sellvol   5f  委卖量
+    optional int64 KuoZhanMaiChuLiang2 = 74;
+    optional int64 KuoZhanMaiChuLiang3 = 75;
+    optional int64 KuoZhanMaiChuLiang4 = 76;
+    optional int64 KuoZhanMaiChuLiang5 = 77;
+
+    //期货特有
+    optional int64 ChiCang = 78;                // 持仓
+    optional int64 ZengCang = 79;               // 增仓
+    optional int64 RiZeng = 80;                 // 日增
+    optional int64 JieSuanJia = 81;             // 结算价
+    optional int64 ZuoRiJieSuanJia = 82;        // 昨日结算价
+    optional int64 KaiPing = 83;                // 开平
+    optional int64 JieSuanZhangDie = 84;                    //结算价涨跌
+    optional int64 JieSuanZhangFu = 85;                    //结算价涨幅
+
+    //盘口变化
+    optional int64 PanKouBianHuaMaiRu1 = 86;  //盘口变化买入1
+    optional int64 PanKouBianHuaMaiRu2 = 87;  //盘口变化买入2
+    optional int64 PanKouBianHuaMaiRu3 = 88;  //盘口变化买入3
+    optional int64 PanKouBianHuaMaiRu4 = 89;  //盘口变化买入4
+    optional int64 PanKouBianHuaMaiRu5 = 90;  //盘口变化买入5
+    optional int64 PanKouBianHuaMaiRu6 = 91;   //盘口变化买入6
+    optional int64 PanKouBianHuaMaiRu7 = 92;   //盘口变化买入7
+    optional int64 PanKouBianHuaMaiRu8 = 93;   //盘口变化买入8
+    optional int64 PanKouBianHuaMaiRu9 = 94;   //盘口变化买入9
+    optional int64 PanKouBianHuaMaiRu10 = 95;   //盘口变化买入10
+
+    optional int64 PanKouBianHuaMaiChu1 = 96;   //盘口变化卖出1
+    optional int64 PanKouBianHuaMaiChu2 = 97;   //盘口变化卖出2
+    optional int64 PanKouBianHuaMaiChu3 = 98;   //盘口变化卖出3
+    optional int64 PanKouBianHuaMaiChu4 = 99;   //盘口变化卖出4
+    optional int64 PanKouBianHuaMaiChu5 = 100;   //盘口变化卖出5
+    optional int64 PanKouBianHuaMaiChu6 = 101;   //盘口变化卖出6
+    optional int64 PanKouBianHuaMaiChu7 = 102;   //盘口变化卖出7
+    optional int64 PanKouBianHuaMaiChu8 = 103;   //盘口变化卖出8
+    optional int64 PanKouBianHuaMaiChu9 = 104;   //盘口变化卖出9
+    optional int64 PanKouBianHuaMaiChu10 = 105;  //盘口变化卖出10
+}
+
+
+
+
+message MaiMaiPan		//买卖盘
+{
+	required int64 Id = 1;					//序号
+	required int64 ShiJian = 2; 			//时间
+
+	//5档委托盘
+    optional int64 WeiTuoMaiRuJia1 = 3; 	//委托买入价1
+    optional int64 WeiTuoMaiRuLiang1 = 4; 	//委托买入量1，单位股
+
+    optional int64 WeiTuoMaiRuJia2 = 5; 	//委托买入价2
+    optional int64 WeiTuoMaiRuLiang2 = 6; 	//委托买入量2，单位股
+
+    optional int64 WeiTuoMaiRuJia3 = 7; 	//委托买入价3
+    optional int64 WeiTuoMaiRuLiang3 = 8; 	//委托买入量3，单位股
+
+    optional int64 WeiTuoMaiRuJia4 = 9; 	//委托买入价4
+    optional int64 WeiTuoMaiRuLiang4 = 10;	//委托买入量4，单位股
+
+    optional int64 WeiTuoMaiRuJia5 = 11; 	//委托买入价5
+    optional int64 WeiTuoMaiRuLiang5 = 12; 	//委托买入量5，单位股
+
+	optional int64 WeiTuoMaiChuJia1 = 13; 	//委托卖出价1
+    optional int64 WeiTuoMaiChuLiang1 = 14; //委托卖出量1，单位股
+
+    optional int64 WeiTuoMaiChuJia2 = 15; 	//委托卖出价2
+    optional int64 WeiTuoMaiChuLiang2 = 16; //委托卖出量2，单位股
+
+    optional int64 WeiTuoMaiChuJia3 = 17; 	//委托卖出价3
+    optional int64 WeiTuoMaiChuLiang3 = 18; //委托卖出量3，单位股
+
+    optional int64 WeiTuoMaiChuJia4 = 19; 	//委托卖出价4
+    optional int64 WeiTuoMaiChuLiang4 = 20; //委托卖出量4，单位股
+
+    optional int64 WeiTuoMaiChuJia5 = 21; 	//委托卖出价5
+    optional int64 WeiTuoMaiChuLiang5 = 22; //委托卖出量5，单位股
+
+    optional int64 WeiBi = 23;   //委比
+    optional int64 WeiCha = 24; //委差
+}
+
+message KuoZhanMaiMaiPan		//扩展买卖盘
+{
+    required int64 Id = 1; 		//序号
+    required int64 ShiJian = 2;	//时间
+    optional int64 JiaQuanPingJunWeiTuoMaiRuJia = 3;		//avgbuyprice	f	加权平均委买价格
+    optional int64 WeiTuoMaiRuZongLiang = 4;				//allbuyvol	f	委买总量
+    optional int64 JiaQuanPingJunWeiTuoMaiChuJia = 5;		//avgsellprice	f	加权平均委卖总量
+    optional int64 WeiTuoMaiChuZongLiang = 6;				//allselvol	f	委卖总量
+    optional int64 KuoZhanMaiRuJia1 = 7;		//buyprice	5f	委买价
+    optional int64 KuoZhanMaiRuJia2 = 8;
+    optional int64 KuoZhanMaiRuJia3 = 9;
+    optional int64 KuoZhanMaiRuJia4 = 10;
+    optional int64 KuoZhanMaiRuJia5 = 11;
+    optional int64 KuoZhanMaiRuLiang1 = 12;	//buyvol	5f	委买量
+    optional int64 KuoZhanMaiRuLiang2 = 13;
+    optional int64 KuoZhanMaiRuLiang3 = 14;
+    optional int64 KuoZhanMaiRuLiang4 = 15;
+    optional int64 KuoZhanMaiRuLiang5 = 16;
+    optional int64 KuoZhanMaiChuJia1 = 17;		//sellprice	5f	委卖价
+    optional int64 KuoZhanMaiChuJia2 = 18;
+    optional int64 KuoZhanMaiChuJia3 = 19;
+    optional int64 KuoZhanMaiChuJia4 = 20;
+    optional int64 KuoZhanMaiChuJia5 = 21;
+    optional int64 KuoZhanMaiChuLiang1 = 22;	//sellvol	5f	委卖量
+    optional int64 KuoZhanMaiChuLiang2 = 23;
+    optional int64 KuoZhanMaiChuLiang3 = 24;
+    optional int64 KuoZhanMaiChuLiang4 = 25;
+    optional int64 KuoZhanMaiChuLiang5 = 26;
+}
+
+message QuanMaiMaiPan	//全买卖盘
+{
+	message MaiMaiBiao	//买卖表，委买盘、委卖盘内嵌结构
+	{
+	    optional int64 WeiZhi = 1;	//pos	i	买卖盘位置，负数表示买盘，正数表示卖盘，例如-12表示买12，+30表示卖30，0无效
+	    optional int64 Jia = 2;		//price	f	价位
+	    optional int64 Liang = 3;	//volume	f	委托总量
+	    optional int64 DanShu = 4;	//count	i	委托单数
+	}
+
+    required int64 Id = 1; 					//序号
+    optional int64 ShiJian = 2;				//time	i	时间
+    repeated MaiMaiBiao WeiMaiRuPan = 3;	//buymmp	t	委买盘
+    repeated MaiMaiBiao WeiMaiChuPan = 4;	//sellmmp	t	委卖盘
+}
+
+message WeiTuoDuiLie { // 委托队列
+    message WeiTuo{
+        required int64 Jia   = 1; // price 委托价格
+        optional int64 BiShu = 2; // tickcount 委托笔数
+        repeated int64 Liang = 3; // vol 委托股数
+        optional int64 ZongLiang = 4; // tickcount 委托笔数
+    }
+    optional string Obj          = 1; // obj 股票代码
+    required int64  ShiJian      = 2; // time 时间
+    repeated WeiTuo MaiRuDuiLie  = 3; // buyqueue 委买队列
+    repeated WeiTuo MaiChuDuiLie = 4; // sellqueue 委卖队列
+}
+
+message Level2TongJi { // Level2统计数据
+    optional int64  Id                   = 1; // 序号
+    optional int64  ShiJian              = 2; //时间从dyna获取
+    optional int64  WeiTuoMaiRu          = 3; // 委托单买入数量
+    optional int64  WeiTuoMaiChu         = 4; // 委托单卖出数量
+    optional int64  MaiRuZhongDanBiLi    = 5; // 买入中单比例，1/1000
+    optional int64  MaiRuDaDanBiLi       = 6; // 买入大单比例，1/1000
+    optional int64  MaiRuTeDaDanBiLi     = 7; // 买入特大单比例，1/1000
+    optional int64  MaiChuZhongDanBiLi   = 8; // 卖出中单比例，1/1000
+    optional int64  MaiChuDaDanBiLi      = 9; // 卖出大单比例，1/1000
+    optional int64  MaiChuTeDaDanBiLi    = 10; // 卖出特大单比例，1/1000
+    optional int64  DuanXianMaiRu        = 11; // 短线精灵买入大单统计
+    optional int64  DuanXianMaiChu       = 12; // 短线精灵卖出大单统计
+    optional int64  DuanXianChiHuo       = 13; // 短线精灵吃货大单统计
+    optional int64  DuanXianTuHuo        = 14; // 短线精灵吐货大单统计
+    optional int64  ChengJiaoLiang        = 15; // 成交量从dyna获取
+    optional int64  ChengJiaoE        = 16; // 成交额从dyna获取
+}
+
+message DynaMMP { 
+    repeated DynaMaiMaiPrice  Rows = 1; // data
+}
+
+message DynaMaiMaiPrice{
+    optional int64 JiaGe = 1;
+    optional int64 Liang = 2;
+    optional int64 ChaZhi = 3;
+}
+
+message DynaMaiMaiZongLiang{
+    required int64 ShiJian = 1;             //时间
+    optional int64 WeiTuoMaiRuZongLiang = 2;                //allbuyvol f   委买总量
+    optional int64 WeiTuoMaiChuZongLiang = 3;               //allselvol f   委卖总量
+}
+
+message DynaFenshiStatus{
+    required int64 ShiJian = 1;  //记录分时数据状态时间
+    optional int64 IndexStatuc = 2; //记录分时数据状态下标
+    optional GeGuDongTai DataStatus = 3; //记录分时数据状态数据
+}

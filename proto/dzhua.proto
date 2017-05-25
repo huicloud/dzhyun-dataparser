@@ -1,0 +1,22 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+message UAResponse
+{
+    required string Qid     = 1;
+	required int32  Err     = 2;
+	required uint32 Counter = 3;
+	optional bytes  Data    = 4;
+}
+
+message ChildResponse
+{
+	required int32  No      = 1;
+	optional bytes  Data    = 2;
+}
+
+message GroupResponse
+{
+	repeated ChildResponse ChildRes = 1;
+}

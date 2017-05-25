@@ -1,0 +1,116 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+/* 新闻数据 */
+message NewsDataItem  {  //->MSG   
+	optional int64 NewsId = 1; 		// 新闻ID
+	optional string Date = 2; 		// 新闻日期	
+	optional string Title = 3;		// 新闻标题
+	optional string Context = 4;	// 内容压缩文件下载url
+	optional string Source	= 5;	// 新闻来源
+}
+
+/* 个股新闻 */
+message StockNews {  //->MSG
+   required  string Obj = 1;         //股票代码
+   repeated NewsDataItem  Data = 2;  //新闻数据
+}
+
+/* 自选股新闻 */
+message SelfNews {  //->MSG
+   	required string Obj = 1;        //股票代码
+	optional int64 NewsId = 2; 		// 新闻ID
+	optional string Date = 3; 		// 新闻日期	
+	optional string Title = 4;		// 新闻标题
+	optional string Context = 5;	// 内容压缩文件下载url
+	optional string Source	= 6;	// 新闻来源
+}
+
+/* 分类新闻数据(redis存储)*/
+message NewsClassData {
+	required int64 Version = 1;			// 版本号
+	optional int64 ClassMask = 2;       // 新闻分类掩码
+	optional NewsDataItem Data = 3;     // 新闻数据
+}
+
+/* 公告数据 */
+message AnnouncemtDataItem { //->MSG
+	optional string Date = 1; 				// 公告日期
+	required int64 AnnouncemId = 2; 	    // 公告唯一ID
+	optional string Title = 3;				// 标题
+	optional string Context = 4;			// pdf文件下载url 
+	optional string type = 5;		    	// 公告类型
+}
+
+/* 个股公告 */
+message StockAnnouncemt { //->MSG
+   required  string Obj = 1;    //股票代码
+   repeated AnnouncemtDataItem  Data = 2;  //新闻数据
+}
+
+/* 自选股公告 */
+message SelfAnnouncemt {  //->MSG
+   	required string Obj = 1;                //股票代码
+	optional string Date = 2; 				// 公告日期
+	required int64 AnnouncemId = 3; 	    // 公告唯一ID
+	optional string Title = 4;				// 标题
+	optional string Context = 5;			// pdf文件下载url 
+	optional string type = 6;				// 公告类型
+}
+
+/* 新闻数据(redis存储用)*/
+message InnerNewsDataItem{
+	 required int64 Version = 1;			// 版本号
+	 optional NewsDataItem Data = 2;        //新闻数据 
+}
+
+/* 公告数据(redis存储用)*/
+message InnerAnnouncemtDataItem { 
+	required int64 Version = 1;				// 公告版本号
+	optional AnnouncemtDataItem Data = 2;   //公告数据
+}
+
+
+/* 研报数据 */
+message ReportDataItem { //->MSG
+	optional int64  Id = 1; 	    		// 研报唯一ID C2
+	optional string Date = 2; 				// 研报日期 C4 YYMMDDhhmmss
+	optional string Title = 3;				// 研报标题 C5
+	optional string Organization = 4;	    // 研究机构名称 C7
+	optional string Context = 5;			// 研报内容url tRS0003.C3
+	optional string type = 6;		    	// 研报类型 C13(cc6)
+	optional string RateClass = 7;			// 评级类别C24(cc4)
+	optional string RateDirection= 8;	    // 评级变动方向C26(cc5)
+	optional string Author = 9;	            // 研究作者C12
+	optional int64  HightPrice = 10;	    // 目标价格上限C30
+	optional int64  LowPrice = 11;	        // 目标价格下限C31	
+}
+
+/* 个股研报 */
+message StockReport { //->MSG
+   required string Obj = 1;    //股票代码
+   repeated ReportDataItem  Data = 2;  //研报数据
+}
+
+/* 自选股研报 */
+message SelfReport {  //->MSG
+    required string Obj = 1;                // 股票代码
+	optional int64  Id = 2; 	    		// 研报唯一ID C2
+	optional string Date = 3; 				// 研报日期 C4 YYMMDDhhmmss
+	optional string Title = 4;				// 研报标题 C5
+	optional string Organization = 5;    	// 研究机构名称 C7
+	optional string Context = 6;			// 研报内容url tRS0003.C3
+	optional string type = 7;		    	// 研报类型 C13(cc6)
+	optional string RateClass= 8;			// 评级类别 C24(cc4)
+	optional string RateDirection= 9;	    // 评级变动方向 C26(cc5)
+	optional string Author= 10;	            // 研究作者 C12
+	optional int64 HightPrice = 11;	    // 目标价格上限 C30
+	optional int64 LowPrice = 12;	        // 目标价格下限 C31
+}
+
+/* 研报数据(redis存储用)*/
+message InnerReportDataItem { 
+	required int64 Version = 1;				  // 研报版本号
+	optional ReportDataItem Data = 2;         // 研报数据
+}

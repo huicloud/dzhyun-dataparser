@@ -1,0 +1,75 @@
+// 针对排序的数据结构
+// 
+// protoc --go_out=../dzhyun.git dzhyun.dxspirit.proto
+// 需要安装 https://github.com/google/protobuf
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+// 排序存储结构
+message DXSpirit // ->MSG
+{
+  required int64 ShiJian = 1;  // 时间
+  optional string Obj = 2; // 
+  optional string TongZhi = 3;//通知编号
+  optional int64   ShuJu = 4;//显示数据
+}
+
+//通知编号,数值,依次递增 
+//  const (
+//  HJFS   int = iota //火箭发射,数值0
+//  KSFT              //快速反弹,数值1
+//  GTTS              //高台跳水
+//  JSXD              //加速下跌
+//  DBMR              //大笔买入
+//  DBMC              //大笔卖出
+//  FZTB              //封涨停板
+//  FDTB              //封跌停板
+//  DKZT              //打开涨停
+//  DKDT              //打开跌停
+//  YDMCP             //有大卖盘
+//  YDMRP             //有大买盘
+//  LSZS              //拉升指数
+//  DYZS              //打压指数
+//  JGMRGD            //机构买入挂单
+//  JGMCGD            //机构卖出挂单
+//  DCJMRD            //大成交买入单
+//  DCJMCD            //大成交卖出单
+//  FDMRGD            //分单买入挂单
+//  FDMCGD            //分单卖出挂单
+//  MRCD              //买入撤单
+//  MCCD              //卖出撤单
+//  MRXD              //买入新单
+//  MCXD              //卖出新单
+// )
+
+message DXSpiritStat // ->MSG
+{
+  optional string Obj = 1;  // 
+  optional int64 HjfsTotal = 2; //火箭发射数量
+  optional int64 KsftTotal = 3; //快速反弹数量
+  optional int64 GttsTotal = 4; //高台跳水数量
+  optional int64 JsxdTotal = 5; //加速下跌数量
+  optional int64 DbmrTotal = 6; //大笔买入数量
+  optional int64 DbmrStatistics = 7; //大笔买入手数
+  optional int64 DbmcTotal = 8; //大笔卖出数量
+  optional int64 DbmcStatistics = 9; //大笔卖出手数
+  optional int64 FztbTotal = 10; //封涨停板数量
+  optional int64 FdtbTotal = 11; //封跌停板数量
+  optional int64 DkztTotal = 12; //打开涨停数量
+  optional int64 DkdtTotal = 13; //打开跌停数量
+  optional int64 YdmcPTotal = 14; //有大卖盘数量
+  optional int64 YdmrPTotal = 15; //有大买盘数量
+  optional int64 LszsTotal = 16; //拉升指数数量
+  optional int64 DyzsTotal = 17; //打压指数数量
+  optional int64 JgmrgdTotal = 18; //机构买入挂单数量
+  optional int64 JgmcgdTotal = 19; //机构卖出挂单数量
+  optional int64 DcjmrdTotal = 20; //大成交买入单数量
+  optional int64 DcjmcdTotal = 21; //大成交卖出单数量
+  optional int64 FdmrgdTotal = 22; //分单买入挂单数量
+  optional int64 FdmcgdTotal = 23; //分单卖出挂单数量
+  optional int64 MrcdTotal = 24; //买入撤单数量
+  optional int64 MccdTotal = 25; //卖出撤单数量
+  optional int64 MrxdTotal = 26; //买入新单数量
+  optional int64 McxdTotal = 27; //卖出新单数量
+}

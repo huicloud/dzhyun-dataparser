@@ -1,0 +1,82 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+
+// protoc --go_out=../dzhyun.git dzhyun.topicinvest.proto
+
+//所有结构体的字段用中文拼音全称（obj除外），且首字母大写
+
+//领涨股
+message LingZhangGuShuJu{
+	required string Obj = 1;  //obj
+	optional string ZhongWenJianCheng = 2;  //中文简称
+	optional int64 ZuiXinJia = 3;  //最新价
+	optional int64 ZhangFu = 4;  //涨幅
+}
+
+//主题排名
+message TopicInvestRank{
+	required int64 BianHao        =1;  //编号
+	optional int64 ShiFouReMenZhuTi = 2;	//热门主题（0：代表否，1：代表是）
+	optional int64 RiPingJunZhangFuPaiMing14 = 3;	//主题14日平均涨幅排名
+	optional int64 RiPingJunZhangFuPaiMing30 = 4;	//主题30日平均涨幅排名
+	optional int64 RiReDuZhi14 = 5;	//统计14日主题热度值
+	optional int64 RiReDuZhi30 = 6;	//统计30日主题热度值
+	optional int64 RiReDuZhi10 = 7;	//统计10日主题热度值
+	
+}
+
+
+message TopicInvest{ // ->MSG
+	required int64 BianHao        =1;  //编号
+	optional string MingCheng  = 2;  //名称
+	optional int64 ShiJian        = 3;  //时间
+
+	optional int64 ZhangFu       = 4;  //平均涨幅
+	optional int64 LiangBi       = 5;  //平均量比
+	optional int64 HuanShou     = 6;  //平均换手率
+	optional int64 ShangZhangJiaShu = 7;  //上涨家数
+	optional int64 PingPanJiaShu = 8;  //平盘家数
+	optional int64 XiaDieJiaShu = 9;  //下跌家数
+
+	optional LingZhangGuShuJu LingZhangGu  = 10;
+
+	optional int64 ShiFouReMenZhuTi = 11;	//热门主题（0：代表否，1：代表是）
+	optional int64 RiPingJunZhangFuPaiMing14 = 12;	//主题14日平均涨幅排名
+	optional int64 RiPingJunZhangFuPaiMing30 = 13;	//主题30日平均涨幅排名
+	optional int64 RiReDuZhi14 = 14;	//统计14日主题热度值
+	optional int64 RiReDuZhi30 = 15;	//统计30日主题热度值
+	optional int64 RiReDuZhi10 = 16;	//统计10日主题热度值
+	optional int64 GeGuShu = 17;
+	optional int64 DangYueZhangFu = 18;
+
+}
+
+//历史行情
+message LiShiHangQing{
+	required int64 ShiJian = 1;
+	required int64 ZhangFu = 2;   
+}
+
+//历史走势
+message LiShiZouShi{
+	repeated LiShiHangQing HangQing = 1;  //历史行情
+}
+
+message TopicInvestHistory{ // ->MSG
+	required int64 BianHao        =1;  //编号
+	optional string MingCheng  = 2;  //名称
+	optional int64 ShiJian        = 3;  //时间
+
+	optional LiShiZouShi LiShi  =4;  //历史
+}
+
+/* 主题投资成份股数据 */
+message TopicInvestInfo{// ->MSG
+	required int64 BianHao = 1;        	//主题投资ID
+	required string MingCheng = 2;        //主题投资名称
+	repeated string ChengFenGu = 3;			//主题投资成份股列表
+	optional int64 LeiBie = 4;  //类别ID 1:主题投资 2:大报关注 3:研报关注 4:交易关注
+}
+

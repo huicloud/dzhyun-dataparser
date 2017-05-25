@@ -1,0 +1,3 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";

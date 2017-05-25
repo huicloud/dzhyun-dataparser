@@ -1,0 +1,17 @@
+// 针对排序的数据结构
+// 
+// protoc --go_out=../dzhyun.git dzhyun.zhubi.proto
+// 需要安装 https://github.com/google/protobuf
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+// 逐笔当日存储结构
+message ZhubiDangri //
+{
+	required int64 Id = 1;	//序号
+	required int64 ShiJian = 2;	// 时间
+	optional int64 ZuiXinJia = 3; 	// 最新价
+	optional int64 ChengJiaoLiang = 4;	// 成交量
+	optional int64 ZhubiId = 5;	// ZhubiId
+}

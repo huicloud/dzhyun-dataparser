@@ -1,0 +1,249 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+import "dzhyun.gupiaoqiepian.proto";
+import "dzhyun.gupiaolianxu.proto";
+import "dzhyun.zhubi.proto";
+
+// 动态行情
+
+message QuoteDyna
+{
+    optional int32 Time = 1;
+    optional float LastClose = 2;
+    optional float High = 3;
+    optional float Open = 4;
+    optional float Low = 5;
+    optional float New = 6;
+    optional float Volume = 7;
+    optional float Amount = 8;
+}
+
+message QuoteDynaSingle // ->MSG
+{
+    required string Obj = 1;
+    optional GeGuDongTai Data = 2;
+}
+
+message QuoteDynaOutput
+{
+    repeated QuoteDynaSingle Results = 1;
+}
+
+// K线
+
+message QuoteKline
+{
+    optional int32 Time = 1;
+    optional float High = 2;
+    optional float Open = 3;
+    optional float Low = 4;
+    optional float Close = 5;
+    optional float Volume = 6;
+    optional float Amount = 7;
+    optional int32 TickCount = 8;      // 成交笔数
+    optional int32 Advance = 9;        // 上涨家数
+    optional int32 Decline = 10;       // 下跌家数
+}
+
+message QuoteKlineSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated KXian Data = 2;
+}
+
+message QuoteKlineOutput
+{
+    repeated QuoteKlineSingle Results = 1;
+}
+
+//分笔
+message QuoteTick
+{
+    optional int32 Time = 1;
+    optional float Price = 2;
+    optional float Volume = 3;
+    optional float Amount = 4;
+    optional int32 TickCount = 5;
+    repeated float BuyPrice = 6;
+    repeated float BuyVolume = 7;
+    repeated float SellPrice = 8;
+    repeated float SellVolume = 9;
+    optional int32 Outter = 10;
+}
+
+message QuoteTickSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated FenBiChengJiao Data = 2;
+    optional int64 QingPan = 3;
+}
+
+message QuoteTickOutput
+{
+    repeated QuoteTickSingle Results = 1;
+}
+
+//分时
+message QuoteMin
+{
+    optional int32 Time = 1;
+    optional float Price = 2;
+    optional float Volume = 3;
+    optional float Amount = 4;
+    optional int32 TickCount = 5;
+    repeated float BuyPrice = 6;
+    repeated float BuyVolume = 7;
+    repeated float SellPrice = 8;
+    repeated float SellVolume = 9;
+}
+
+message QuoteMinSingle // ->MSG
+{
+    message JiaoYiShiJianDuanJieGou 
+    {
+        optional int64 KaiShiShiJian = 1;
+        optional int64 JieShuShiJian = 2;
+        optional int64 KaiShiRiQi = 3;
+        optional int64 JieShuRiQi = 4;
+    }
+
+    required string Obj = 1;
+    repeated FenShi Data = 2;
+    optional int64 RiQi = 3;
+    optional int64 ShiQu = 4;
+    optional int64 JiHeJingJiaDianShu = 5;
+    repeated JiaoYiShiJianDuanJieGou JiaoYiShiJianDuan = 6;
+    optional int64 ZuoShou = 7;
+    optional int64 QingPan = 8;
+    optional int64 ZuoRiJieSuanJia = 9;
+    repeated FenShiLishi LiShiFenShi = 10;
+}
+
+message QuoteMinOutput
+{
+    repeated QuoteMinSingle Results = 1;
+}
+
+// Level大单
+message QuoteBOrder
+{
+    optional int64  ShiJian              = 1; //时间
+    optional int64  WeiTuoMaiRu          = 2; // 委托单买入数量
+    optional int64  WeiTuoMaiChu         = 3; // 委托单卖出数量
+    optional int64  MaiRuZhongDanBiLi    = 4; // 买入中单比例，1/1000
+    optional int64  MaiRuDaDanBiLi       = 5; // 买入大单比例，1/1000
+    optional int64  MaiRuTeDaDanBiLi     = 6; // 买入特大单比例，1/1000
+    optional int64  MaiChuZhongDanBiLi   = 7; // 卖出中单比例，1/1000
+    optional int64  MaiChuDaDanBiLi      = 8; // 卖出大单比例，1/1000
+    optional int64  MaiChuTeDaDanBiLi    = 9; // 卖出特大单比例，1/1000
+    optional int64  DuanXianMaiRu        = 10; // 短线精灵买入大单统计
+    optional int64  DuanXianMaiChu       = 11; // 短线精灵卖出大单统计
+    optional int64  DuanXianChiHuo       = 12; // 短线精灵吃货大单统计
+    optional int64  DuanXianTuHuo        = 13; // 短线精灵吐货大单统计
+    optional int64  DaDanLiuRuJinE       = 14; // 大单流入金额
+    optional int64  DaDanLiuChuJinE      = 15; // 大单流出金额
+    optional int64  DaDanJingLiuRuJinE   = 16; // 大单净流入金额
+}
+
+message QuoteBOrderSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated QuoteBOrder Data = 2;
+}
+
+message QuoteBOrderOutput
+{
+    repeated QuoteBOrderSingle Results = 1;
+}
+
+// 除权参数
+message QuoteDivid
+{
+    optional int64  ShiJian              = 1; //时间
+    optional int64  ChuQuanChengShu          = 2; // 除权乘数
+    optional int64  ChuQuanPianYi         = 3; // 除权偏移
+}
+
+message QuoteDividSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated QuoteDivid Data = 2;
+}
+
+message QuoteDividOutput
+{
+    repeated QuoteDividSingle Results = 1;
+}
+
+// 个股动态分时
+message QuoteDynaMinSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated GeGuDongTai Data = 2;
+    optional int64 QingPan = 3;
+}
+
+// 逐笔
+message QuoteReportSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated ZhubiDangri Data = 2;
+    optional int64 QingPan = 3;
+}
+
+// 委托队列
+message QuoteQueueSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated WeiTuoDuiLie Data = 2;
+}
+
+// 历史分时
+message QuoteHistoryMinSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated FenShiLishi Data = 2;
+    optional  int64 ZuoShou = 3; 
+}
+
+// 资金流向
+message QuoteFundFlow
+{
+    optional int64  ShiJian              = 1; //时间
+    optional int64  DaDanLiuRuJinE       = 2; // 大单流入金额
+    optional int64  DaDanLiuChuJinE      = 3; // 大单流出金额
+    optional int64  DaDanJingLiuRuJinE   = 4; // 大单净流入金额
+}
+
+message QuoteFundFlowSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated QuoteFundFlow Data = 2;
+}
+
+// 分时委托队列
+message QuoteQueueMinSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated WeiTuoDuiLie Data = 2;
+    optional int64 QingPan = 3;
+}
+
+// 大单分时
+message QuoteBOrderMin
+{
+    optional int64  ShiJian              = 1; //时间
+    optional int64  JingMaiRuTeDaDanBiLi       = 2; // 净买入特大单比例
+    optional int64  JingMaiRuDaDanBiLi      = 3; // 净买入大单比例
+    optional int64  JingMaiRuZhongDanBiLi   = 4; // 净买入中单比例
+    optional int64  JingMaiRuXiaoDanBiLi   = 5; // 净买入小单比例
+}
+
+message QuoteBOrderMinSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated QuoteBOrderMin Data = 2;
+    optional int64 QingPan = 3;
+}

@@ -1,0 +1,51 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+
+// protoc --go_out=../dzhyun.git dzhyun.blockstatistics.proto
+
+//所有结构体的字段用中文拼音全称（obj除外），且首字母大写
+
+message TongJiApp{ // ->MSG
+	//领涨股
+	message LingZhangGuShuJu{
+		required string Obj = 1;  //obj
+		optional string ZhongWenJianCheng = 2;  //中文简称
+		optional int64 ZuiXinJia = 3;  //最新价
+		optional int64 ZhangFu = 4;  //涨幅
+	}
+
+	//涨跌平
+	message ZhangDiePingShuJu{
+		optional int64 ShangZhangJiaShu = 1;  //上涨家数
+		optional int64 XiaDieJiaShu = 2;  //下跌家数
+		optional int64 PingPanJiaShu = 3;  //平盘家数
+	}
+
+	//涨停跌停
+	message ZhangTingDieTingShuJu{
+		optional int64 ZhangTingJiaShu = 1;	//涨停家数
+		optional int64 DieTingJiaShu = 2;	//跌停家数
+	}
+
+	//资金流向
+	message ZiJinLiuXiangShuJu{
+		optional int64 ShiJian = 1;	//时间
+		optional int64 ZiJinJingE = 2;	//资金净额
+	}
+
+	optional int64 ChengJiaoE        = 1;  //成交额
+	optional int64 LiuTongShiZhi       = 2;  //流通市值
+	optional int64 ZongShiZhi       = 3;  //总市值
+	optional ZhangDiePingShuJu ZhangDiePing       = 4;  //涨跌平
+	optional LingZhangGuShuJu LingZhangGu       = 5;  //领涨股
+	optional int64 TingPaiJiaShu		= 6; //停牌家数
+	optional ZhangTingDieTingShuJu ZhangTingDieTing = 7; //涨停跌停家数
+	optional int64 GuPiaoGeShu = 8; //股票个数
+	optional int64 PingJunJingTaiShiYingLv = 9; //平均静态市盈率
+	optional int64 ZiJinJingE = 10; //资金净额
+	repeated ZiJinLiuXiangShuJu ZiJinLiuXiang = 11; //资金流向
+	optional int64 JunJia = 12; //均价
+	optional int64 JiaQuanJunJia = 13; //加权均价
+}

@@ -1,0 +1,17 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+
+message Token // ->MSG
+{
+	required int32  result       = 1 [default = 0];
+	optional string  token        = 2;
+	optional int64  version      = 3;
+	optional int64  create_time  = 4;
+	optional int64  refresh_time = 5;
+	optional int64  duration	  = 6;
+	optional string  appid        = 7;
+	optional string  device       = 8;
+	optional string  uid		  = 9;
+}
