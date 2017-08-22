@@ -21,7 +21,7 @@ export default function parseProtoBuf(input, parseYfloat) {
     // 错误消息直接返回，正确的数据消息再解析其中的Data
     if (responseMessage.Err !== 0) {
       const result = responseMessage.toObject();
-      if (result.Data) result.Data = JSON.parse(String.fromCharCode(...result.Data));
+      if (result.Data) result.Data = JSON.parse(String.fromCharCode.apply(String, result.Data));
       return result;
     }
     const dataMessage = MSG.decode(responseMessage.Data);

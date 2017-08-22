@@ -16,10 +16,10 @@ export function arrayBufferToString(arrayBuffer) {
     let start = 0;
     do {
       const subArray = uint8Array.subarray(start, start += 65535);
-      results.push(String.fromCharCode(...subArray));
+      results.push(String.fromCharCode.apply(String, subArray));
     } while (start < length);
 
     return decodeURIComponent(escape(results.join('')));
   }
-  return decodeURIComponent(escape(String.fromCharCode(...uint8Array)));
+  return decodeURIComponent(escape(String.fromCharCode.apply(String, uint8Array)));
 }
