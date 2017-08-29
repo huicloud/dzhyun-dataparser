@@ -73,7 +73,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 31);
+/******/ 	return __webpack_require__(__webpack_require__.s = 38);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -89,14 +89,9 @@ return /******/ (function(modules) { // webpackBootstrap
  */
 var util = module.exports = __webpack_require__(2);
 
-var roots = __webpack_require__(17);
-
-var Type, // cyclic
-    Enum;
-
-util.codegen = __webpack_require__(24);
-util.fetch   = __webpack_require__(26);
-util.path    = __webpack_require__(28);
+util.codegen = __webpack_require__(31);
+util.fetch   = __webpack_require__(33);
+util.path    = __webpack_require__(35);
 
 /**
  * Node's fs module if available.
@@ -110,32 +105,11 @@ util.fs = util.inquire("fs");
  * @returns {Array.<*>} Converted array
  */
 util.toArray = function toArray(object) {
-    if (object) {
-        var keys  = Object.keys(object),
-            array = new Array(keys.length),
-            index = 0;
-        while (index < keys.length)
-            array[index] = object[keys[index++]];
-        return array;
-    }
-    return [];
-};
-
-/**
- * Converts an array of keys immediately followed by their respective value to an object, omitting undefined values.
- * @param {Array.<*>} array Array to convert
- * @returns {Object.<string,*>} Converted object
- */
-util.toObject = function toObject(array) {
-    var object = {},
-        index  = 0;
-    while (index < array.length) {
-        var key = array[index++],
-            val = array[index++];
-        if (val !== undefined)
-            object[key] = val;
-    }
-    return object;
+    var array = [];
+    if (object)
+        for (var keys = Object.keys(object), i = 0; i < keys.length; ++i)
+            array.push(object[keys[i]]);
+    return array;
 };
 
 var safePropBackslashRe = /\\/g,
@@ -159,19 +133,6 @@ util.ucFirst = function ucFirst(str) {
     return str.charAt(0).toUpperCase() + str.substring(1);
 };
 
-var camelCaseRe = /_([a-z])/g;
-
-/**
- * Converts a string to camel case.
- * @param {string} str String to convert
- * @returns {string} Converted string
- */
-util.camelCase = function camelCase(str) {
-    return str.substring(0, 1)
-         + str.substring(1)
-               .replace(camelCaseRe, function($0, $1) { return $1.toUpperCase(); });
-};
-
 /**
  * Compares reflected fields by id.
  * @param {Field} a First field
@@ -181,73 +142,6 @@ util.camelCase = function camelCase(str) {
 util.compareFieldsById = function compareFieldsById(a, b) {
     return a.id - b.id;
 };
-
-/**
- * Decorator helper for types (TypeScript).
- * @param {Constructor<T>} ctor Constructor function
- * @param {string} [typeName] Type name, defaults to the constructor's name
- * @returns {Type} Reflected type
- * @template T extends Message<T>
- * @property {Root} root Decorators root
- */
-util.decorateType = function decorateType(ctor, typeName) {
-
-    /* istanbul ignore if */
-    if (ctor.$type) {
-        if (typeName && ctor.$type.name !== typeName) {
-            util.decorateRoot.remove(ctor.$type);
-            ctor.$type.name = typeName;
-            util.decorateRoot.add(ctor.$type);
-        }
-        return ctor.$type;
-    }
-
-    /* istanbul ignore next */
-    if (!Type)
-        Type = __webpack_require__(43);
-
-    var type = new Type(typeName || ctor.name);
-    util.decorateRoot.add(type);
-    type.ctor = ctor; // sets up .encode, .decode etc.
-    Object.defineProperty(ctor, "$type", { value: type, enumerable: false });
-    Object.defineProperty(ctor.prototype, "$type", { value: type, enumerable: false });
-    return type;
-};
-
-var decorateEnumIndex = 0;
-
-/**
- * Decorator helper for enums (TypeScript).
- * @param {Object} object Enum object
- * @returns {Enum} Reflected enum
- */
-util.decorateEnum = function decorateEnum(object) {
-
-    /* istanbul ignore if */
-    if (object.$type)
-        return object.$type;
-
-    /* istanbul ignore next */
-    if (!Enum)
-        Enum = __webpack_require__(1);
-
-    var enm = new Enum("Enum" + decorateEnumIndex++, object);
-    util.decorateRoot.add(enm);
-    Object.defineProperty(object, "$type", { value: enm, enumerable: false });
-    return enm;
-};
-
-/**
- * Decorator root (TypeScript).
- * @name util.decorateRoot
- * @type {Root}
- * @readonly
- */
-Object.defineProperty(util, "decorateRoot", {
-    get: function() {
-        return roots["decorated"] || (roots["decorated"] = new (__webpack_require__(40))());
-    }
-});
 
 
 /***/ }),
@@ -303,13 +197,13 @@ function Enum(name, values, options) {
 
     if (values)
         for (var keys = Object.keys(values), i = 0; i < keys.length; ++i)
-            if (typeof values[keys[i]] === "number") // use forward entries only
-                this.valuesById[ this.values[keys[i]] = values[keys[i]] ] = keys[i];
+            this.valuesById[ this.values[keys[i]] = values[keys[i]] ] = keys[i];
 }
 
 /**
  * Enum descriptor.
- * @interface IEnum
+ * @typedef EnumDescriptor
+ * @type {Object}
  * @property {Object.<string,number>} values Enum values
  * @property {Object.<string,*>} [options] Enum options
  */
@@ -317,7 +211,7 @@ function Enum(name, values, options) {
 /**
  * Constructs an enum from an enum descriptor.
  * @param {string} name Enum name
- * @param {IEnum} json Enum descriptor
+ * @param {EnumDescriptor} json Enum descriptor
  * @returns {Enum} Created enum
  * @throws {TypeError} If arguments are invalid
  */
@@ -327,20 +221,20 @@ Enum.fromJSON = function fromJSON(name, json) {
 
 /**
  * Converts this enum to an enum descriptor.
- * @returns {IEnum} Enum descriptor
+ * @returns {EnumDescriptor} Enum descriptor
  */
 Enum.prototype.toJSON = function toJSON() {
-    return util.toObject([
-        "options" , this.options,
-        "values"  , this.values
-    ]);
+    return {
+        options : this.options,
+        values  : this.values
+    };
 };
 
 /**
  * Adds a value to this enum.
  * @param {string} name Value name
  * @param {number} id Value id
- * @param {string} [comment] Comment, if any
+ * @param {?string} comment Comment, if any
  * @returns {Enum} `this`
  * @throws {TypeError} If arguments are invalid
  * @throws {Error} If there is already a value with this name or id
@@ -401,28 +295,28 @@ Enum.prototype.remove = function(name) {
 var util = exports;
 
 // used to return a Promise where callback is omitted
-util.asPromise = __webpack_require__(10);
+util.asPromise = __webpack_require__(13);
 
 // converts to / from base64 encoded strings
-util.base64 = __webpack_require__(23);
+util.base64 = __webpack_require__(30);
 
 // base class of rpc.Service
-util.EventEmitter = __webpack_require__(25);
+util.EventEmitter = __webpack_require__(32);
 
 // float handling accross browsers
-util.float = __webpack_require__(27);
+util.float = __webpack_require__(34);
 
 // requires modules optionally and hides the call from bundlers
-util.inquire = __webpack_require__(11);
+util.inquire = __webpack_require__(14);
 
 // converts to / from utf8 encoded strings
-util.utf8 = __webpack_require__(30);
+util.utf8 = __webpack_require__(37);
 
 // provides a node-like buffer pool in the browser
-util.pool = __webpack_require__(29);
+util.pool = __webpack_require__(36);
 
 // utility to work with the low and high bits of a 64 bit value
-util.LongBits = __webpack_require__(44);
+util.LongBits = __webpack_require__(46);
 
 /**
  * An immuable empty array.
@@ -498,16 +392,16 @@ util.isSet = function isSet(obj, prop) {
     return false;
 };
 
-/**
+/*
  * Any compatible Buffer instance.
  * This is a minimal stand-alone definition of a Buffer instance. The actual type is that exported by node's typings.
- * @interface Buffer
- * @extends Uint8Array
+ * @typedef Buffer
+ * @type {Uint8Array}
  */
 
 /**
  * Node's Buffer class if available.
- * @type {Constructor<Buffer>}
+ * @type {?function(new: Buffer)}
  */
 util.Buffer = (function() {
     try {
@@ -520,10 +414,23 @@ util.Buffer = (function() {
     }
 })();
 
-// Internal alias of or polyfull for Buffer.from.
+/**
+ * Internal alias of or polyfull for Buffer.from.
+ * @type {?function}
+ * @param {string|number[]} value Value
+ * @param {string} [encoding] Encoding if value is a string
+ * @returns {Uint8Array}
+ * @private
+ */
 util._Buffer_from = null;
 
-// Internal alias of or polyfill for Buffer.allocUnsafe.
+/**
+ * Internal alias of or polyfill for Buffer.allocUnsafe.
+ * @type {?function}
+ * @param {number} size Buffer size
+ * @returns {Uint8Array}
+ * @private
+ */
 util._Buffer_allocUnsafe = null;
 
 /**
@@ -546,14 +453,15 @@ util.newBuffer = function newBuffer(sizeOrArray) {
 
 /**
  * Array implementation used in the browser. `Uint8Array` if supported, otherwise `Array`.
- * @type {Constructor<Uint8Array>}
+ * @type {?function(new: Uint8Array, *)}
  */
 util.Array = typeof Uint8Array !== "undefined" ? Uint8Array /* istanbul ignore next */ : Array;
 
-/**
+/*
  * Any compatible Long instance.
  * This is a minimal stand-alone definition of a Long instance. The actual type is that exported by long.js.
- * @interface Long
+ * @typedef Long
+ * @type {Object}
  * @property {number} low Low bits
  * @property {number} high High bits
  * @property {boolean} unsigned Whether unsigned or not
@@ -561,7 +469,7 @@ util.Array = typeof Uint8Array !== "undefined" ? Uint8Array /* istanbul ignore n
 
 /**
  * Long.js's Long class if available.
- * @type {Constructor<Long>}
+ * @type {?function(new: Long)}
  */
 util.Long = /* istanbul ignore next */ global.dcodeIO && /* istanbul ignore next */ global.dcodeIO.Long || util.inquire("long");
 
@@ -640,7 +548,7 @@ util.lcFirst = function lcFirst(str) {
  * Creates a custom error constructor.
  * @memberof util
  * @param {string} name Error name
- * @returns {Constructor<Error>} Custom error constructor
+ * @returns {function} Custom error constructor
  */
 function newError(name) {
 
@@ -682,10 +590,9 @@ util.newError = newError;
  * @classdesc Error subclass indicating a protocol specifc error.
  * @memberof util
  * @extends Error
- * @template T extends Message<T>
  * @constructor
  * @param {string} message Error message
- * @param {Object.<string,*>} [properties] Additional properties
+ * @param {Object.<string,*>=} properties Additional properties
  * @example
  * try {
  *     MyMessage.decode(someBuffer); // throws if required fields are missing
@@ -699,20 +606,13 @@ util.ProtocolError = newError("ProtocolError");
 /**
  * So far decoded message instance.
  * @name util.ProtocolError#instance
- * @type {Message<T>}
- */
-
-/**
- * A OneOf getter as returned by {@link util.oneOfGetter}.
- * @typedef OneOfGetter
- * @type {function}
- * @returns {string|undefined} Set field name, if any
+ * @type {Message}
  */
 
 /**
  * Builds a getter for a oneof's present field name.
  * @param {string[]} fieldNames Field names
- * @returns {OneOfGetter} Unbound getter
+ * @returns {function():string|undefined} Unbound getter
  */
 util.oneOfGetter = function getOneOf(fieldNames) {
     var fieldMap = {};
@@ -732,17 +632,9 @@ util.oneOfGetter = function getOneOf(fieldNames) {
 };
 
 /**
- * A OneOf setter as returned by {@link util.oneOfSetter}.
- * @typedef OneOfSetter
- * @type {function}
- * @param {string|undefined} value Field name
- * @returns {undefined}
- */
-
-/**
  * Builds a setter for a oneof's present field name.
  * @param {string[]} fieldNames Field names
- * @returns {OneOfSetter} Unbound setter
+ * @returns {function(?string):undefined} Unbound setter
  */
 util.oneOfSetter = function setOneOf(fieldNames) {
 
@@ -759,27 +651,34 @@ util.oneOfSetter = function setOneOf(fieldNames) {
     };
 };
 
+/* istanbul ignore next */
 /**
- * Default conversion options used for {@link Message#toJSON} implementations.
- *
- * These options are close to proto3's JSON mapping with the exception that internal types like Any are handled just like messages. More precisely:
- *
- * - Longs become strings
- * - Enums become string keys
- * - Bytes become base64 encoded strings
- * - (Sub-)Messages become plain objects
- * - Maps become plain objects with all string keys
- * - Repeated fields become arrays
- * - NaN and Infinity for float and double fields become strings
- *
- * @type {IConversionOptions}
- * @see https://developers.google.com/protocol-buffers/docs/proto3?hl=en#json
+ * Lazily resolves fully qualified type names against the specified root.
+ * @param {Root} root Root instanceof
+ * @param {Object.<number,string|ReflectionObject>} lazyTypes Type names
+ * @returns {undefined}
+ * @deprecated since 6.7.0 static code does not emit lazy types anymore
+ */
+util.lazyResolve = function lazyResolve(root, lazyTypes) {
+    for (var i = 0; i < lazyTypes.length; ++i) {
+        for (var keys = Object.keys(lazyTypes[i]), j = 0; j < keys.length; ++j) {
+            var path = lazyTypes[i][keys[j]].split("."),
+                ptr  = root;
+            while (path.length)
+                ptr = ptr[path.shift()];
+            lazyTypes[i][keys[j]] = ptr;
+        }
+    }
+};
+
+/**
+ * Default conversion options used for {@link Message#toJSON} implementations. Longs, enums and bytes are converted to strings by default.
+ * @type {ConversionOptions}
  */
 util.toJSONOptions = {
     longs: String,
     enums: String,
-    bytes: String,
-    json: true
+    bytes: String
 };
 
 util._configure = function() {
@@ -827,33 +726,7 @@ var ruleRe = /^required|optional|repeated$/;
 
 /**
  * Constructs a new message field instance. Note that {@link MapField|map fields} have their own class.
- * @name Field
  * @classdesc Reflected message field.
- * @extends FieldBase
- * @constructor
- * @param {string} name Unique name within its namespace
- * @param {number} id Unique id within its namespace
- * @param {string} type Value type
- * @param {string|Object.<string,*>} [rule="optional"] Field rule
- * @param {string|Object.<string,*>} [extend] Extended type if different from parent
- * @param {Object.<string,*>} [options] Declared options
- */
-
-/**
- * Constructs a field from a field descriptor.
- * @param {string} name Field name
- * @param {IField} json Field descriptor
- * @returns {Field} Created field
- * @throws {TypeError} If arguments are invalid
- */
-Field.fromJSON = function fromJSON(name, json) {
-    return new Field(name, json.id, json.type, json.rule, json.extend, json.options);
-};
-
-/**
- * Not an actual constructor. Use {@link Field} instead.
- * @classdesc Base class of all reflected message fields. This is not an actual class but here for the sake of having consistent type definitions.
- * @exports FieldBase
  * @extends ReflectionObject
  * @constructor
  * @param {string} name Unique name within its namespace
@@ -937,13 +810,13 @@ function Field(name, id, type, rule, extend, options) {
 
     /**
      * Message this field belongs to.
-     * @type {Type|null}
+     * @type {?Type}
      */
     this.message = null;
 
     /**
      * OneOf this field belongs to, if any,
-     * @type {OneOf|null}
+     * @type {?OneOf}
      */
     this.partOf = null;
 
@@ -973,25 +846,25 @@ function Field(name, id, type, rule, extend, options) {
 
     /**
      * Resolved type if not a basic type.
-     * @type {Type|Enum|null}
+     * @type {?(Type|Enum)}
      */
     this.resolvedType = null;
 
     /**
      * Sister-field within the extended type if a declaring extension field.
-     * @type {Field|null}
+     * @type {?Field}
      */
     this.extensionField = null;
 
     /**
      * Sister-field within the declaring namespace if an extended field.
-     * @type {Field|null}
+     * @type {?Field}
      */
     this.declaringField = null;
 
     /**
      * Internally remembers whether this field is packed.
-     * @type {boolean|null}
+     * @type {?boolean}
      * @private
      */
     this._packed = null;
@@ -1023,7 +896,8 @@ Field.prototype.setOption = function setOption(name, value, ifNotSet) {
 
 /**
  * Field descriptor.
- * @interface IField
+ * @typedef FieldDescriptor
+ * @type {Object}
  * @property {string} [rule="optional"] Field rule
  * @property {string} type Field type
  * @property {number} id Field id
@@ -1032,23 +906,38 @@ Field.prototype.setOption = function setOption(name, value, ifNotSet) {
 
 /**
  * Extension field descriptor.
- * @interface IExtensionField
- * @extends IField
+ * @typedef ExtensionFieldDescriptor
+ * @type {Object}
+ * @property {string} [rule="optional"] Field rule
+ * @property {string} type Field type
+ * @property {number} id Field id
  * @property {string} extend Extended type
+ * @property {Object.<string,*>} [options] Field options
  */
 
 /**
+ * Constructs a field from a field descriptor.
+ * @param {string} name Field name
+ * @param {FieldDescriptor} json Field descriptor
+ * @returns {Field} Created field
+ * @throws {TypeError} If arguments are invalid
+ */
+Field.fromJSON = function fromJSON(name, json) {
+    return new Field(name, json.id, json.type, json.rule, json.extend, json.options);
+};
+
+/**
  * Converts this field to a field descriptor.
- * @returns {IField} Field descriptor
+ * @returns {FieldDescriptor} Field descriptor
  */
 Field.prototype.toJSON = function toJSON() {
-    return util.toObject([
-        "rule"    , this.rule !== "optional" && this.rule || undefined,
-        "type"    , this.type,
-        "id"      , this.id,
-        "extend"  , this.extend,
-        "options" , this.options
-    ]);
+    return {
+        rule    : this.rule !== "optional" && this.rule || undefined,
+        type    : this.type,
+        id      : this.id,
+        extend  : this.extend,
+        options : this.options
+    };
 };
 
 /**
@@ -1062,6 +951,11 @@ Field.prototype.resolve = function resolve() {
         return this;
 
     if ((this.typeDefault = types.defaults[this.type]) === undefined) { // if not a basic type, resolve it
+
+        /* istanbul ignore if */
+        if (!Type)
+            Type = __webpack_require__(11);
+
         this.resolvedType = (this.declaringField ? this.declaringField.parent : this.parent).lookupTypeOrEnum(this.type);
         if (this.resolvedType instanceof Type)
             this.typeDefault = null;
@@ -1070,19 +964,15 @@ Field.prototype.resolve = function resolve() {
     }
 
     // use explicitly set default value if present
-    if (this.options && this.options["default"] != null) {
+    if (this.options && this.options["default"] !== undefined) {
         this.typeDefault = this.options["default"];
         if (this.resolvedType instanceof Enum && typeof this.typeDefault === "string")
             this.typeDefault = this.resolvedType.values[this.typeDefault];
     }
 
-    // remove unnecessary options
-    if (this.options) {
-        if (this.options.packed === true || this.options.packed !== undefined && this.resolvedType && !(this.resolvedType instanceof Enum))
-            delete this.options.packed;
-        if (!Object.keys(this.options).length)
-            this.options = undefined;
-    }
+    // remove unnecessary packed option (parser adds this) if not referencing an enum
+    if (this.options && this.options.packed !== undefined && this.resolvedType && !(this.resolvedType instanceof Enum))
+        delete this.options.packed;
 
     // convert to internal data type if necesssary
     if (this.long) {
@@ -1109,64 +999,7 @@ Field.prototype.resolve = function resolve() {
     else
         this.defaultValue = this.typeDefault;
 
-    // ensure proper value on prototype
-    if (this.parent instanceof Type)
-        this.parent.ctor.prototype[this.name] = this.defaultValue;
-
     return ReflectionObject.prototype.resolve.call(this);
-};
-
-/**
- * Decorator function as returned by {@link Field.d} and {@link MapField.d} (TypeScript).
- * @typedef FieldDecorator
- * @type {function}
- * @param {Object} prototype Target prototype
- * @param {string} fieldName Field name
- * @returns {undefined}
- */
-
-/**
- * Field decorator (TypeScript).
- * @name Field.d
- * @function
- * @param {number} fieldId Field id
- * @param {"double"|"float"|"int32"|"uint32"|"sint32"|"fixed32"|"sfixed32"|"int64"|"uint64"|"sint64"|"fixed64"|"sfixed64"|"string"|"bool"|"bytes"|Object} fieldType Field type
- * @param {"optional"|"required"|"repeated"} [fieldRule="optional"] Field rule
- * @param {T} [defaultValue] Default value
- * @returns {FieldDecorator} Decorator function
- * @template T extends number | number[] | Long | Long[] | string | string[] | boolean | boolean[] | Uint8Array | Uint8Array[] | Buffer | Buffer[]
- */
-Field.d = function decorateField(fieldId, fieldType, fieldRule, defaultValue) {
-
-    // submessage: decorate the submessage and use its name as the type
-    if (typeof fieldType === "function")
-        fieldType = util.decorateType(fieldType).name;
-
-    // enum reference: create a reflected copy of the enum and keep reuseing it
-    else if (fieldType && typeof fieldType === "object")
-        fieldType = util.decorateEnum(fieldType).name;
-
-    return function fieldDecorator(prototype, fieldName) {
-        util.decorateType(prototype.constructor)
-            .add(new Field(fieldName, fieldId, fieldType, fieldRule, { "default": defaultValue }));
-    };
-};
-
-/**
- * Field decorator (TypeScript).
- * @name Field.d
- * @function
- * @param {number} fieldId Field id
- * @param {Constructor<T>|string} fieldType Field type
- * @param {"optional"|"required"|"repeated"} [fieldRule="optional"] Field rule
- * @returns {FieldDecorator} Decorator function
- * @template T extends Message<T>
- * @variation 2
- */
-// like Field.d but without a default value
-
-Field._configure = function configure(Type_) {
-    Type = Type_;
 };
 
 
@@ -1214,7 +1047,7 @@ function ReflectionObject(name, options) {
 
     /**
      * Parent namespace.
-     * @type {Namespace|null}
+     * @type {?Namespace}
      */
     this.parent = null;
 
@@ -1226,13 +1059,13 @@ function ReflectionObject(name, options) {
 
     /**
      * Comment text, if any.
-     * @type {string|null}
+     * @type {?string}
      */
     this.comment = null;
 
     /**
      * Defining file name.
-     * @type {string|null}
+     * @type {?string}
      */
     this.filename = null;
 }
@@ -1473,7 +1306,7 @@ types.basic = bake([
  * @property {boolean} bool=false Bool default
  * @property {string} string="" String default
  * @property {Array.<number>} bytes=Array(0) Bytes default
- * @property {null} message=null Message default
+ * @property {Message} message=null Message default
  */
 types.defaults = bake([
     /* double   */ 0,
@@ -1585,44 +1418,6 @@ types.packed = bake([
 
 "use strict";
 
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.stringToArrayBuffer = stringToArrayBuffer;
-exports.arrayBufferToString = arrayBufferToString;
-function stringToArrayBuffer(str) {
-  var strLen = str.length;
-  var buf = new ArrayBuffer(strLen * 2); // 2 bytes for each char
-  var bufView = new Uint8Array(buf);
-  for (var i = 0; i < strLen; i += 1) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  return buf;
-}
-
-function arrayBufferToString(arrayBuffer) {
-  var uint8Array = new Uint8Array(arrayBuffer);
-  var length = uint8Array.length;
-  if (length > 65535) {
-    var results = [];
-    var start = 0;
-    do {
-      var subArray = uint8Array.subarray(start, start += 65535);
-      results.push(String.fromCharCode.apply(String, subArray));
-    } while (start < length);
-
-    return decodeURIComponent(escape(results.join('')));
-  }
-  return decodeURIComponent(escape(String.fromCharCode.apply(String, uint8Array)));
-}
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
 module.exports = Namespace;
 
 // extends ReflectionObject
@@ -1698,7 +1493,7 @@ function Namespace(name, options) {
 
     /**
      * Cached nested objects as an array.
-     * @type {ReflectionObject[]|null}
+     * @type {?ReflectionObject[]}
      * @private
      */
     this._nestedArray = null;
@@ -1723,38 +1518,47 @@ Object.defineProperty(Namespace.prototype, "nestedArray", {
 
 /**
  * Namespace descriptor.
- * @interface INamespace
+ * @typedef NamespaceDescriptor
+ * @type {Object}
  * @property {Object.<string,*>} [options] Namespace options
- * @property {Object.<string,AnyNestedObject>} [nested] Nested object descriptors
+ * @property {Object.<string,AnyNestedDescriptor>} nested Nested object descriptors
+ */
+
+/**
+ * Namespace base descriptor.
+ * @typedef NamespaceBaseDescriptor
+ * @type {Object}
+ * @property {Object.<string,*>} [options] Namespace options
+ * @property {Object.<string,AnyNestedDescriptor>} [nested] Nested object descriptors
  */
 
 /**
  * Any extension field descriptor.
- * @typedef AnyExtensionField
- * @type {IExtensionField|IExtensionMapField}
+ * @typedef AnyExtensionFieldDescriptor
+ * @type {ExtensionFieldDescriptor|ExtensionMapFieldDescriptor}
  */
 
 /**
  * Any nested object descriptor.
- * @typedef AnyNestedObject
- * @type {IEnum|IType|IService|AnyExtensionField|INamespace}
+ * @typedef AnyNestedDescriptor
+ * @type {EnumDescriptor|TypeDescriptor|ServiceDescriptor|AnyExtensionFieldDescriptor|NamespaceDescriptor}
  */
-// ^ BEWARE: VSCode hangs forever when using more than 5 types (that's why AnyExtensionField exists in the first place)
+// ^ BEWARE: VSCode hangs forever when using more than 5 types (that's why AnyExtensionFieldDescriptor exists in the first place)
 
 /**
  * Converts this namespace to a namespace descriptor.
- * @returns {INamespace} Namespace descriptor
+ * @returns {NamespaceBaseDescriptor} Namespace descriptor
  */
 Namespace.prototype.toJSON = function toJSON() {
-    return util.toObject([
-        "options" , this.options,
-        "nested"  , arrayToJSON(this.nestedArray)
-    ]);
+    return {
+        options : this.options,
+        nested  : arrayToJSON(this.nestedArray)
+    };
 };
 
 /**
  * Adds nested objects to this namespace from nested object descriptors.
- * @param {Object.<string,AnyNestedObject>} nestedJson Any nested object descriptors
+ * @param {Object.<string,AnyNestedDescriptor>} nestedJson Any nested object descriptors
  * @returns {Namespace} `this`
  */
 Namespace.prototype.addJSON = function addJSON(nestedJson) {
@@ -1782,7 +1586,7 @@ Namespace.prototype.addJSON = function addJSON(nestedJson) {
 /**
  * Gets the nested object of the specified name.
  * @param {string} name Nested object name
- * @returns {ReflectionObject|null} The reflection object or `null` if it doesn't exist
+ * @returns {?ReflectionObject} The reflection object or `null` if it doesn't exist
  */
 Namespace.prototype.get = function get(name) {
     return this.nested && this.nested[name]
@@ -1905,11 +1709,11 @@ Namespace.prototype.resolveAll = function resolveAll() {
 };
 
 /**
- * Recursively looks up the reflection object matching the specified path in the scope of this namespace.
+ * Looks up the reflection object at the specified path, relative to this namespace.
  * @param {string|string[]} path Path to look up
  * @param {*|Array.<*>} filterTypes Filter types, any combination of the constructors of `protobuf.Type`, `protobuf.Enum`, `protobuf.Service` etc.
  * @param {boolean} [parentAlreadyChecked=false] If known, whether the parent has already been checked
- * @returns {ReflectionObject|null} Looked up object or `null` if none could be found
+ * @returns {?ReflectionObject} Looked up object or `null` if none could be found
  */
 Namespace.prototype.lookup = function lookup(path, filterTypes, parentAlreadyChecked) {
 
@@ -1930,7 +1734,6 @@ Namespace.prototype.lookup = function lookup(path, filterTypes, parentAlreadyChe
     // Start at root if path is absolute
     if (path[0] === "")
         return this.root.lookup(path.slice(1), filterTypes);
-
     // Test if the first part matches any nested object, and if so, traverse if path contains more
     var found = this.get(path[0]);
     if (found) {
@@ -1939,13 +1742,7 @@ Namespace.prototype.lookup = function lookup(path, filterTypes, parentAlreadyChe
                 return found;
         } else if (found instanceof Namespace && (found = found.lookup(path.slice(1), filterTypes, true)))
             return found;
-
-    // Otherwise try each nested namespace
-    } else
-        for (var i = 0; i < this.nestedArray.length; ++i)
-            if (this._nestedArray[i] instanceof Namespace && (found = this._nestedArray[i].lookup(path, filterTypes, true)))
-                return found;
-
+    }
     // If there hasn't been a match, try again at the parent
     if (this.parent === null || parentAlreadyChecked)
         return null;
@@ -1958,7 +1755,7 @@ Namespace.prototype.lookup = function lookup(path, filterTypes, parentAlreadyChe
  * @function
  * @param {string|string[]} path Path to look up
  * @param {boolean} [parentAlreadyChecked=false] Whether the parent has already been checked
- * @returns {ReflectionObject|null} Looked up object or `null` if none could be found
+ * @returns {?ReflectionObject} Looked up object or `null` if none could be found
  * @variation 2
  */
 // lookup(path: string, [parentAlreadyChecked: boolean])
@@ -2026,7 +1823,471 @@ Namespace._configure = function(Type_, Service_) {
 
 
 /***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.stringToArrayBuffer = stringToArrayBuffer;
+exports.arrayBufferToString = arrayBufferToString;
+function stringToArrayBuffer(str) {
+  var strLen = str.length;
+  var buf = new ArrayBuffer(strLen * 2); // 2 bytes for each char
+  var bufView = new Uint8Array(buf);
+  for (var i = 0; i < strLen; i += 1) {
+    bufView[i] = str.charCodeAt(i);
+  }
+  return buf;
+}
+
+function arrayBufferToString(arrayBuffer) {
+  var uint8Array = new Uint8Array(arrayBuffer);
+  var length = uint8Array.length;
+  if (length > 65535) {
+    var results = [];
+    var start = 0;
+    do {
+      var subArray = uint8Array.subarray(start, start += 65535);
+      results.push(String.fromCharCode.apply(String, subArray));
+    } while (start < length);
+
+    return decodeURIComponent(escape(results.join('')));
+  }
+  return decodeURIComponent(escape(String.fromCharCode.apply(String, uint8Array)));
+}
+
+/***/ }),
 /* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+/**
+ * Runtime message from/to plain object converters.
+ * @namespace
+ */
+var converter = exports;
+
+var Enum = __webpack_require__(1),
+    util = __webpack_require__(0);
+
+/**
+ * Generates a partial value fromObject conveter.
+ * @param {Codegen} gen Codegen instance
+ * @param {Field} field Reflected field
+ * @param {number} fieldIndex Field index
+ * @param {string} prop Property reference
+ * @returns {Codegen} Codegen instance
+ * @ignore
+ */
+function genValuePartial_fromObject(gen, field, fieldIndex, prop) {
+    /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
+    if (field.resolvedType) {
+        if (field.resolvedType instanceof Enum) { gen
+            ("switch(d%s){", prop);
+            for (var values = field.resolvedType.values, keys = Object.keys(values), i = 0; i < keys.length; ++i) {
+                if (field.repeated && values[keys[i]] === field.typeDefault) gen
+                ("default:");
+                gen
+                ("case%j:", keys[i])
+                ("case %j:", values[keys[i]])
+                    ("m%s=%j", prop, values[keys[i]])
+                    ("break");
+            } gen
+            ("}");
+        } else gen
+            ("if(typeof d%s!==\"object\")", prop)
+                ("throw TypeError(%j)", field.fullName + ": object expected")
+            ("m%s=types[%d].fromObject(d%s)", prop, fieldIndex, prop);
+    } else {
+        var isUnsigned = false;
+        switch (field.type) {
+            case "double":
+            case "float":gen
+                ("m%s=Number(d%s)", prop, prop);
+                break;
+            case "uint32":
+            case "fixed32": gen
+                ("m%s=d%s>>>0", prop, prop);
+                break;
+            case "int32":
+            case "sint32":
+            case "sfixed32": gen
+                ("m%s=d%s|0", prop, prop);
+                break;
+            case "uint64":
+                isUnsigned = true;
+                // eslint-disable-line no-fallthrough
+            case "int64":
+            case "sint64":
+            case "fixed64":
+            case "sfixed64": gen
+                ("if(util.Long)")
+                    ("(m%s=util.Long.fromValue(d%s)).unsigned=%j", prop, prop, isUnsigned)
+                ("else if(typeof d%s===\"string\")", prop)
+                    ("m%s=parseInt(d%s,10)", prop, prop)
+                ("else if(typeof d%s===\"number\")", prop)
+                    ("m%s=d%s", prop, prop)
+                ("else if(typeof d%s===\"object\")", prop)
+                    ("m%s=new util.LongBits(d%s.low>>>0,d%s.high>>>0).toNumber(%s)", prop, prop, prop, isUnsigned ? "true" : "");
+                break;
+            case "bytes": gen
+                ("if(typeof d%s===\"string\")", prop)
+                    ("util.base64.decode(d%s,m%s=util.newBuffer(util.base64.length(d%s)),0)", prop, prop, prop)
+                ("else if(d%s.length)", prop)
+                    ("m%s=d%s", prop, prop);
+                break;
+            case "string": gen
+                ("m%s=String(d%s)", prop, prop);
+                break;
+            case "bool": gen
+                ("m%s=Boolean(d%s)", prop, prop);
+                break;
+            /* default: gen
+                ("m%s=d%s", prop, prop);
+                break; */
+        }
+    }
+    return gen;
+    /* eslint-enable no-unexpected-multiline, block-scoped-var, no-redeclare */
+}
+
+/**
+ * Generates a plain object to runtime message converter specific to the specified message type.
+ * @param {Type} mtype Message type
+ * @returns {Codegen} Codegen instance
+ */
+converter.fromObject = function fromObject(mtype) {
+    /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
+    var fields = mtype.fieldsArray;
+    var gen = util.codegen("d")
+    ("if(d instanceof this.ctor)")
+        ("return d");
+    if (!fields.length) return gen
+    ("return new this.ctor");
+    gen
+    ("var m=new this.ctor");
+    for (var i = 0; i < fields.length; ++i) {
+        var field  = fields[i].resolve(),
+            prop   = util.safeProp(field.name);
+
+        // Map fields
+        if (field.map) { gen
+    ("if(d%s){", prop)
+        ("if(typeof d%s!==\"object\")", prop)
+            ("throw TypeError(%j)", field.fullName + ": object expected")
+        ("m%s={}", prop)
+        ("for(var ks=Object.keys(d%s),i=0;i<ks.length;++i){", prop);
+            genValuePartial_fromObject(gen, field, /* not sorted */ i, prop + "[ks[i]]")
+        ("}")
+    ("}");
+
+        // Repeated fields
+        } else if (field.repeated) { gen
+    ("if(d%s){", prop)
+        ("if(!Array.isArray(d%s))", prop)
+            ("throw TypeError(%j)", field.fullName + ": array expected")
+        ("m%s=[]", prop)
+        ("for(var i=0;i<d%s.length;++i){", prop);
+            genValuePartial_fromObject(gen, field, /* not sorted */ i, prop + "[i]")
+        ("}")
+    ("}");
+
+        // Non-repeated fields
+        } else {
+            if (!(field.resolvedType instanceof Enum)) gen // no need to test for null/undefined if an enum (uses switch)
+    ("if(d%s!=null){", prop); // !== undefined && !== null
+        genValuePartial_fromObject(gen, field, /* not sorted */ i, prop);
+            if (!(field.resolvedType instanceof Enum)) gen
+    ("}");
+        }
+    } return gen
+    ("return m");
+    /* eslint-enable no-unexpected-multiline, block-scoped-var, no-redeclare */
+};
+
+/**
+ * Generates a partial value toObject converter.
+ * @param {Codegen} gen Codegen instance
+ * @param {Field} field Reflected field
+ * @param {number} fieldIndex Field index
+ * @param {string} prop Property reference
+ * @returns {Codegen} Codegen instance
+ * @ignore
+ */
+function genValuePartial_toObject(gen, field, fieldIndex, prop) {
+    /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
+    if (field.resolvedType) {
+        if (field.resolvedType instanceof Enum) gen
+            ("d%s=o.enums===String?types[%d].values[m%s]:m%s", prop, fieldIndex, prop, prop);
+        else gen
+            ("d%s=types[%d].toObject(m%s,o)", prop, fieldIndex, prop);
+    } else {
+        var isUnsigned = false;
+        switch (field.type) {
+            case "uint64":
+                isUnsigned = true;
+                // eslint-disable-line no-fallthrough
+            case "int64":
+            case "sint64":
+            case "fixed64":
+            case "sfixed64": gen
+            ("if(typeof m%s===\"number\")", prop)
+                ("d%s=o.longs===String?String(m%s):m%s", prop, prop, prop)
+            ("else") // Long-like
+                ("d%s=o.longs===String?util.Long.prototype.toString.call(m%s):o.longs===Number?new util.LongBits(m%s.low>>>0,m%s.high>>>0).toNumber(%s):m%s", prop, prop, prop, prop, isUnsigned ? "true": "", prop);
+                break;
+            case "bytes": gen
+            ("d%s=o.bytes===String?util.base64.encode(m%s,0,m%s.length):o.bytes===Array?Array.prototype.slice.call(m%s):m%s", prop, prop, prop, prop, prop);
+                break;
+            default: gen
+            ("d%s=m%s", prop, prop);
+                break;
+        }
+    }
+    return gen;
+    /* eslint-enable no-unexpected-multiline, block-scoped-var, no-redeclare */
+}
+
+/**
+ * Generates a runtime message to plain object converter specific to the specified message type.
+ * @param {Type} mtype Message type
+ * @returns {Codegen} Codegen instance
+ */
+converter.toObject = function toObject(mtype) {
+    /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
+    var fields = mtype.fieldsArray.slice().sort(util.compareFieldsById);
+    if (!fields.length)
+        return util.codegen()("return {}");
+    var gen = util.codegen("m", "o")
+    ("if(!o)")
+        ("o={}")
+    ("var d={}");
+
+    var repeatedFields = [],
+        mapFields = [],
+        normalFields = [],
+        i = 0;
+    for (; i < fields.length; ++i)
+        if (!fields[i].partOf)
+            ( fields[i].resolve().repeated ? repeatedFields
+            : fields[i].map ? mapFields
+            : normalFields).push(fields[i]);
+
+    if (repeatedFields.length) { gen
+    ("if(o.arrays||o.defaults){");
+        for (i = 0; i < repeatedFields.length; ++i) gen
+        ("d%s=[]", util.safeProp(repeatedFields[i].name));
+        gen
+    ("}");
+    }
+
+    if (mapFields.length) { gen
+    ("if(o.objects||o.defaults){");
+        for (i = 0; i < mapFields.length; ++i) gen
+        ("d%s={}", util.safeProp(mapFields[i].name));
+        gen
+    ("}");
+    }
+
+    if (normalFields.length) { gen
+    ("if(o.defaults){");
+        for (i = 0; i < normalFields.length; ++i) {
+            var field = normalFields[i],
+                prop  = util.safeProp(field.name);
+            if (field.resolvedType instanceof Enum) gen
+        ("d%s=o.enums===String?%j:%j", prop, field.resolvedType.valuesById[field.typeDefault], field.typeDefault);
+            else if (field.long) gen
+        ("if(util.Long){")
+            ("var n=new util.Long(%d,%d,%j)", field.typeDefault.low, field.typeDefault.high, field.typeDefault.unsigned)
+            ("d%s=o.longs===String?n.toString():o.longs===Number?n.toNumber():n", prop)
+        ("}else")
+            ("d%s=o.longs===String?%j:%d", prop, field.typeDefault.toString(), field.typeDefault.toNumber());
+            else if (field.bytes) gen
+        ("d%s=o.bytes===String?%j:%s", prop, String.fromCharCode.apply(String, field.typeDefault), "[" + Array.prototype.slice.call(field.typeDefault).join(",") + "]");
+            else gen
+        ("d%s=%j", prop, field.typeDefault); // also messages (=null)
+        } gen
+    ("}");
+    }
+    var hasKs2 = false;
+    for (i = 0; i < fields.length; ++i) {
+        var field = fields[i],
+            index = mtype._fieldsArray.indexOf(field),
+            prop  = util.safeProp(field.name);
+        if (field.map) {
+            if (!hasKs2) { hasKs2 = true; gen
+    ("var ks2");
+            } gen
+    ("if(m%s&&(ks2=Object.keys(m%s)).length){", prop, prop)
+        ("d%s={}", prop)
+        ("for(var j=0;j<ks2.length;++j){");
+            genValuePartial_toObject(gen, field, /* sorted */ index, prop + "[ks2[j]]")
+        ("}");
+        } else if (field.repeated) { gen
+    ("if(m%s&&m%s.length){", prop, prop)
+        ("d%s=[]", prop)
+        ("for(var j=0;j<m%s.length;++j){", prop);
+            genValuePartial_toObject(gen, field, /* sorted */ index, prop + "[j]")
+        ("}");
+        } else { gen
+    ("if(m%s!=null&&m.hasOwnProperty(%j)){", prop, field.name); // !== undefined && !== null
+        genValuePartial_toObject(gen, field, /* sorted */ index, prop);
+        if (field.partOf) gen
+        ("if(o.oneofs)")
+            ("d%s=%j", util.safeProp(field.partOf.name), field.name);
+        }
+        gen
+    ("}");
+    }
+    return gen
+    ("return d");
+    /* eslint-enable no-unexpected-multiline, block-scoped-var, no-redeclare */
+};
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = Message;
+
+var util = __webpack_require__(0);
+
+/**
+ * Constructs a new message instance.
+ * @classdesc Abstract runtime message.
+ * @constructor
+ * @param {Object.<string,*>} [properties] Properties to set
+ */
+function Message(properties) {
+    // not used internally
+    if (properties)
+        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+            this[keys[i]] = properties[keys[i]];
+}
+
+/**
+ * Reference to the reflected type.
+ * @name Message.$type
+ * @type {Type}
+ * @readonly
+ */
+
+/**
+ * Reference to the reflected type.
+ * @name Message#$type
+ * @type {Type}
+ * @readonly
+ */
+
+/**
+ * Encodes a message of this type.
+ * @param {Message|Object.<string,*>} message Message to encode
+ * @param {Writer} [writer] Writer to use
+ * @returns {Writer} Writer
+ */
+Message.encode = function encode(message, writer) {
+    return this.$type.encode(message, writer);
+};
+
+/**
+ * Encodes a message of this type preceeded by its length as a varint.
+ * @param {Message|Object.<string,*>} message Message to encode
+ * @param {Writer} [writer] Writer to use
+ * @returns {Writer} Writer
+ */
+Message.encodeDelimited = function encodeDelimited(message, writer) {
+    return this.$type.encodeDelimited(message, writer);
+};
+
+/**
+ * Decodes a message of this type.
+ * @name Message.decode
+ * @function
+ * @param {Reader|Uint8Array} reader Reader or buffer to decode
+ * @returns {Message} Decoded message
+ */
+Message.decode = function decode(reader) {
+    return this.$type.decode(reader);
+};
+
+/**
+ * Decodes a message of this type preceeded by its length as a varint.
+ * @name Message.decodeDelimited
+ * @function
+ * @param {Reader|Uint8Array} reader Reader or buffer to decode
+ * @returns {Message} Decoded message
+ */
+Message.decodeDelimited = function decodeDelimited(reader) {
+    return this.$type.decodeDelimited(reader);
+};
+
+/**
+ * Verifies a message of this type.
+ * @name Message.verify
+ * @function
+ * @param {Message|Object.<string,*>} message Message or plain object to verify
+ * @returns {?string} `null` if valid, otherwise the reason why it is not
+ */
+Message.verify = function verify(message) {
+    return this.$type.verify(message);
+};
+
+/**
+ * Creates a new message of this type from a plain object. Also converts values to their respective internal types.
+ * @param {Object.<string,*>} object Plain object
+ * @returns {Message} Message instance
+ */
+Message.fromObject = function fromObject(object) {
+    return this.$type.fromObject(object);
+};
+
+/**
+ * Creates a new message of this type from a plain object. Also converts values to their respective internal types.
+ * This is an alias of {@link Message.fromObject}.
+ * @function
+ * @param {Object.<string,*>} object Plain object
+ * @returns {Message} Message instance
+ */
+Message.from = Message.fromObject;
+
+/**
+ * Creates a plain object from a message of this type. Also converts values to other types if specified.
+ * @param {Message} message Message instance
+ * @param {ConversionOptions} [options] Conversion options
+ * @returns {Object.<string,*>} Plain object
+ */
+Message.toObject = function toObject(message, options) {
+    return this.$type.toObject(message, options);
+};
+
+/**
+ * Creates a plain object from this message. Also converts values to other types if specified.
+ * @param {ConversionOptions} [options] Conversion options
+ * @returns {Object.<string,*>} Plain object
+ */
+Message.prototype.toObject = function toObject(options) {
+    return this.$type.toObject(this, options);
+};
+
+/**
+ * Converts this message to JSON.
+ * @returns {Object.<string,*>} JSON object
+ */
+Message.prototype.toJSON = function toJSON() {
+    return this.$type.toObject(this, util.toJSONOptions);
+};
+
+
+/***/ }),
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2338,8 +2599,6 @@ Reader.prototype.bytes = function read_bytes() {
         throw indexOutOfRange(this, length);
 
     this.pos += length;
-    if (Array.isArray(this.buf)) // plain array
-        return this.buf.slice(start, end);
     return start === end // fix for IE 10/Win8 and others' subarray returning array of size 1
         ? new this.buf.constructor(0)
         : this._slice.call(this.buf, start, end);
@@ -2440,7 +2699,532 @@ Reader._configure = function(BufferReader_) {
 
 
 /***/ }),
-/* 9 */
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = Type;
+
+// extends Namespace
+var Namespace = __webpack_require__(6);
+((Type.prototype = Object.create(Namespace.prototype)).constructor = Type).className = "Type";
+
+var Enum      = __webpack_require__(1),
+    OneOf     = __webpack_require__(22),
+    Field     = __webpack_require__(3),
+    MapField  = __webpack_require__(20),
+    Service   = __webpack_require__(24),
+    Class     = __webpack_require__(17),
+    Message   = __webpack_require__(9),
+    Reader    = __webpack_require__(10),
+    Writer    = __webpack_require__(12),
+    util      = __webpack_require__(0),
+    encoder   = __webpack_require__(19),
+    decoder   = __webpack_require__(18),
+    verifier  = __webpack_require__(25),
+    converter = __webpack_require__(8);
+
+/**
+ * Constructs a new reflected message type instance.
+ * @classdesc Reflected message type.
+ * @extends NamespaceBase
+ * @constructor
+ * @param {string} name Message name
+ * @param {Object.<string,*>} [options] Declared options
+ */
+function Type(name, options) {
+    Namespace.call(this, name, options);
+
+    /**
+     * Message fields.
+     * @type {Object.<string,Field>}
+     */
+    this.fields = {};  // toJSON, marker
+
+    /**
+     * Oneofs declared within this namespace, if any.
+     * @type {Object.<string,OneOf>}
+     */
+    this.oneofs = undefined; // toJSON
+
+    /**
+     * Extension ranges, if any.
+     * @type {number[][]}
+     */
+    this.extensions = undefined; // toJSON
+
+    /**
+     * Reserved ranges, if any.
+     * @type {Array.<number[]|string>}
+     */
+    this.reserved = undefined; // toJSON
+
+    /*?
+     * Whether this type is a legacy group.
+     * @type {boolean|undefined}
+     */
+    this.group = undefined; // toJSON
+
+    /**
+     * Cached fields by id.
+     * @type {?Object.<number,Field>}
+     * @private
+     */
+    this._fieldsById = null;
+
+    /**
+     * Cached fields as an array.
+     * @type {?Field[]}
+     * @private
+     */
+    this._fieldsArray = null;
+
+    /**
+     * Cached oneofs as an array.
+     * @type {?OneOf[]}
+     * @private
+     */
+    this._oneofsArray = null;
+
+    /**
+     * Cached constructor.
+     * @type {*}
+     * @private
+     */
+    this._ctor = null;
+}
+
+Object.defineProperties(Type.prototype, {
+
+    /**
+     * Message fields by id.
+     * @name Type#fieldsById
+     * @type {Object.<number,Field>}
+     * @readonly
+     */
+    fieldsById: {
+        get: function() {
+
+            /* istanbul ignore if */
+            if (this._fieldsById)
+                return this._fieldsById;
+
+            this._fieldsById = {};
+            for (var names = Object.keys(this.fields), i = 0; i < names.length; ++i) {
+                var field = this.fields[names[i]],
+                    id = field.id;
+
+                /* istanbul ignore if */
+                if (this._fieldsById[id])
+                    throw Error("duplicate id " + id + " in " + this);
+
+                this._fieldsById[id] = field;
+            }
+            return this._fieldsById;
+        }
+    },
+
+    /**
+     * Fields of this message as an array for iteration.
+     * @name Type#fieldsArray
+     * @type {Field[]}
+     * @readonly
+     */
+    fieldsArray: {
+        get: function() {
+            return this._fieldsArray || (this._fieldsArray = util.toArray(this.fields));
+        }
+    },
+
+    /**
+     * Oneofs of this message as an array for iteration.
+     * @name Type#oneofsArray
+     * @type {OneOf[]}
+     * @readonly
+     */
+    oneofsArray: {
+        get: function() {
+            return this._oneofsArray || (this._oneofsArray = util.toArray(this.oneofs));
+        }
+    },
+
+    /**
+     * The registered constructor, if any registered, otherwise a generic constructor.
+     * Assigning a function replaces the internal constructor. If the function does not extend {@link Message} yet, its prototype will be setup accordingly and static methods will be populated. If it already extends {@link Message}, it will just replace the internal constructor.
+     * @name Type#ctor
+     * @type {Class}
+     */
+    ctor: {
+        get: function() {
+            return this._ctor || (this._ctor = Class(this).constructor);
+        },
+        set: function(ctor) {
+            if (ctor && !(ctor.prototype instanceof Message))
+                Class(this, ctor);
+            else
+                this._ctor = ctor;
+        }
+    }
+});
+
+function clearCache(type) {
+    type._fieldsById = type._fieldsArray = type._oneofsArray = type._ctor = null;
+    delete type.encode;
+    delete type.decode;
+    delete type.verify;
+    return type;
+}
+
+/**
+ * Message type descriptor.
+ * @typedef TypeDescriptor
+ * @type {Object}
+ * @property {Object.<string,*>} [options] Message type options
+ * @property {Object.<string,OneOfDescriptor>} [oneofs] Oneof descriptors
+ * @property {Object.<string,FieldDescriptor>} fields Field descriptors
+ * @property {number[][]} [extensions] Extension ranges
+ * @property {number[][]} [reserved] Reserved ranges
+ * @property {boolean} [group=false] Whether a legacy group or not
+ * @property {Object.<string,AnyNestedDescriptor>} [nested] Nested object descriptors
+ */
+
+/**
+ * Creates a message type from a message type descriptor.
+ * @param {string} name Message name
+ * @param {TypeDescriptor} json Message type descriptor
+ * @returns {Type} Created message type
+ */
+Type.fromJSON = function fromJSON(name, json) {
+    var type = new Type(name, json.options);
+    type.extensions = json.extensions;
+    type.reserved = json.reserved;
+    var names = Object.keys(json.fields),
+        i = 0;
+    for (; i < names.length; ++i)
+        type.add(
+            ( typeof json.fields[names[i]].keyType !== "undefined"
+            ? MapField.fromJSON
+            : Field.fromJSON )(names[i], json.fields[names[i]])
+        );
+    if (json.oneofs)
+        for (names = Object.keys(json.oneofs), i = 0; i < names.length; ++i)
+            type.add(OneOf.fromJSON(names[i], json.oneofs[names[i]]));
+    if (json.nested)
+        for (names = Object.keys(json.nested), i = 0; i < names.length; ++i) {
+            var nested = json.nested[names[i]];
+            type.add( // most to least likely
+                ( nested.id !== undefined
+                ? Field.fromJSON
+                : nested.fields !== undefined
+                ? Type.fromJSON
+                : nested.values !== undefined
+                ? Enum.fromJSON
+                : nested.methods !== undefined
+                ? Service.fromJSON
+                : Namespace.fromJSON )(names[i], nested)
+            );
+        }
+    if (json.extensions && json.extensions.length)
+        type.extensions = json.extensions;
+    if (json.reserved && json.reserved.length)
+        type.reserved = json.reserved;
+    if (json.group)
+        type.group = true;
+    return type;
+};
+
+/**
+ * Converts this message type to a message type descriptor.
+ * @returns {TypeDescriptor} Message type descriptor
+ */
+Type.prototype.toJSON = function toJSON() {
+    var inherited = Namespace.prototype.toJSON.call(this);
+    return {
+        options    : inherited && inherited.options || undefined,
+        oneofs     : Namespace.arrayToJSON(this.oneofsArray),
+        fields     : Namespace.arrayToJSON(this.fieldsArray.filter(function(obj) { return !obj.declaringField; })) || {},
+        extensions : this.extensions && this.extensions.length ? this.extensions : undefined,
+        reserved   : this.reserved && this.reserved.length ? this.reserved : undefined,
+        group      : this.group || undefined,
+        nested     : inherited && inherited.nested || undefined
+    };
+};
+
+/**
+ * @override
+ */
+Type.prototype.resolveAll = function resolveAll() {
+    var fields = this.fieldsArray, i = 0;
+    while (i < fields.length)
+        fields[i++].resolve();
+    var oneofs = this.oneofsArray; i = 0;
+    while (i < oneofs.length)
+        oneofs[i++].resolve();
+    return Namespace.prototype.resolve.call(this);
+};
+
+/**
+ * @override
+ */
+Type.prototype.get = function get(name) {
+    return this.fields[name]
+        || this.oneofs && this.oneofs[name]
+        || this.nested && this.nested[name]
+        || null;
+};
+
+/**
+ * Adds a nested object to this type.
+ * @param {ReflectionObject} object Nested object to add
+ * @returns {Type} `this`
+ * @throws {TypeError} If arguments are invalid
+ * @throws {Error} If there is already a nested object with this name or, if a field, when there is already a field with this id
+ */
+Type.prototype.add = function add(object) {
+
+    if (this.get(object.name))
+        throw Error("duplicate name '" + object.name + "' in " + this);
+
+    if (object instanceof Field && object.extend === undefined) {
+        // NOTE: Extension fields aren't actual fields on the declaring type, but nested objects.
+        // The root object takes care of adding distinct sister-fields to the respective extended
+        // type instead.
+
+        // avoids calling the getter if not absolutely necessary because it's called quite frequently
+        if (this._fieldsById ? /* istanbul ignore next */ this._fieldsById[object.id] : this.fieldsById[object.id])
+            throw Error("duplicate id " + object.id + " in " + this);
+        if (this.isReservedId(object.id))
+            throw Error("id " + object.id + " is reserved in " + this);
+        if (this.isReservedName(object.name))
+            throw Error("name '" + object.name + "' is reserved in " + this);
+
+        if (object.parent)
+            object.parent.remove(object);
+        this.fields[object.name] = object;
+        object.message = this;
+        object.onAdd(this);
+        return clearCache(this);
+    }
+    if (object instanceof OneOf) {
+        if (!this.oneofs)
+            this.oneofs = {};
+        this.oneofs[object.name] = object;
+        object.onAdd(this);
+        return clearCache(this);
+    }
+    return Namespace.prototype.add.call(this, object);
+};
+
+/**
+ * Removes a nested object from this type.
+ * @param {ReflectionObject} object Nested object to remove
+ * @returns {Type} `this`
+ * @throws {TypeError} If arguments are invalid
+ * @throws {Error} If `object` is not a member of this type
+ */
+Type.prototype.remove = function remove(object) {
+    if (object instanceof Field && object.extend === undefined) {
+        // See Type#add for the reason why extension fields are excluded here.
+
+        /* istanbul ignore if */
+        if (!this.fields || this.fields[object.name] !== object)
+            throw Error(object + " is not a member of " + this);
+
+        delete this.fields[object.name];
+        object.parent = null;
+        object.onRemove(this);
+        return clearCache(this);
+    }
+    if (object instanceof OneOf) {
+
+        /* istanbul ignore if */
+        if (!this.oneofs || this.oneofs[object.name] !== object)
+            throw Error(object + " is not a member of " + this);
+
+        delete this.oneofs[object.name];
+        object.parent = null;
+        object.onRemove(this);
+        return clearCache(this);
+    }
+    return Namespace.prototype.remove.call(this, object);
+};
+
+/**
+ * Tests if the specified id is reserved.
+ * @param {number} id Id to test
+ * @returns {boolean} `true` if reserved, otherwise `false`
+ */
+Type.prototype.isReservedId = function isReservedId(id) {
+    if (this.reserved)
+        for (var i = 0; i < this.reserved.length; ++i)
+            if (typeof this.reserved[i] !== "string" && this.reserved[i][0] <= id && this.reserved[i][1] >= id)
+                return true;
+    return false;
+};
+
+/**
+ * Tests if the specified name is reserved.
+ * @param {string} name Name to test
+ * @returns {boolean} `true` if reserved, otherwise `false`
+ */
+Type.prototype.isReservedName = function isReservedName(name) {
+    if (this.reserved)
+        for (var i = 0; i < this.reserved.length; ++i)
+            if (this.reserved[i] === name)
+                return true;
+    return false;
+};
+
+/**
+ * Creates a new message of this type using the specified properties.
+ * @param {Object.<string,*>} [properties] Properties to set
+ * @returns {Message} Runtime message
+ */
+Type.prototype.create = function create(properties) {
+    return new this.ctor(properties);
+};
+
+/**
+ * Sets up {@link Type#encode|encode}, {@link Type#decode|decode} and {@link Type#verify|verify}.
+ * @returns {Type} `this`
+ */
+Type.prototype.setup = function setup() {
+    // Sets up everything at once so that the prototype chain does not have to be re-evaluated
+    // multiple times (V8, soft-deopt prototype-check).
+    var fullName = this.fullName,
+        types    = [];
+    for (var i = 0; i < /* initializes */ this.fieldsArray.length; ++i)
+        types.push(this._fieldsArray[i].resolve().resolvedType);
+    this.encode = encoder(this).eof(fullName + "$encode", {
+        Writer : Writer,
+        types  : types,
+        util   : util
+    });
+    this.decode = decoder(this).eof(fullName + "$decode", {
+        Reader : Reader,
+        types  : types,
+        util   : util
+    });
+    this.verify = verifier(this).eof(fullName + "$verify", {
+        types : types,
+        util  : util
+    });
+    this.fromObject = this.from = converter.fromObject(this).eof(fullName + "$fromObject", {
+        types : types,
+        util  : util
+    });
+    this.toObject = converter.toObject(this).eof(fullName + "$toObject", {
+        types : types,
+        util  : util
+    });
+    return this;
+};
+
+/**
+ * Encodes a message of this type. Does not implicitly {@link Type#verify|verify} messages.
+ * @param {Message|Object.<string,*>} message Message instance or plain object
+ * @param {Writer} [writer] Writer to encode to
+ * @returns {Writer} writer
+ */
+Type.prototype.encode = function encode_setup(message, writer) {
+    return this.setup().encode(message, writer); // overrides this method
+};
+
+/**
+ * Encodes a message of this type preceeded by its byte length as a varint. Does not implicitly {@link Type#verify|verify} messages.
+ * @param {Message|Object.<string,*>} message Message instance or plain object
+ * @param {Writer} [writer] Writer to encode to
+ * @returns {Writer} writer
+ */
+Type.prototype.encodeDelimited = function encodeDelimited(message, writer) {
+    return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
+};
+
+/**
+ * Decodes a message of this type.
+ * @param {Reader|Uint8Array} reader Reader or buffer to decode from
+ * @param {number} [length] Length of the message, if known beforehand
+ * @returns {Message} Decoded message
+ * @throws {Error} If the payload is not a reader or valid buffer
+ * @throws {util.ProtocolError} If required fields are missing
+ */
+Type.prototype.decode = function decode_setup(reader, length) {
+    return this.setup().decode(reader, length); // overrides this method
+};
+
+/**
+ * Decodes a message of this type preceeded by its byte length as a varint.
+ * @param {Reader|Uint8Array} reader Reader or buffer to decode from
+ * @returns {Message} Decoded message
+ * @throws {Error} If the payload is not a reader or valid buffer
+ * @throws {util.ProtocolError} If required fields are missing
+ */
+Type.prototype.decodeDelimited = function decodeDelimited(reader) {
+    if (!(reader instanceof Reader))
+        reader = Reader.create(reader);
+    return this.decode(reader, reader.uint32());
+};
+
+/**
+ * Verifies that field values are valid and that required fields are present.
+ * @param {Object.<string,*>} message Plain object to verify
+ * @returns {?string} `null` if valid, otherwise the reason why it is not
+ */
+Type.prototype.verify = function verify_setup(message) {
+    return this.setup().verify(message); // overrides this method
+};
+
+/**
+ * Creates a new message of this type from a plain object. Also converts values to their respective internal types.
+ * @param {Object.<string,*>} object Plain object to convert
+ * @returns {Message} Message instance
+ */
+Type.prototype.fromObject = function fromObject(object) {
+    return this.setup().fromObject(object);
+};
+
+/**
+ * Creates a new message of this type from a plain object. Also converts values to their respective internal types.
+ * This is an alias of {@link Type#fromObject}.
+ * @function
+ * @param {Object.<string,*>} object Plain object
+ * @returns {Message} Message instance
+ */
+Type.prototype.from = Type.prototype.fromObject;
+
+/**
+ * Conversion options as used by {@link Type#toObject} and {@link Message.toObject}.
+ * @typedef ConversionOptions
+ * @type {Object}
+ * @property {*} [longs] Long conversion type.
+ * Valid values are `String` and `Number` (the global types).
+ * Defaults to copy the present value, which is a possibly unsafe number without and a {@link Long} with a long library.
+ * @property {*} [enums] Enum value conversion type.
+ * Only valid value is `String` (the global type).
+ * Defaults to copy the present value, which is the numeric id.
+ * @property {*} [bytes] Bytes value conversion type.
+ * Valid values are `Array` and (a base64 encoded) `String` (the global types).
+ * Defaults to copy the present value, which usually is a Buffer under node and an Uint8Array in the browser.
+ * @property {boolean} [defaults=false] Also sets default values on the resulting object
+ * @property {boolean} [arrays=false] Sets empty arrays for missing repeated fields even if `defaults=false`
+ * @property {boolean} [objects=false] Sets empty objects for missing map fields even if `defaults=false`
+ * @property {boolean} [oneofs=false] Includes virtual oneof properties set to the present field's name, if any
+ */
+
+/**
+ * Creates a plain object from a message of this type. Also converts values to other types if specified.
+ * @param {Message} message Message instance
+ * @param {ConversionOptions} [options] Conversion options
+ * @returns {Object.<string,*>} Plain object
+ */
+Type.prototype.toObject = function toObject(message, options) {
+    return this.setup().toObject(message, options);
+};
+
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2500,6 +3284,7 @@ function noop() {} // eslint-disable-line no-empty-function
  * @memberof Writer
  * @constructor
  * @param {Writer} writer Writer to copy state from
+ * @private
  * @ignore
  */
 function State(writer) {
@@ -2524,7 +3309,7 @@ function State(writer) {
 
     /**
      * Next state.
-     * @type {State|null}
+     * @type {?State}
      */
     this.next = writer.states;
 }
@@ -2556,7 +3341,7 @@ function Writer() {
 
     /**
      * Linked forked states.
-     * @type {Object|null}
+     * @type {?Object}
      */
     this.states = null;
 
@@ -2603,9 +3388,8 @@ if (util.Array !== Array)
  * @param {number} len Value byte length
  * @param {number} val Value to write
  * @returns {Writer} `this`
- * @private
  */
-Writer.prototype._push = function push(fn, len, val) {
+Writer.prototype.push = function push(fn, len, val) {
     this.tail = this.tail.next = new Op(fn, len, val);
     this.len += len;
     return this;
@@ -2668,7 +3452,7 @@ Writer.prototype.uint32 = function write_uint32(value) {
  */
 Writer.prototype.int32 = function write_int32(value) {
     return value < 0
-        ? this._push(writeVarint64, 10, LongBits.fromNumber(value)) // 10 bytes per spec
+        ? this.push(writeVarint64, 10, LongBits.fromNumber(value)) // 10 bytes per spec
         : this.uint32(value);
 };
 
@@ -2702,7 +3486,7 @@ function writeVarint64(val, buf, pos) {
  */
 Writer.prototype.uint64 = function write_uint64(value) {
     var bits = LongBits.from(value);
-    return this._push(writeVarint64, bits.length(), bits);
+    return this.push(writeVarint64, bits.length(), bits);
 };
 
 /**
@@ -2722,7 +3506,7 @@ Writer.prototype.int64 = Writer.prototype.uint64;
  */
 Writer.prototype.sint64 = function write_sint64(value) {
     var bits = LongBits.from(value).zzEncode();
-    return this._push(writeVarint64, bits.length(), bits);
+    return this.push(writeVarint64, bits.length(), bits);
 };
 
 /**
@@ -2731,7 +3515,7 @@ Writer.prototype.sint64 = function write_sint64(value) {
  * @returns {Writer} `this`
  */
 Writer.prototype.bool = function write_bool(value) {
-    return this._push(writeByte, 1, value ? 1 : 0);
+    return this.push(writeByte, 1, value ? 1 : 0);
 };
 
 function writeFixed32(val, buf, pos) {
@@ -2747,7 +3531,7 @@ function writeFixed32(val, buf, pos) {
  * @returns {Writer} `this`
  */
 Writer.prototype.fixed32 = function write_fixed32(value) {
-    return this._push(writeFixed32, 4, value >>> 0);
+    return this.push(writeFixed32, 4, value >>> 0);
 };
 
 /**
@@ -2766,7 +3550,7 @@ Writer.prototype.sfixed32 = Writer.prototype.fixed32;
  */
 Writer.prototype.fixed64 = function write_fixed64(value) {
     var bits = LongBits.from(value);
-    return this._push(writeFixed32, 4, bits.lo)._push(writeFixed32, 4, bits.hi);
+    return this.push(writeFixed32, 4, bits.lo).push(writeFixed32, 4, bits.hi);
 };
 
 /**
@@ -2785,7 +3569,7 @@ Writer.prototype.sfixed64 = Writer.prototype.fixed64;
  * @returns {Writer} `this`
  */
 Writer.prototype.float = function write_float(value) {
-    return this._push(util.float.writeFloatLE, 4, value);
+    return this.push(util.float.writeFloatLE, 4, value);
 };
 
 /**
@@ -2795,7 +3579,7 @@ Writer.prototype.float = function write_float(value) {
  * @returns {Writer} `this`
  */
 Writer.prototype.double = function write_double(value) {
-    return this._push(util.float.writeDoubleLE, 8, value);
+    return this.push(util.float.writeDoubleLE, 8, value);
 };
 
 var writeBytes = util.Array.prototype.set
@@ -2816,13 +3600,13 @@ var writeBytes = util.Array.prototype.set
 Writer.prototype.bytes = function write_bytes(value) {
     var len = value.length >>> 0;
     if (!len)
-        return this._push(writeByte, 1, 0);
+        return this.push(writeByte, 1, 0);
     if (util.isString(value)) {
         var buf = Writer.alloc(len = base64.length(value));
         base64.decode(value, buf, 0);
         value = buf;
     }
-    return this.uint32(len)._push(writeBytes, len, value);
+    return this.uint32(len).push(writeBytes, len, value);
 };
 
 /**
@@ -2833,8 +3617,8 @@ Writer.prototype.bytes = function write_bytes(value) {
 Writer.prototype.string = function write_string(value) {
     var len = utf8.length(value);
     return len
-        ? this.uint32(len)._push(utf8.write, len, value)
-        : this._push(writeByte, 1, 0);
+        ? this.uint32(len).push(utf8.write, len, value)
+        : this.push(writeByte, 1, 0);
 };
 
 /**
@@ -2906,7 +3690,7 @@ Writer._configure = function(BufferWriter_) {
 
 
 /***/ }),
-/* 10 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2965,7 +3749,7 @@ function asPromise(fn, ctx/*, varargs */) {
 
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2989,13 +3773,13 @@ function inquire(moduleName) {
 
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var $protobuf = __webpack_require__(33);
+var $protobuf = __webpack_require__(40);
 
 var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $protobuf.Root())).addJSON({
   dzhyun: {
@@ -3207,872 +3991,1046 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           RepDataQuoteDynaSingle: {
             rule: "repeated",
             type: "QuoteDynaSingle",
-            id: 20
+            id: 20,
+            options: {}
           },
           RepDataQuoteKlineSingle: {
             rule: "repeated",
             type: "QuoteKlineSingle",
-            id: 21
+            id: 21,
+            options: {}
           },
           RepDataQuoteTickSingle: {
             rule: "repeated",
             type: "QuoteTickSingle",
-            id: 22
+            id: 22,
+            options: {}
           },
           RepDataQuoteMinSingle: {
             rule: "repeated",
             type: "QuoteMinSingle",
-            id: 23
+            id: 23,
+            options: {}
           },
           RepDataNewsInfoValue: {
             rule: "repeated",
             type: "NewsInfoValue",
-            id: 24
+            id: 24,
+            options: {}
           },
           RepDataZhiBiaoShuChu: {
             rule: "repeated",
             type: "ZhiBiaoShuChu",
-            id: 25
+            id: 25,
+            options: {}
           },
           RepDataZhiBiao: {
             rule: "repeated",
             type: "ZhiBiao",
-            id: 26
+            id: 26,
+            options: {}
           },
           RepDataStkData: {
             rule: "repeated",
             type: "StkData",
-            id: 27
+            id: 27,
+            options: {}
           },
           RepDataPaiXu: {
             rule: "repeated",
             type: "PaiXu",
-            id: 28
+            id: 28,
+            options: {}
           },
           RepDataJianPanBaoShuChu: {
             rule: "repeated",
             type: "JianPanBaoShuChu",
-            id: 29
+            id: 29,
+            options: {}
           },
           RepDataBlockObjOutput: {
             rule: "repeated",
             type: "BlockObjOutput",
-            id: 33
+            id: 33,
+            options: {}
           },
           RepDataBlockPropOutput: {
             rule: "repeated",
             type: "BlockPropOutput",
-            id: 34
+            id: 34,
+            options: {}
           },
           RepDataToken: {
             rule: "repeated",
             type: "Token",
-            id: 44
+            id: 44,
+            options: {}
           },
           RepDataF10GsgkOutput: {
             rule: "repeated",
             type: "F10GsgkOutput",
-            id: 55
+            id: 55,
+            options: {}
           },
           RepDataF10CwtsZycwzbOutput: {
             rule: "repeated",
             type: "F10CwtsZycwzbOutput",
-            id: 56
+            id: 56,
+            options: {}
           },
           RepDataF10CwtsXjllbzyOutput: {
             rule: "repeated",
             type: "F10CwtsXjllbzyOutput",
-            id: 57
+            id: 57,
+            options: {}
           },
           RepDataF10ZxjbDjdcwzbOutput: {
             rule: "repeated",
             type: "F10ZxjbDjdcwzbOutput",
-            id: 58
+            id: 58,
+            options: {}
           },
           RepDataF10ZxjbdjdlebOutput: {
             rule: "repeated",
             type: "F10ZxjbdjdlebOutput",
-            id: 59
+            id: 59,
+            options: {}
           },
           RepDataF10GdjcGdhsOutput: {
             rule: "repeated",
             type: "F10GdjcGdhsOutput",
-            id: 60
+            id: 60,
+            options: {}
           },
           RepDataF10GdjcSdgdOutput: {
             rule: "repeated",
             type: "F10GdjcSdgdOutput",
-            id: 61
+            id: 61,
+            options: {}
           },
           RepDataF10GdjcSdltgdOutput: {
             rule: "repeated",
             type: "F10GdjcSdltgdOutput",
-            id: 62
+            id: 62,
+            options: {}
           },
           RepDataF10GbfhFhkgOutput: {
             rule: "repeated",
             type: "F10GbfhFhkgOutput",
-            id: 63
+            id: 63,
+            options: {}
           },
           RepDataF10GbfhGbjgOutput: {
             rule: "repeated",
             type: "F10GbfhGbjgOutput",
-            id: 64
+            id: 64,
+            options: {}
           },
           RepDataXinWenXinXiOutput: {
             rule: "repeated",
             type: "XinWenXinXiOutput",
-            id: 65
+            id: 65,
+            options: {}
           },
           RepDataXinWenXinXiZhongXinOutput: {
             rule: "repeated",
             type: "XinWenXinXiZhongXinOutput",
-            id: 66
+            id: 66,
+            options: {}
           },
           RepDataYiZhiXinYeJiYuCeOutPut: {
             rule: "repeated",
             type: "YiZhiXinYeJiYuCeOutPut",
-            id: 68
+            id: 68,
+            options: {}
           },
           RepDataYiZhiXinTouZiPinJiOutPut: {
             rule: "repeated",
             type: "YiZhiXinTouZiPinJiOutPut",
-            id: 69
+            id: 69,
+            options: {}
           },
           RepDataGeGuYeJiYuCeOutPut: {
             rule: "repeated",
             type: "GeGuYeJiYuCeOutPut",
-            id: 70
+            id: 70,
+            options: {}
           },
           RepDataGeGuTouZiYanBaoOutPut: {
             rule: "repeated",
             type: "GeGuTouZiYanBaoOutPut",
-            id: 71
+            id: 71,
+            options: {}
           },
           RepDataTongJiApp: {
             rule: "repeated",
             type: "TongJiApp",
-            id: 73
+            id: 73,
+            options: {}
           },
           RepDataQuoteBOrderSingle: {
             rule: "repeated",
             type: "QuoteBOrderSingle",
-            id: 76
+            id: 76,
+            options: {}
           },
           RepDataDXSpirit: {
             rule: "repeated",
             type: "DXSpirit",
-            id: 77
+            id: 77,
+            options: {}
           },
           RepDataGongGaoXinXiOutput: {
             rule: "repeated",
             type: "GongGaoXinXiOutput",
-            id: 80
+            id: 80,
+            options: {}
           },
           RepDataGongGaoXinXiZhongXinOutput: {
             rule: "repeated",
             type: "GongGaoXinXiZhongXinOutput",
-            id: 81
+            id: 81,
+            options: {}
           },
           RepDataF10CpbdZxzbOutput: {
             rule: "repeated",
             type: "F10CpbdZxzbOutput",
-            id: 82
+            id: 82,
+            options: {}
           },
           RepDataF10CpbdKpqkOutput: {
             rule: "repeated",
             type: "F10CpbdKpqkOutput",
-            id: 83
+            id: 83,
+            options: {}
           },
           RepDataF10CpbdCjhbOutput: {
             rule: "repeated",
             type: "F10CpbdCjhbOutput",
-            id: 84
+            id: 84,
+            options: {}
           },
           RepDataF10CwtsLrfpbzyOutput: {
             rule: "repeated",
             type: "F10CwtsLrfpbzyOutput",
-            id: 85
+            id: 85,
+            options: {}
           },
           RepDataF10CwtsZcfzbzyOutput: {
             rule: "repeated",
             type: "F10CwtsZcfzbzyOutput",
-            id: 86
+            id: 86,
+            options: {}
           },
           RepDataF10ZygcOutput: {
             rule: "repeated",
             type: "F10ZygcOutput",
-            id: 87
+            id: 87,
+            options: {}
           },
           RepDataF10DstxJjltOutput: {
             rule: "repeated",
             type: "F10DstxJjltOutput",
-            id: 88
+            id: 88,
+            options: {}
           },
           RepDataF10DstxRzrqOutput: {
             rule: "repeated",
             type: "F10DstxRzrqOutput",
-            id: 89
+            id: 89,
+            options: {}
           },
           RepDataF10DstxJgccOutput: {
             rule: "repeated",
             type: "F10DstxJgccOutput",
-            id: 90
+            id: 90,
+            options: {}
           },
           RepDataF10DstxGdzjcOutput: {
             rule: "repeated",
             type: "F10DstxGdzjcOutput",
-            id: 91
+            id: 91,
+            options: {}
           },
           RepDataF10DstxDzjyOutput: {
             rule: "repeated",
             type: "F10DstxDzjyOutput",
-            id: 92
+            id: 92,
+            options: {}
           },
           RepDataF10DstxCgbdqkOutput: {
             rule: "repeated",
             type: "F10DstxCgbdqkOutput",
-            id: 93
+            id: 93,
+            options: {}
           },
           RepDataF10GlcOutPut: {
             rule: "repeated",
             type: "F10GlcOutPut",
-            id: 94
+            id: 94,
+            options: {}
           },
           RepDataF10GlcNdbcqkOutPut: {
             rule: "repeated",
             type: "F10GlcNdbcqkOutPut",
-            id: 95
+            id: 95,
+            options: {}
           },
           RepDataF10ZxjbDjdxjllbOutPut: {
             rule: "repeated",
             type: "F10ZxjbDjdxjllbOutPut",
-            id: 96
+            id: 96,
+            options: {}
           },
           RepDataF10GdjcKggdOutPut: {
             rule: "repeated",
             type: "F10GdjcKggdOutPut",
-            id: 97
+            id: 97,
+            options: {}
           },
           RepDataF10GdjcSjkzrOutPut: {
             rule: "repeated",
             type: "F10GdjcSjkzrOutPut",
-            id: 98
+            id: 98,
+            options: {}
           },
           RepDataF10GbfhGbbdOutPut: {
             rule: "repeated",
             type: "F10GbfhGbbdOutPut",
-            id: 99
+            id: 99,
+            options: {}
           },
           RepDataF10ZbyzCyqtsszqOutPut: {
             rule: "repeated",
             type: "F10ZbyzCyqtsszqOutPut",
-            id: 100
+            id: 100,
+            options: {}
           },
           RepDataF10ZbyzCyfssgqOutPut: {
             rule: "repeated",
             type: "F10ZbyzCyfssgqOutPut",
-            id: 101
+            id: 101,
+            options: {}
           },
           RepDataF10zbyzRzqkzfyssOutPut: {
             rule: "repeated",
             type: "F10zbyzRzqkzfyssOutPut",
-            id: 102
+            id: 102,
+            options: {}
           },
           RepDataF10ZbyzXmtzMjzjqkOutPut: {
             rule: "repeated",
             type: "F10ZbyzXmtzMjzjqkOutPut",
-            id: 103
+            id: 103,
+            options: {}
           },
           RepDataF10ZbyzXmtzMjzjcnxmOutPut: {
             rule: "repeated",
             type: "F10ZbyzXmtzMjzjcnxmOutPut",
-            id: 104
+            id: 104,
+            options: {}
           },
           RepDataF10ZbyzXmtzMjzjbgxmOutPut: {
             rule: "repeated",
             type: "F10ZbyzXmtzMjzjbgxmOutPut",
-            id: 105
+            id: 105,
+            options: {}
           },
           RepDataF10ZbyzXmtzFmjzjxmOutPut: {
             rule: "repeated",
             type: "F10ZbyzXmtzFmjzjxmOutPut",
-            id: 106
+            id: 106,
+            options: {}
           },
           RepDataF10HydwOutPut: {
             rule: "repeated",
             type: "F10HydwOutPut",
-            id: 107
+            id: 107,
+            options: {}
           },
           RepDataF10RsrProForecastOutPut: {
             rule: "repeated",
             type: "F10RsrProForecastOutPut",
-            id: 108
+            id: 108,
+            options: {}
           },
           RepDataF10RsrInvestRatingOutPut: {
             rule: "repeated",
             type: "F10RsrInvestRatingOutPut",
-            id: 109
+            id: 109,
+            options: {}
           },
           RepDataF10RsrEarnPSForeOutPut: {
             rule: "repeated",
             type: "F10RsrEarnPSForeOutPut",
-            id: 110
+            id: 110,
+            options: {}
           },
           RepDataF10RsrResReportOutPut: {
             rule: "repeated",
             type: "F10RsrResReportOutPut",
-            id: 111
+            id: 111,
+            options: {}
           },
           RepDataDXSpiritStat: {
             rule: "repeated",
             type: "DXSpiritStat",
-            id: 113
+            id: 113,
+            options: {}
           },
           RepDataPaiMing: {
             rule: "repeated",
             type: "PaiMing",
-            id: 115
+            id: 115,
+            options: {}
           },
           RepDataOverallInfo: {
             rule: "repeated",
             type: "OverallInfo",
-            id: 121
+            id: 121,
+            options: {}
           },
           RepDataTodayListStocks: {
             rule: "repeated",
             type: "TodayListStocks",
-            id: 122
+            id: 122,
+            options: {}
           },
           RepDataTodayBrokerStocks: {
             rule: "repeated",
             type: "TodayBrokerStocks",
-            id: 123
+            id: 123,
+            options: {}
           },
           RepDataTodayConvertStocks: {
             rule: "repeated",
             type: "TodayConvertStocks",
-            id: 124
+            id: 124,
+            options: {}
           },
           RepDataTodayIssueStocks: {
             rule: "repeated",
             type: "TodayIssueStocks",
-            id: 125
+            id: 125,
+            options: {}
           },
           RepDataBrokerDetaileInfo: {
             rule: "repeated",
             type: "BrokerDetaileInfo",
-            id: 126
+            id: 126,
+            options: {}
           },
           RepDataStockBrokerInfo: {
             rule: "repeated",
             type: "StockBrokerInfo",
-            id: 127
+            id: 127,
+            options: {}
           },
           RepDataIssueDetaileInfo: {
             rule: "repeated",
             type: "IssueDetaileInfo",
-            id: 128
+            id: 128,
+            options: {}
           },
           RepDataIssueStatInfo: {
             rule: "repeated",
             type: "IssueStatInfo",
-            id: 129
+            id: 129,
+            options: {}
           },
           RepDataBrokerList: {
             rule: "repeated",
             type: "BrokerList",
-            id: 137
+            id: 137,
+            options: {}
           },
           RepDataFinanceQuickReport: {
             rule: "repeated",
             type: "FinanceQuickReport",
-            id: 138
+            id: 138,
+            options: {}
           },
           RepDataNewsDataItem: {
             rule: "repeated",
             type: "NewsDataItem",
-            id: 147
+            id: 147,
+            options: {}
           },
           RepDataStockNews: {
             rule: "repeated",
             type: "StockNews",
-            id: 148
+            id: 148,
+            options: {}
           },
           RepDataAnnouncemtDataItem: {
             rule: "repeated",
             type: "AnnouncemtDataItem",
-            id: 149
+            id: 149,
+            options: {}
           },
           RepDataStockAnnouncemt: {
             rule: "repeated",
             type: "StockAnnouncemt",
-            id: 150
+            id: 150,
+            options: {}
           },
           RepDataSelfNews: {
             rule: "repeated",
             type: "SelfNews",
-            id: 154
+            id: 154,
+            options: {}
           },
           RepDataSelfAnnouncemt: {
             rule: "repeated",
             type: "SelfAnnouncemt",
-            id: 155
+            id: 155,
+            options: {}
           },
           RepDataRepCounterRsp: {
             rule: "repeated",
             type: "RepCounterRsp",
-            id: 156
+            id: 156,
+            options: {}
           },
           RepDataCounterRsp: {
             rule: "repeated",
             type: "CounterRsp",
-            id: 157
+            id: 157,
+            options: {}
           },
           RepDataQueryCapitalRsp: {
             rule: "repeated",
             type: "QueryCapitalRsp",
-            id: 158
+            id: 158,
+            options: {}
           },
           RepDataQueryHoldRsp: {
             rule: "repeated",
             type: "QueryHoldRsp",
-            id: 159
+            id: 159,
+            options: {}
           },
           RepDataQueryOrderRsp: {
             rule: "repeated",
             type: "QueryOrderRsp",
-            id: 160
+            id: 160,
+            options: {}
           },
           RepDataQueryDealRsp: {
             rule: "repeated",
             type: "QueryDealRsp",
-            id: 161
+            id: 161,
+            options: {}
           },
           RepDataCounterSettleRsp: {
             rule: "repeated",
             type: "CounterSettleRsp",
-            id: 162
+            id: 162,
+            options: {}
           },
           RepDataTradeRuleRsp: {
             rule: "repeated",
             type: "TradeRuleRsp",
-            id: 163
+            id: 163,
+            options: {}
           },
           RepDataQuoteDividSingle: {
             rule: "repeated",
             type: "QuoteDividSingle",
-            id: 170
+            id: 170,
+            options: {}
           },
           RepDataF10FundCpbdFbsjjzjzOutput: {
             rule: "repeated",
             type: "F10FundCpbdFbsjjzjzOutput",
-            id: 179
+            id: 179,
+            options: {}
           },
           RepDataF10FundCpbdJjfebdqkOutput: {
             rule: "repeated",
             type: "F10FundCpbdJjfebdqkOutput",
-            id: 180
+            id: 180,
+            options: {}
           },
           RepDataF10FundCpbdJjgbjbOutput: {
             rule: "repeated",
             type: "F10FundCpbdJjgbjbOutput",
-            id: 181
+            id: 181,
+            options: {}
           },
           RepDataF10FundCpbdJjjzbxOutput: {
             rule: "repeated",
             type: "F10FundCpbdJjjzbxOutput",
-            id: 182
+            id: 182,
+            options: {}
           },
           RepDataF10FundCpbdJjxxOutput: {
             rule: "repeated",
             type: "F10FundCpbdJjxxOutput",
-            id: 183
+            id: 183,
+            options: {}
           },
           RepDataF10FundCpbdZfeOutput: {
             rule: "repeated",
             type: "F10FundCpbdZfeOutput",
-            id: 184
+            id: 184,
+            options: {}
           },
           RepDataF10FundCwsjJyyjOutput: {
             rule: "repeated",
             type: "F10FundCwsjJyyjOutput",
-            id: 185
+            id: 185,
+            options: {}
           },
           RepDataF10FundCwsjZcfzOutput: {
             rule: "repeated",
             type: "F10FundCwsjZcfzOutput",
-            id: 186
+            id: 186,
+            options: {}
           },
           RepDataF10FundCwsjZycwzbOutput: {
             rule: "repeated",
             type: "F10FundCwsjZycwzbOutput",
-            id: 187
+            id: 187,
+            options: {}
           },
           RepDataNewStockInfo: {
             rule: "repeated",
             type: "NewStockInfo",
-            id: 188
+            id: 188,
+            options: {}
           },
           RepDataF10FundCyrHshjgOutput: {
             rule: "repeated",
             type: "F10FundCyrHshjgOutput",
-            id: 190
+            id: 190,
+            options: {}
           },
           RepDataF10FundFefhFbsjjcyrjgOutput: {
             rule: "repeated",
             type: "F10FundFefhFbsjjcyrjgOutput",
-            id: 191
+            id: 191,
+            options: {}
           },
           RepDataF10FundFefhFhOutput: {
             rule: "repeated",
             type: "F10FundFefhFhOutput",
-            id: 192
+            id: 192,
+            options: {}
           },
           RepDataF10FundFefhKfsjjjdfebdOutput: {
             rule: "repeated",
             type: "F10FundFefhKfsjjjdfebdOutput",
-            id: 193
+            id: 193,
+            options: {}
           },
           RepDataF10FundGpmxBqzdmcgpOutput: {
             rule: "repeated",
             type: "F10FundGpmxBqzdmcgpOutput",
-            id: 194
+            id: 194,
+            options: {}
           },
           RepDataF10FundGpmxBqzdmrgpOutput: {
             rule: "repeated",
             type: "F10FundGpmxBqzdmrgpOutput",
-            id: 195
+            id: 195,
+            options: {}
           },
           RepDataF10FundGpmxQbcgOutput: {
             rule: "repeated",
             type: "F10FundGpmxQbcgOutput",
-            id: 196
+            id: 196,
+            options: {}
           },
           RepDataF10FundHgzwOutput: {
             rule: "repeated",
             type: "F10FundHgzwOutput",
-            id: 197
+            id: 197,
+            options: {}
           },
           RepDataF10FundHytzOutput: {
             rule: "repeated",
             type: "F10FundHytzOutput",
-            id: 198
+            id: 198,
+            options: {}
           },
           RepDataF10FundHytzQdiiOutput: {
             rule: "repeated",
             type: "F10FundHytzQdiiOutput",
-            id: 199
+            id: 199,
+            options: {}
           },
           RepDataF10FundJbxxOutput: {
             rule: "repeated",
             type: "F10FundJbxxOutput",
-            id: 200
+            id: 200,
+            options: {}
           },
           RepDataF10FundFbsjjgkOutput: {
             rule: "repeated",
             type: "F10FundFbsjjgkOutput",
-            id: 201
+            id: 201,
+            options: {}
           },
           RepDataF10FundKfsjjgkOutput: {
             rule: "repeated",
             type: "F10FundKfsjjgkOutput",
-            id: 202
+            id: 202,
+            options: {}
           },
           RepDataF10FundJlggJjgsggryOutput: {
             rule: "repeated",
             type: "F10FundJlggJjgsggryOutput",
-            id: 203
+            id: 203,
+            options: {}
           },
           RepDataF10FundJlggJjjlOutput: {
             rule: "repeated",
             type: "F10FundJlggJjjlOutput",
-            id: 204
+            id: 204,
+            options: {}
           },
           RepDataF10FundJyyjOutput: {
             rule: "repeated",
             type: "F10FundJyyjOutput",
-            id: 205
+            id: 205,
+            options: {}
           },
           RepDataF10FundZccgQsmgpmxOutput: {
             rule: "repeated",
             type: "F10FundZccgQsmgpmxOutput",
-            id: 206
+            id: 206,
+            options: {}
           },
           RepDataF10FundZccgQdiiOutput: {
             rule: "repeated",
             type: "F10FundZccgQdiiOutput",
-            id: 207
+            id: 207,
+            options: {}
           },
           RepDataF10FundZqtzTzzhOutput: {
             rule: "repeated",
             type: "F10FundZqtzTzzhOutput",
-            id: 208
+            id: 208,
+            options: {}
           },
           RepDataF10FundZqtzTzzhQdiiOutput: {
             rule: "repeated",
             type: "F10FundZqtzTzzhQdiiOutput",
-            id: 209
+            id: 209,
+            options: {}
           },
           RepDataF10FundZqtzZcmxOutput: {
             rule: "repeated",
             type: "F10FundZqtzZcmxOutput",
-            id: 210
+            id: 210,
+            options: {}
           },
           RepDataF10FundZycyrOutput: {
             rule: "repeated",
             type: "F10FundZycyrOutput",
-            id: 211
+            id: 211,
+            options: {}
           },
           RepDataHistoryTrends: {
             rule: "repeated",
             type: "HistoryTrends",
-            id: 215
+            id: 215,
+            options: {}
           },
           RepDataQuoteDynaMinSingle: {
             rule: "repeated",
             type: "QuoteDynaMinSingle",
-            id: 218
+            id: 218,
+            options: {}
           },
           RepDataQuoteHistoryMinSingle: {
             rule: "repeated",
             type: "QuoteHistoryMinSingle",
-            id: 221
+            id: 221,
+            options: {}
           },
           RepDataF10FundHbjjxeOutput: {
             rule: "repeated",
             type: "F10FundHbjjxeOutput",
-            id: 222
+            id: 222,
+            options: {}
           },
           RepDataF10BondDfzfzfxOutput: {
             rule: "repeated",
             type: "F10BondDfzfzfxOutput",
-            id: 223
+            id: 223,
+            options: {}
           },
           RepDataF10BondDfzfzqxxOutput: {
             rule: "repeated",
             type: "F10BondDfzfzqxxOutput",
-            id: 224
+            id: 224,
+            options: {}
           },
           RepDataF10BondFlszzfxOutput: {
             rule: "repeated",
             type: "F10BondFlszzfxOutput",
-            id: 225
+            id: 225,
+            options: {}
           },
           RepDataF10BondFlszztkOutput: {
             rule: "repeated",
             type: "F10BondFlszztkOutput",
-            id: 226
+            id: 226,
+            options: {}
           },
           RepDataF10BondFlszzxxOutput: {
             rule: "repeated",
             type: "F10BondFlszzxxOutput",
-            id: 227
+            id: 227,
+            options: {}
           },
           RepDataF10BondGzxxOutput: {
             rule: "repeated",
             type: "F10BondGzxxOutput",
-            id: 228
+            id: 228,
+            options: {}
           },
           RepDataF10BondHgxxOutput: {
             rule: "repeated",
             type: "F10BondHgxxOutput",
-            id: 229
+            id: 229,
+            options: {}
           },
           RepDataF10BondKzzfxOutput: {
             rule: "repeated",
             type: "F10BondKzzfxOutput",
-            id: 230
+            id: 230,
+            options: {}
           },
           RepDataF10BondKzztkOutput: {
             rule: "repeated",
             type: "F10BondKzztkOutput",
-            id: 231
+            id: 231,
+            options: {}
           },
           RepDataF10BondKzztzzgjOutput: {
             rule: "repeated",
             type: "F10BondKzztzzgjOutput",
-            id: 232
+            id: 232,
+            options: {}
           },
           RepDataF10BondKzzxxOutput: {
             rule: "repeated",
             type: "F10BondKzzxxOutput",
-            id: 233
+            id: 233,
+            options: {}
           },
           RepDataF10BondQycyrOutput: {
             rule: "repeated",
             type: "F10BondQycyrOutput",
-            id: 234
+            id: 234,
+            options: {}
           },
           RepDataF10BondQyzfxOutput: {
             rule: "repeated",
             type: "F10BondQyzfxOutput",
-            id: 235
+            id: 235,
+            options: {}
           },
           RepDataF10BondQyzxxOutput: {
             rule: "repeated",
             type: "F10BondQyzxxOutput",
-            id: 236
+            id: 236,
+            options: {}
           },
           RepDataF10BondZqggOutput: {
             rule: "repeated",
             type: "F10BondZqggOutput",
-            id: 237
+            id: 237,
+            options: {}
           },
           RepDataF10BondZqxjlOutput: {
             rule: "repeated",
             type: "F10BondZqxjlOutput",
-            id: 238
+            id: 238,
+            options: {}
           },
           RepDataF10BondZqzgOutput: {
             rule: "repeated",
             type: "F10BondZqzgOutput",
-            id: 239
+            id: 239,
+            options: {}
           },
           RepDataF10ForexDqjjOutput: {
             rule: "repeated",
             type: "F10ForexDqjjOutput",
-            id: 240
+            id: 240,
+            options: {}
           },
           RepDataF10ForexJqjjOutput: {
             rule: "repeated",
             type: "F10ForexJqjjOutput",
-            id: 241
+            id: 241,
+            options: {}
           },
           RepDataF10ForexLlhhOutput: {
             rule: "repeated",
             type: "F10ForexLlhhOutput",
-            id: 242
+            id: 242,
+            options: {}
           },
           RepDataF10ForexQqwhjbzlOutput: {
             rule: "repeated",
             type: "F10ForexQqwhjbzlOutput",
-            id: 243
+            id: 243,
+            options: {}
           },
           RepDataF10ForexShiborlvOutput: {
             rule: "repeated",
             type: "F10ForexShiborlvOutput",
-            id: 244
+            id: 244,
+            options: {}
           },
           RepDataF10ForexWbdjqOutput: {
             rule: "repeated",
             type: "F10ForexWbdjqOutput",
-            id: 245
+            id: 245,
+            options: {}
           },
           RepDataF10ForexWhbzMbOutput: {
             rule: "repeated",
             type: "F10ForexWhbzMbOutput",
-            id: 246
+            id: 246,
+            options: {}
           },
           RepDataF10ForexXycjOutput: {
             rule: "repeated",
             type: "F10ForexXycjOutput",
-            id: 247
+            id: 247,
+            options: {}
           },
           RepDataF10ForexYqjjOutput: {
             rule: "repeated",
             type: "F10ForexYqjjOutput",
-            id: 248
+            id: 248,
+            options: {}
           },
           RepDataF10FuturesBzhyOutput: {
             rule: "repeated",
             type: "F10FuturesBzhyOutput",
-            id: 249
+            id: 249,
+            options: {}
           },
           RepDataF10FuturesCpgkOutput: {
             rule: "repeated",
             type: "F10FuturesCpgkOutput",
-            id: 250
+            id: 250,
+            options: {}
           },
           RepDataF10FuturesFkbfOutput: {
             rule: "repeated",
             type: "F10FuturesFkbfOutput",
-            id: 251
+            id: 251,
+            options: {}
           },
           RepDataF10FuturesJsxzOutput: {
             rule: "repeated",
             type: "F10FuturesJsxzOutput",
-            id: 252
+            id: 252,
+            options: {}
           },
           RepDataF10FuturesJygzOutput: {
             rule: "repeated",
             type: "F10FuturesJygzOutput",
-            id: 253
+            id: 253,
+            options: {}
           },
           RepDataF10FuturesWphyOutput: {
             rule: "repeated",
             type: "F10FuturesWphyOutput",
-            id: 254
+            id: 254,
+            options: {}
           },
           RepDataF10FuturesYxysOutput: {
             rule: "repeated",
             type: "F10FuturesYxysOutput",
-            id: 255
+            id: 255,
+            options: {}
           },
           RepDataF10SpotBzhyOutput: {
             rule: "repeated",
             type: "F10SpotBzhyOutput",
-            id: 256
+            id: 256,
+            options: {}
           },
           RepDataF10SpotFjsmOutput: {
             rule: "repeated",
             type: "F10SpotFjsmOutput",
-            id: 257
+            id: 257,
+            options: {}
           },
           RepDataF10SpotJygzOutput: {
             rule: "repeated",
             type: "F10SpotJygzOutput",
-            id: 258
+            id: 258,
+            options: {}
           },
           RepDataF10SpotPzgkOutput: {
             rule: "repeated",
             type: "F10SpotPzgkOutput",
-            id: 259
+            id: 259,
+            options: {}
           },
           RepDataF10SpotWphyOutput: {
             rule: "repeated",
             type: "F10SpotWphyOutput",
-            id: 260
+            id: 260,
+            options: {}
           },
           RepDataF10SpotYxysOutput: {
             rule: "repeated",
             type: "F10SpotYxysOutput",
-            id: 261
+            id: 261,
+            options: {}
           },
           RepDataReportDataItem: {
             rule: "repeated",
             type: "ReportDataItem",
-            id: 262
+            id: 262,
+            options: {}
           },
           RepDataStockReport: {
             rule: "repeated",
             type: "StockReport",
-            id: 263
+            id: 263,
+            options: {}
           },
           RepDataSelfReport: {
             rule: "repeated",
             type: "SelfReport",
-            id: 264
+            id: 264,
+            options: {}
           },
           RepDataQuoteFundFlowSingle: {
             rule: "repeated",
             type: "QuoteFundFlowSingle",
-            id: 265
+            id: 265,
+            options: {}
           },
           RepDataMonthTrends: {
             rule: "repeated",
             type: "MonthTrends",
-            id: 266
+            id: 266,
+            options: {}
           },
           RepDataQuoteQueueMinSingle: {
             rule: "repeated",
             type: "QuoteQueueMinSingle",
-            id: 269
+            id: 269,
+            options: {}
           },
           RepDataQuoteBOrderMinSingle: {
             rule: "repeated",
             type: "QuoteBOrderMinSingle",
-            id: 302
+            id: 302,
+            options: {}
           }
         }
       },
@@ -4115,22 +5073,34 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           iValues: {
             rule: "repeated",
             type: "int64",
-            id: 1
+            id: 1,
+            options: {
+              packed: true
+            }
           },
           fValues: {
             rule: "repeated",
             type: "float",
-            id: 2
+            id: 2,
+            options: {
+              packed: true
+            }
           },
           dValues: {
             rule: "repeated",
             type: "double",
-            id: 3
+            id: 3,
+            options: {
+              packed: true
+            }
           },
           sValues: {
             rule: "repeated",
             type: "string",
-            id: 4
+            id: 4,
+            options: {
+              packed: false
+            }
           }
         }
       },
@@ -4144,42 +5114,62 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           iValues: {
             rule: "repeated",
             type: "int64",
-            id: 2
+            id: 2,
+            options: {
+              packed: true
+            }
           },
           fValues: {
             rule: "repeated",
             type: "float",
-            id: 3
+            id: 3,
+            options: {
+              packed: true
+            }
           },
           dValues: {
             rule: "repeated",
             type: "double",
-            id: 4
+            id: 4,
+            options: {
+              packed: true
+            }
           },
           sValues: {
             rule: "repeated",
             type: "string",
-            id: 5
+            id: 5,
+            options: {
+              packed: false
+            }
           },
           bValues: {
             rule: "repeated",
             type: "bytes",
-            id: 6
+            id: 6,
+            options: {
+              packed: false
+            }
           },
           tValues: {
             rule: "repeated",
             type: "Table",
-            id: 7
+            id: 7,
+            options: {}
           },
           aValues: {
             rule: "repeated",
             type: "CArray",
-            id: 8
+            id: 8,
+            options: {}
           },
           xValues: {
             rule: "repeated",
             type: "sint64",
-            id: 9
+            id: 9,
+            options: {
+              packed: true
+            }
           }
         }
       },
@@ -4229,17 +5219,20 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Info: {
             rule: "repeated",
             type: "CInfo",
-            id: 2
+            id: 2,
+            options: {}
           },
           Data: {
             rule: "repeated",
             type: "CData",
-            id: 3
+            id: 3,
+            options: {}
           },
           DataX: {
             rule: "repeated",
             type: "CDataX",
-            id: 4
+            id: 4,
+            options: {}
           },
           Name: {
             type: "string",
@@ -5954,7 +6947,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           HangQing: {
             rule: "repeated",
             type: "LiShiHangQing",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       },
@@ -5994,7 +6988,10 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           ChengFenGu: {
             rule: "repeated",
             type: "string",
-            id: 3
+            id: 3,
+            options: {
+              packed: false
+            }
           },
           LeiBie: {
             type: "int64",
@@ -6012,17 +7009,20 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           ShuJu: {
             rule: "repeated",
             type: "ZBShuJu",
-            id: 2
+            id: 2,
+            options: {}
           },
           ShuXing: {
             rule: "repeated",
             type: "ZBShuXing",
-            id: 3
+            id: 3,
+            options: {}
           },
           HuiTu: {
             rule: "repeated",
             type: "ZBHuiTu",
-            id: 4
+            id: 4,
+            options: {}
           }
         },
         nested: {
@@ -6176,12 +7176,18 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
               WenBen: {
                 rule: "repeated",
                 type: "string",
-                id: 9
+                id: 9,
+                options: {
+                  packed: false
+                }
               },
               ShuJu: {
                 rule: "repeated",
                 type: "HTShuJu",
-                id: 10
+                id: 10,
+                options: {
+                  packed: false
+                }
               }
             },
             nested: {
@@ -6235,7 +7241,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           ShuChu: {
             rule: "repeated",
             type: "ZhiBiaoShuChu.ZBShuXing",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       },
@@ -6244,7 +7251,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           ShuChu: {
             rule: "repeated",
             type: "ZhiBiaoShuChu.ZBHuiTu",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       },
@@ -6322,12 +7330,14 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           CanShu: {
             rule: "repeated",
             type: "ZBCanShu",
-            id: 17
+            id: 17,
+            options: {}
           },
           ShuChu: {
             rule: "repeated",
             type: "ZBShuChu",
-            id: 18
+            id: 18,
+            options: {}
           }
         },
         nested: {
@@ -6426,7 +7436,10 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           obj: {
             rule: "repeated",
             type: "string",
-            id: 1
+            id: 1,
+            options: {
+              packed: false
+            }
           }
         }
       },
@@ -6435,7 +7448,10 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           name: {
             rule: "repeated",
             type: "string",
-            id: 1
+            id: 1,
+            options: {
+              packed: false
+            }
           }
         }
       },
@@ -6493,7 +7509,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Results: {
             rule: "repeated",
             type: "QuoteDynaSingle",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       },
@@ -6551,7 +7568,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "KXian",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -6560,7 +7578,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Results: {
             rule: "repeated",
             type: "QuoteKlineSingle",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       },
@@ -6634,7 +7653,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "FenBiChengJiao",
-            id: 2
+            id: 2,
+            options: {}
           },
           QingPan: {
             type: "int64",
@@ -6647,7 +7667,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Results: {
             rule: "repeated",
             type: "QuoteTickSingle",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       },
@@ -6717,7 +7738,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "FenShi",
-            id: 2
+            id: 2,
+            options: {}
           },
           RiQi: {
             type: "int64",
@@ -6734,7 +7756,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           JiaoYiShiJianDuan: {
             rule: "repeated",
             type: "JiaoYiShiJianDuanJieGou",
-            id: 6
+            id: 6,
+            options: {}
           },
           ZuoShou: {
             type: "int64",
@@ -6751,7 +7774,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           LiShiFenShi: {
             rule: "repeated",
             type: "FenShiLishi",
-            id: 10
+            id: 10,
+            options: {}
           }
         },
         nested: {
@@ -6782,7 +7806,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Results: {
             rule: "repeated",
             type: "QuoteMinSingle",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       },
@@ -6864,7 +7889,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "QuoteBOrder",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -6873,7 +7899,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Results: {
             rule: "repeated",
             type: "QuoteBOrderSingle",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       },
@@ -6903,7 +7930,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "QuoteDivid",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -6912,7 +7940,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Results: {
             rule: "repeated",
             type: "QuoteDividSingle",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       },
@@ -6926,7 +7955,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "GeGuDongTai",
-            id: 2
+            id: 2,
+            options: {}
           },
           QingPan: {
             type: "int64",
@@ -6944,7 +7974,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "ZhubiDangri",
-            id: 2
+            id: 2,
+            options: {}
           },
           QingPan: {
             type: "int64",
@@ -6962,7 +7993,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "WeiTuoDuiLie",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -6976,7 +8008,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "FenShiLishi",
-            id: 2
+            id: 2,
+            options: {}
           },
           ZuoShou: {
             type: "int64",
@@ -7014,7 +8047,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "QuoteFundFlow",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -7028,7 +8062,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "WeiTuoDuiLie",
-            id: 2
+            id: 2,
+            options: {}
           },
           QingPan: {
             type: "int64",
@@ -7070,7 +8105,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "QuoteBOrderMin",
-            id: 2
+            id: 2,
+            options: {}
           },
           QingPan: {
             type: "int64",
@@ -7780,12 +8816,14 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           WeiMaiRuPan: {
             rule: "repeated",
             type: "MaiMaiBiao",
-            id: 3
+            id: 3,
+            options: {}
           },
           WeiMaiChuPan: {
             rule: "repeated",
             type: "MaiMaiBiao",
-            id: 4
+            id: 4,
+            options: {}
           }
         },
         nested: {
@@ -7825,12 +8863,14 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           MaiRuDuiLie: {
             rule: "repeated",
             type: "WeiTuo",
-            id: 3
+            id: 3,
+            options: {}
           },
           MaiChuDuiLie: {
             rule: "repeated",
             type: "WeiTuo",
-            id: 4
+            id: 4,
+            options: {}
           }
         },
         nested: {
@@ -7934,7 +8974,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Rows: {
             rule: "repeated",
             type: "DynaMaiMaiPrice",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       },
@@ -8095,7 +9136,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Rows: {
             rule: "repeated",
             type: "FenShi",
-            id: 1
+            id: 1,
+            options: {}
           },
           RiQi: {
             type: "int64",
@@ -8118,12 +9160,16 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Objs: {
             rule: "repeated",
             type: "string",
-            id: 3
+            id: 3,
+            options: {
+              packed: false
+            }
           },
           DAObjs: {
             rule: "repeated",
             type: "DynaAlibObj",
-            id: 4
+            id: 4,
+            options: {}
           }
         }
       },
@@ -8132,7 +9178,10 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Objs: {
             rule: "repeated",
             type: "string",
-            id: 1
+            id: 1,
+            options: {
+              packed: false
+            }
           }
         }
       },
@@ -8264,7 +9313,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           ShuJu: {
             rule: "repeated",
             type: "JPBShuJu",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -8278,7 +9328,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           JieGuo: {
             rule: "repeated",
             type: "JPBShuChu",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -8422,7 +9473,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "XinWenXinXiEx",
-            id: 3
+            id: 3,
+            options: {}
           }
         }
       },
@@ -8456,7 +9508,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "XinWenXinXiZhongXin",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -8495,7 +9548,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "GongGaoXinXi",
-            id: 3
+            id: 3,
+            options: {}
           }
         }
       },
@@ -8529,7 +9583,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "GongGaoXinXiZhongXin",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -8565,7 +9620,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "YiZhiXinYeJiYuCe",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -8593,7 +9649,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "YiZhiXinTouZiPinJi",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -8625,7 +9682,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "GeGuYeJiYuCe",
-            id: 3
+            id: 3,
+            options: {}
           }
         }
       },
@@ -8639,7 +9697,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "GeGuYeJiYuCeData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -8690,7 +9749,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "GeGuTouZiYanBao",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -8739,7 +9799,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           ZiJinLiuXiang: {
             rule: "repeated",
             type: "ZiJinLiuXiangShuJu",
-            id: 11
+            id: 11,
+            options: {}
           },
           JunJia: {
             type: "int64",
@@ -9080,7 +10141,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "CpbdCjhbData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9106,7 +10168,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundCpbdFbsjjzjzData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9120,7 +10183,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundCpbdFbsjjzjz",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9158,7 +10222,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundCpbdJjfebdqkData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9172,7 +10237,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundCpbdJjfebdqk",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9222,7 +10288,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundCpbdJjgbjbData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9236,7 +10303,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundCpbdJjgbjb",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9270,7 +10338,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundCpbdJjjzbxData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9284,7 +10353,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundCpbdJjjzbx",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9406,7 +10476,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundCwsjJyyjData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9420,7 +10491,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundCwsjJyyj",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9506,7 +10578,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundCwsjZcfzData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9520,7 +10593,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundCwsjZcfz",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9574,7 +10648,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundCwsjZycwzbData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9588,7 +10663,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundCwsjZycwzb",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9630,7 +10706,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundCyrHshjgData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9644,7 +10721,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundCyrHshjg",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9690,7 +10768,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundFefhFbsjjcyrjgData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9704,7 +10783,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundFefhFbsjjcyrjg",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9742,7 +10822,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundFefhFhData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9756,7 +10837,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundFefhFh",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9794,7 +10876,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundFefhKfsjjjdfebdData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9808,7 +10891,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundFefhKfsjjjdfebd",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9842,7 +10926,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundGpmxBqzdmcgpData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9856,7 +10941,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundGpmxBqzdmcgp",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9890,7 +10976,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundGpmxBqzdmrgpData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9904,7 +10991,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundGpmxBqzdmrgp",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9942,7 +11030,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundGpmxQbcgData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9956,7 +11045,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundGpmxQbcg",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -9986,7 +11076,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundHgzwData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10000,7 +11091,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundHgzw",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10034,7 +11126,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundHytzData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10048,7 +11141,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundHytz",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10086,7 +11180,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundHytzQdiiData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10100,7 +11195,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundHytzQdii",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10453,7 +11549,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundJlggJjgsggryData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10467,7 +11564,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundJlggJjgsggry",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10505,7 +11603,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundJlggJjjlData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10519,7 +11618,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundJlggJjjl",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10585,7 +11685,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundJyyjData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10599,7 +11700,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundJyyj",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10641,7 +11743,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundZccgQsmgpmxData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10655,7 +11758,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundZccgQsmgpmx",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10693,7 +11797,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundZccgQdiiData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10707,7 +11812,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundZccgQdii",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10737,7 +11843,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundZqtzTzzhData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10751,7 +11858,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundZqtzTzzh",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10785,7 +11893,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundZqtzTzzhQdiiData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10799,7 +11908,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundZqtzTzzhQdii",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10837,7 +11947,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundZqtzZcmxData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10851,7 +11962,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundZqtzZcmx",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10885,7 +11997,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundZycyrData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10899,7 +12012,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundZycyr",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10961,7 +12075,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "FundHbjjxeData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -10975,7 +12090,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FundHbjjxe",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -11171,7 +12287,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "ZygcData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -11255,7 +12372,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "DstxJgccData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -11420,7 +12538,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "GlcData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -11611,7 +12730,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "ZbyzCyqtsszqData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -11649,7 +12769,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "ZbyzCyfssgqData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -11768,7 +12889,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "ZbyzXmtzMjzjcnxmData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -11814,7 +12936,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "ZbyzXmtzMjzjbgxmData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -11848,7 +12971,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "ZbyzXmtzFmjzjxmData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -11952,7 +13076,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "HydwData",
-            id: 5
+            id: 5,
+            options: {}
           }
         }
       },
@@ -12032,7 +13157,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "RsrProForecastData",
-            id: 3
+            id: 3,
+            options: {}
           }
         }
       },
@@ -12083,7 +13209,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "RsrInvestRatingData",
-            id: 3
+            id: 3,
+            options: {}
           }
         }
       },
@@ -12118,7 +13245,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "RsrEarnPSForeData",
-            id: 3
+            id: 3,
+            options: {}
           }
         }
       },
@@ -12371,7 +13499,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10CwtsZycwzb",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12438,7 +13567,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10CwtsXjllbzy",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12493,7 +13623,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10ZxjbDjdcwzb",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12576,7 +13707,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10Zxjbdjdleb",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12619,7 +13751,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10GdjcGdhs",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12669,7 +13802,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10GdjcGd",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12683,7 +13817,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10GdjcSdgd",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12697,7 +13832,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10GdjcGd",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12711,7 +13847,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10GdjcSdltgd",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12774,7 +13911,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10GbfhFhkg",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12901,7 +14039,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10GbfhGbjg",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12915,7 +14054,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10CpbdKpqk",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12929,7 +14069,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10CpbdCjhb",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12943,7 +14084,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10CwtsLrfpbzy",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12957,7 +14099,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10CwtsZcfzbzy",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12971,7 +14114,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10Zygc",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12985,7 +14129,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10DstxJjlt",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -12999,7 +14144,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10DstxRzrq",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13013,7 +14159,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10DstxJgcc",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13027,7 +14174,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10DstxGdzjc",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13041,7 +14189,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10DstxDzjy",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13055,7 +14204,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10DstxCgbdqk",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13069,7 +14219,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10GlcNdbcqk",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13083,7 +14234,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10ZxjbDjdxjllb",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13097,7 +14249,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10GbfhGbbd",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13111,7 +14264,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10ZbyzCyqtsszq",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13125,7 +14279,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10ZbyzCyfssgq",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13139,7 +14294,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10zbyzRzqkzfyss",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13153,7 +14309,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10ZbyzXmtzMjzjqk",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13167,7 +14324,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10ZbyzXmtzMjzjcnxm",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13181,7 +14339,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10ZbyzXmtzMjzjbgxm",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13195,7 +14354,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10ZbyzXmtzFmjzjxm",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13209,7 +14369,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10RsrEarnPSFore",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13223,7 +14384,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10RsrResReport",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13817,7 +14979,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "BondKzztzzgj",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13831,7 +14994,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10BondKzztzzgj",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13944,7 +15108,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "BondQycyr",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -13958,7 +15123,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10BondQycyr",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14170,7 +15336,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "BondZqgg",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14184,7 +15351,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10BondZqgg",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14226,7 +15394,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "BondZqxjl",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14240,7 +15409,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10BondZqxjl",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14278,7 +15448,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "BondZqzg",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14292,7 +15463,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10BondZqzg",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14326,7 +15498,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           data: {
             rule: "repeated",
             type: "F10ForexDqjj",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14361,7 +15534,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10ForexJqjj",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14396,7 +15570,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10ForexLlhh",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14508,7 +15683,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10ForexShiborlv",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14543,7 +15719,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10ForexWbdjq",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14587,7 +15764,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10ForexWhbzMb",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14622,7 +15800,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10ForexXycj",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14657,7 +15836,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10ForexYqjj",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14845,7 +16025,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FuturesCpgk",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14876,7 +16057,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FuturesFkbf",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14907,7 +16089,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FuturesJsxz",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14938,7 +16121,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FuturesJygz",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -14969,7 +16153,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FuturesWphy",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15000,7 +16185,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10FuturesYxys",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15035,7 +16221,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10SpotBzhy",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15066,7 +16253,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10SpotFjsm",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15097,7 +16285,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10SpotJygz",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15128,7 +16317,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10SpotPzgk",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15159,7 +16349,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10SpotWphy",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15190,7 +16381,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "F10SpotYxys",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15249,7 +16441,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "TodayListStock",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15284,7 +16477,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "TodayBrokerStock",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15315,7 +16509,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "TodayConvertStock",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15350,7 +16545,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "TodayIssueStock",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15413,7 +16609,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "BrokerStock",
-            id: 8
+            id: 8,
+            options: {}
           }
         }
       },
@@ -15449,7 +16646,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "BrokerInfo",
-            id: 3
+            id: 3,
+            options: {}
           }
         }
       },
@@ -15556,7 +16754,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "IssueStock",
-            id: 4
+            id: 4,
+            options: {}
           }
         }
       },
@@ -15587,7 +16786,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "BrokerData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15621,7 +16821,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "QuickReportData",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15659,7 +16860,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "NewsDataItem",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15744,7 +16946,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "AnnouncemtDataItem",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -15862,7 +17065,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           Data: {
             rule: "repeated",
             type: "ReportDataItem",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -16086,7 +17290,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           HoldList: {
             rule: "repeated",
             type: "HoldItem",
-            id: 9
+            id: 9,
+            options: {}
           },
           CapitalId: {
             type: "string",
@@ -16153,7 +17358,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           OrderList: {
             rule: "repeated",
             type: "OrderItem",
-            id: 3
+            id: 3,
+            options: {}
           },
           CapitalId: {
             type: "string",
@@ -16216,7 +17422,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           DealList: {
             rule: "repeated",
             type: "DealItem",
-            id: 3
+            id: 3,
+            options: {}
           },
           CapitalId: {
             type: "string",
@@ -16357,7 +17564,10 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           TradeDate: {
             rule: "repeated",
             type: "string",
-            id: 2
+            id: 2,
+            options: {
+              packed: false
+            }
           }
         }
       },
@@ -16502,7 +17712,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           YueKXian: {
             rule: "repeated",
             type: "YueKXianShuJu",
-            id: 2
+            id: 2,
+            options: {}
           },
           ShangZhangGaiLv: {
             type: "int64",
@@ -16524,7 +17735,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           YueZouShi: {
             rule: "repeated",
             type: "YueZouShiShuJu",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -16538,7 +17750,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           HangQing: {
             rule: "repeated",
             type: "LiShiHangQing",
-            id: 2
+            id: 2,
+            options: {}
           }
         }
       },
@@ -16583,7 +17796,8 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
           ChildRes: {
             rule: "repeated",
             type: "ChildResponse",
-            id: 1
+            id: 1,
+            options: {}
           }
         }
       }
@@ -16594,7 +17808,7 @@ var $root = ($protobuf.roots["default"] || ($protobuf.roots["default"] = new $pr
 module.exports = $root;
 
 /***/ }),
-/* 13 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16702,446 +17916,662 @@ function unmakeValueToString(value) {
 exports.default = { unmakeValue: unmakeValue, unmakeValueToNumber: unmakeValueToNumber, unmakeValueToString: unmakeValueToString };
 
 /***/ }),
-/* 14 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-/**
- * Runtime message from/to plain object converters.
- * @namespace
- */
-var converter = exports;
+module.exports = Class;
 
-var Enum = __webpack_require__(1),
-    util = __webpack_require__(0);
+var Message = __webpack_require__(9),
+    util    = __webpack_require__(0);
+
+var Type; // cyclic
 
 /**
- * Generates a partial value fromObject conveter.
- * @param {Codegen} gen Codegen instance
- * @param {Field} field Reflected field
- * @param {number} fieldIndex Field index
- * @param {string} prop Property reference
- * @returns {Codegen} Codegen instance
- * @ignore
- */
-function genValuePartial_fromObject(gen, field, fieldIndex, prop) {
-    /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
-    if (field.resolvedType) {
-        if (field.resolvedType instanceof Enum) { gen
-            ("switch(d%s){", prop);
-            for (var values = field.resolvedType.values, keys = Object.keys(values), i = 0; i < keys.length; ++i) {
-                if (field.repeated && values[keys[i]] === field.typeDefault) gen
-                ("default:");
-                gen
-                ("case%j:", keys[i])
-                ("case %i:", values[keys[i]])
-                    ("m%s=%j", prop, values[keys[i]])
-                    ("break");
-            } gen
-            ("}");
-        } else gen
-            ("if(typeof d%s!==\"object\")", prop)
-                ("throw TypeError(%j)", field.fullName + ": object expected")
-            ("m%s=types[%i].fromObject(d%s)", prop, fieldIndex, prop);
-    } else {
-        var isUnsigned = false;
-        switch (field.type) {
-            case "double":
-            case "float": gen
-                ("m%s=Number(d%s)", prop, prop); // also catches "NaN", "Infinity"
-                break;
-            case "uint32":
-            case "fixed32": gen
-                ("m%s=d%s>>>0", prop, prop);
-                break;
-            case "int32":
-            case "sint32":
-            case "sfixed32": gen
-                ("m%s=d%s|0", prop, prop);
-                break;
-            case "uint64":
-                isUnsigned = true;
-                // eslint-disable-line no-fallthrough
-            case "int64":
-            case "sint64":
-            case "fixed64":
-            case "sfixed64": gen
-                ("if(util.Long)")
-                    ("(m%s=util.Long.fromValue(d%s)).unsigned=%j", prop, prop, isUnsigned)
-                ("else if(typeof d%s===\"string\")", prop)
-                    ("m%s=parseInt(d%s,10)", prop, prop)
-                ("else if(typeof d%s===\"number\")", prop)
-                    ("m%s=d%s", prop, prop)
-                ("else if(typeof d%s===\"object\")", prop)
-                    ("m%s=new util.LongBits(d%s.low>>>0,d%s.high>>>0).toNumber(%s)", prop, prop, prop, isUnsigned ? "true" : "");
-                break;
-            case "bytes": gen
-                ("if(typeof d%s===\"string\")", prop)
-                    ("util.base64.decode(d%s,m%s=util.newBuffer(util.base64.length(d%s)),0)", prop, prop, prop)
-                ("else if(d%s.length)", prop)
-                    ("m%s=d%s", prop, prop);
-                break;
-            case "string": gen
-                ("m%s=String(d%s)", prop, prop);
-                break;
-            case "bool": gen
-                ("m%s=Boolean(d%s)", prop, prop);
-                break;
-            /* default: gen
-                ("m%s=d%s", prop, prop);
-                break; */
-        }
-    }
-    return gen;
-    /* eslint-enable no-unexpected-multiline, block-scoped-var, no-redeclare */
-}
-
-/**
- * Generates a plain object to runtime message converter specific to the specified message type.
- * @param {Type} mtype Message type
- * @returns {Codegen} Codegen instance
- */
-converter.fromObject = function fromObject(mtype) {
-    /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
-    var fields = mtype.fieldsArray;
-    var gen = util.codegen(["d"], mtype.name + "$fromObject")
-    ("if(d instanceof this.ctor)")
-        ("return d");
-    if (!fields.length) return gen
-    ("return new this.ctor");
-    gen
-    ("var m=new this.ctor");
-    for (var i = 0; i < fields.length; ++i) {
-        var field  = fields[i].resolve(),
-            prop   = util.safeProp(field.name);
-
-        // Map fields
-        if (field.map) { gen
-    ("if(d%s){", prop)
-        ("if(typeof d%s!==\"object\")", prop)
-            ("throw TypeError(%j)", field.fullName + ": object expected")
-        ("m%s={}", prop)
-        ("for(var ks=Object.keys(d%s),i=0;i<ks.length;++i){", prop);
-            genValuePartial_fromObject(gen, field, /* not sorted */ i, prop + "[ks[i]]")
-        ("}")
-    ("}");
-
-        // Repeated fields
-        } else if (field.repeated) { gen
-    ("if(d%s){", prop)
-        ("if(!Array.isArray(d%s))", prop)
-            ("throw TypeError(%j)", field.fullName + ": array expected")
-        ("m%s=[]", prop)
-        ("for(var i=0;i<d%s.length;++i){", prop);
-            genValuePartial_fromObject(gen, field, /* not sorted */ i, prop + "[i]")
-        ("}")
-    ("}");
-
-        // Non-repeated fields
-        } else {
-            if (!(field.resolvedType instanceof Enum)) gen // no need to test for null/undefined if an enum (uses switch)
-    ("if(d%s!=null){", prop); // !== undefined && !== null
-        genValuePartial_fromObject(gen, field, /* not sorted */ i, prop);
-            if (!(field.resolvedType instanceof Enum)) gen
-    ("}");
-        }
-    } return gen
-    ("return m");
-    /* eslint-enable no-unexpected-multiline, block-scoped-var, no-redeclare */
-};
-
-/**
- * Generates a partial value toObject converter.
- * @param {Codegen} gen Codegen instance
- * @param {Field} field Reflected field
- * @param {number} fieldIndex Field index
- * @param {string} prop Property reference
- * @returns {Codegen} Codegen instance
- * @ignore
- */
-function genValuePartial_toObject(gen, field, fieldIndex, prop) {
-    /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
-    if (field.resolvedType) {
-        if (field.resolvedType instanceof Enum) gen
-            ("d%s=o.enums===String?types[%i].values[m%s]:m%s", prop, fieldIndex, prop, prop);
-        else gen
-            ("d%s=types[%i].toObject(m%s,o)", prop, fieldIndex, prop);
-    } else {
-        var isUnsigned = false;
-        switch (field.type) {
-            case "double":
-            case "float": gen
-            ("d%s=o.json&&!isFinite(m%s)?String(m%s):m%s", prop, prop, prop, prop);
-                break;
-            case "uint64":
-                isUnsigned = true;
-                // eslint-disable-line no-fallthrough
-            case "int64":
-            case "sint64":
-            case "fixed64":
-            case "sfixed64": gen
-            ("if(typeof m%s===\"number\")", prop)
-                ("d%s=o.longs===String?String(m%s):m%s", prop, prop, prop)
-            ("else") // Long-like
-                ("d%s=o.longs===String?util.Long.prototype.toString.call(m%s):o.longs===Number?new util.LongBits(m%s.low>>>0,m%s.high>>>0).toNumber(%s):m%s", prop, prop, prop, prop, isUnsigned ? "true": "", prop);
-                break;
-            case "bytes": gen
-            ("d%s=o.bytes===String?util.base64.encode(m%s,0,m%s.length):o.bytes===Array?Array.prototype.slice.call(m%s):m%s", prop, prop, prop, prop, prop);
-                break;
-            default: gen
-            ("d%s=m%s", prop, prop);
-                break;
-        }
-    }
-    return gen;
-    /* eslint-enable no-unexpected-multiline, block-scoped-var, no-redeclare */
-}
-
-/**
- * Generates a runtime message to plain object converter specific to the specified message type.
- * @param {Type} mtype Message type
- * @returns {Codegen} Codegen instance
- */
-converter.toObject = function toObject(mtype) {
-    /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
-    var fields = mtype.fieldsArray.slice().sort(util.compareFieldsById);
-    if (!fields.length)
-        return util.codegen()("return {}");
-    var gen = util.codegen(["m", "o"], mtype.name + "$toObject")
-    ("if(!o)")
-        ("o={}")
-    ("var d={}");
-
-    var repeatedFields = [],
-        mapFields = [],
-        normalFields = [],
-        i = 0;
-    for (; i < fields.length; ++i)
-        if (!fields[i].partOf)
-            ( fields[i].resolve().repeated ? repeatedFields
-            : fields[i].map ? mapFields
-            : normalFields).push(fields[i]);
-
-    if (repeatedFields.length) { gen
-    ("if(o.arrays||o.defaults){");
-        for (i = 0; i < repeatedFields.length; ++i) gen
-        ("d%s=[]", util.safeProp(repeatedFields[i].name));
-        gen
-    ("}");
-    }
-
-    if (mapFields.length) { gen
-    ("if(o.objects||o.defaults){");
-        for (i = 0; i < mapFields.length; ++i) gen
-        ("d%s={}", util.safeProp(mapFields[i].name));
-        gen
-    ("}");
-    }
-
-    if (normalFields.length) { gen
-    ("if(o.defaults){");
-        for (i = 0; i < normalFields.length; ++i) {
-            var field = normalFields[i],
-                prop  = util.safeProp(field.name);
-            if (field.resolvedType instanceof Enum) gen
-        ("d%s=o.enums===String?%j:%j", prop, field.resolvedType.valuesById[field.typeDefault], field.typeDefault);
-            else if (field.long) gen
-        ("if(util.Long){")
-            ("var n=new util.Long(%i,%i,%j)", field.typeDefault.low, field.typeDefault.high, field.typeDefault.unsigned)
-            ("d%s=o.longs===String?n.toString():o.longs===Number?n.toNumber():n", prop)
-        ("}else")
-            ("d%s=o.longs===String?%j:%i", prop, field.typeDefault.toString(), field.typeDefault.toNumber());
-            else if (field.bytes) gen
-        ("d%s=o.bytes===String?%j:%s", prop, String.fromCharCode.apply(String, field.typeDefault), "[" + Array.prototype.slice.call(field.typeDefault).join(",") + "]");
-            else gen
-        ("d%s=%j", prop, field.typeDefault); // also messages (=null)
-        } gen
-    ("}");
-    }
-    var hasKs2 = false;
-    for (i = 0; i < fields.length; ++i) {
-        var field = fields[i],
-            index = mtype._fieldsArray.indexOf(field),
-            prop  = util.safeProp(field.name);
-        if (field.map) {
-            if (!hasKs2) { hasKs2 = true; gen
-    ("var ks2");
-            } gen
-    ("if(m%s&&(ks2=Object.keys(m%s)).length){", prop, prop)
-        ("d%s={}", prop)
-        ("for(var j=0;j<ks2.length;++j){");
-            genValuePartial_toObject(gen, field, /* sorted */ index, prop + "[ks2[j]]")
-        ("}");
-        } else if (field.repeated) { gen
-    ("if(m%s&&m%s.length){", prop, prop)
-        ("d%s=[]", prop)
-        ("for(var j=0;j<m%s.length;++j){", prop);
-            genValuePartial_toObject(gen, field, /* sorted */ index, prop + "[j]")
-        ("}");
-        } else { gen
-    ("if(m%s!=null&&m.hasOwnProperty(%j)){", prop, field.name); // !== undefined && !== null
-        genValuePartial_toObject(gen, field, /* sorted */ index, prop);
-        if (field.partOf) gen
-        ("if(o.oneofs)")
-            ("d%s=%j", util.safeProp(field.partOf.name), field.name);
-        }
-        gen
-    ("}");
-    }
-    return gen
-    ("return d");
-    /* eslint-enable no-unexpected-multiline, block-scoped-var, no-redeclare */
-};
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = Message;
-
-var util = __webpack_require__(2);
-
-/**
- * Constructs a new message instance.
- * @classdesc Abstract runtime message.
+ * Constructs a new message prototype for the specified reflected type and sets up its constructor.
+ * @classdesc Runtime class providing the tools to create your own custom classes.
  * @constructor
- * @param {Properties<T>} [properties] Properties to set
- * @template T extends object
+ * @param {Type} type Reflected message type
+ * @param {*} [ctor] Custom constructor to set up, defaults to create a generic one if omitted
+ * @returns {Message} Message prototype
  */
-function Message(properties) {
-    // not used internally
-    if (properties)
-        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-            this[keys[i]] = properties[keys[i]];
+function Class(type, ctor) {
+    if (!Type)
+        Type = __webpack_require__(11);
+
+    if (!(type instanceof Type))
+        throw TypeError("type must be a Type");
+
+    if (ctor) {
+        if (typeof ctor !== "function")
+            throw TypeError("ctor must be a function");
+    } else
+        ctor = Class.generate(type).eof(type.name); // named constructor function (codegen is required anyway)
+
+    // Let's pretend...
+    ctor.constructor = Class;
+
+    // new Class() -> Message.prototype
+    (ctor.prototype = new Message()).constructor = ctor;
+
+    // Static methods on Message are instance methods on Class and vice versa
+    util.merge(ctor, Message, true);
+
+    // Classes and messages reference their reflected type
+    ctor.$type = type;
+    ctor.prototype.$type = type;
+
+    // Messages have non-enumerable default values on their prototype
+    var i = 0;
+    for (; i < /* initializes */ type.fieldsArray.length; ++i) {
+        // objects on the prototype must be immmutable. users must assign a new object instance and
+        // cannot use Array#push on empty arrays on the prototype for example, as this would modify
+        // the value on the prototype for ALL messages of this type. Hence, these objects are frozen.
+        ctor.prototype[type._fieldsArray[i].name] = Array.isArray(type._fieldsArray[i].resolve().defaultValue)
+            ? util.emptyArray
+            : util.isObject(type._fieldsArray[i].defaultValue) && !type._fieldsArray[i].long
+              ? util.emptyObject
+              : type._fieldsArray[i].defaultValue; // if a long, it is frozen when initialized
+    }
+
+    // Messages have non-enumerable getters and setters for each virtual oneof field
+    var ctorProperties = {};
+    for (i = 0; i < /* initializes */ type.oneofsArray.length; ++i)
+        ctorProperties[type._oneofsArray[i].resolve().name] = {
+            get: util.oneOfGetter(type._oneofsArray[i].oneof),
+            set: util.oneOfSetter(type._oneofsArray[i].oneof)
+        };
+    if (i)
+        Object.defineProperties(ctor.prototype, ctorProperties);
+
+    // Register
+    type.ctor = ctor;
+
+    return ctor.prototype;
 }
 
 /**
- * Reference to the reflected type.
- * @name Message.$type
- * @type {Type}
- * @readonly
+ * Generates a constructor function for the specified type.
+ * @param {Type} type Type to use
+ * @returns {Codegen} Codegen instance
  */
-
-/**
- * Reference to the reflected type.
- * @name Message#$type
- * @type {Type}
- * @readonly
- */
-
-/*eslint-disable valid-jsdoc*/
-
-/**
- * Creates a new message of this type using the specified properties.
- * @param {Object.<string,*>} [properties] Properties to set
- * @returns {Message<T>} Message instance
- * @template T extends Message<T>
- * @this Constructor<T>
- */
-Message.create = function create(properties) {
-    return this.$type.create(properties);
+Class.generate = function generate(type) { // eslint-disable-line no-unused-vars
+    /* eslint-disable no-unexpected-multiline */
+    var gen = util.codegen("p");
+    // explicitly initialize mutable object/array fields so that these aren't just inherited from the prototype
+    for (var i = 0, field; i < type.fieldsArray.length; ++i)
+        if ((field = type._fieldsArray[i]).map) gen
+            ("this%s={}", util.safeProp(field.name));
+        else if (field.repeated) gen
+            ("this%s=[]", util.safeProp(field.name));
+    return gen
+    ("if(p)for(var ks=Object.keys(p),i=0;i<ks.length;++i)if(p[ks[i]]!=null)") // omit undefined or null
+        ("this[ks[i]]=p[ks[i]]");
+    /* eslint-enable no-unexpected-multiline */
 };
 
 /**
- * Encodes a message of this type.
- * @param {T|Object.<string,*>} message Message to encode
- * @param {Writer} [writer] Writer to use
- * @returns {Writer} Writer
- * @template T extends Message<T>
- * @this Constructor<T>
- */
-Message.encode = function encode(message, writer) {
-    return this.$type.encode(message, writer);
-};
-
-/**
- * Encodes a message of this type preceeded by its length as a varint.
- * @param {T|Object.<string,*>} message Message to encode
- * @param {Writer} [writer] Writer to use
- * @returns {Writer} Writer
- * @template T extends Message<T>
- * @this Constructor<T>
- */
-Message.encodeDelimited = function encodeDelimited(message, writer) {
-    return this.$type.encodeDelimited(message, writer);
-};
-
-/**
- * Decodes a message of this type.
- * @name Message.decode
+ * Constructs a new message prototype for the specified reflected type and sets up its constructor.
  * @function
- * @param {Reader|Uint8Array} reader Reader or buffer to decode
- * @returns {T} Decoded message
- * @template T extends Message<T>
- * @this Constructor<T>
+ * @param {Type} type Reflected message type
+ * @param {*} [ctor] Custom constructor to set up, defaults to create a generic one if omitted
+ * @returns {Message} Message prototype
+ * @deprecated since 6.7.0 it's possible to just assign a new constructor to {@link Type#ctor}
  */
-Message.decode = function decode(reader) {
-    return this.$type.decode(reader);
-};
+Class.create = Class;
 
-/**
- * Decodes a message of this type preceeded by its length as a varint.
- * @name Message.decodeDelimited
- * @function
- * @param {Reader|Uint8Array} reader Reader or buffer to decode
- * @returns {T} Decoded message
- * @template T extends Message<T>
- * @this Constructor<T>
- */
-Message.decodeDelimited = function decodeDelimited(reader) {
-    return this.$type.decodeDelimited(reader);
-};
-
-/**
- * Verifies a message of this type.
- * @name Message.verify
- * @function
- * @param {Object.<string,*>} message Plain object to verify
- * @returns {string|null} `null` if valid, otherwise the reason why it is not
- */
-Message.verify = function verify(message) {
-    return this.$type.verify(message);
-};
+// Static methods on Message are instance methods on Class and vice versa
+Class.prototype = Message;
 
 /**
  * Creates a new message of this type from a plain object. Also converts values to their respective internal types.
+ * @name Class#fromObject
+ * @function
  * @param {Object.<string,*>} object Plain object
- * @returns {T} Message instance
- * @template T extends Message<T>
- * @this Constructor<T>
+ * @returns {Message} Message instance
  */
-Message.fromObject = function fromObject(object) {
-    return this.$type.fromObject(object);
-};
+
+/**
+ * Creates a new message of this type from a plain object. Also converts values to their respective internal types.
+ * This is an alias of {@link Class#fromObject}.
+ * @name Class#from
+ * @function
+ * @param {Object.<string,*>} object Plain object
+ * @returns {Message} Message instance
+ */
 
 /**
  * Creates a plain object from a message of this type. Also converts values to other types if specified.
- * @param {T} message Message instance
- * @param {IConversionOptions} [options] Conversion options
+ * @name Class#toObject
+ * @function
+ * @param {Message} message Message instance
+ * @param {ConversionOptions} [options] Conversion options
  * @returns {Object.<string,*>} Plain object
- * @template T extends Message<T>
- * @this Constructor<T>
  */
-Message.toObject = function toObject(message, options) {
-    return this.$type.toObject(message, options);
+
+/**
+ * Encodes a message of this type.
+ * @name Class#encode
+ * @function
+ * @param {Message|Object.<string,*>} message Message to encode
+ * @param {Writer} [writer] Writer to use
+ * @returns {Writer} Writer
+ */
+
+/**
+ * Encodes a message of this type preceeded by its length as a varint.
+ * @name Class#encodeDelimited
+ * @function
+ * @param {Message|Object.<string,*>} message Message to encode
+ * @param {Writer} [writer] Writer to use
+ * @returns {Writer} Writer
+ */
+
+/**
+ * Decodes a message of this type.
+ * @name Class#decode
+ * @function
+ * @param {Reader|Uint8Array} reader Reader or buffer to decode
+ * @returns {Message} Decoded message
+ */
+
+/**
+ * Decodes a message of this type preceeded by its length as a varint.
+ * @name Class#decodeDelimited
+ * @function
+ * @param {Reader|Uint8Array} reader Reader or buffer to decode
+ * @returns {Message} Decoded message
+ */
+
+/**
+ * Verifies a message of this type.
+ * @name Class#verify
+ * @function
+ * @param {Message|Object.<string,*>} message Message or plain object to verify
+ * @returns {?string} `null` if valid, otherwise the reason why it is not
+ */
+
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = decoder;
+
+var Enum    = __webpack_require__(1),
+    types   = __webpack_require__(5),
+    util    = __webpack_require__(0);
+
+function missing(field) {
+    return "missing required '" + field.name + "'";
+}
+
+/**
+ * Generates a decoder specific to the specified message type.
+ * @param {Type} mtype Message type
+ * @returns {Codegen} Codegen instance
+ */
+function decoder(mtype) {
+    /* eslint-disable no-unexpected-multiline */
+    var gen = util.codegen("r", "l")
+    ("if(!(r instanceof Reader))")
+        ("r=Reader.create(r)")
+    ("var c=l===undefined?r.len:r.pos+l,m=new this.ctor" + (mtype.fieldsArray.filter(function(field) { return field.map; }).length ? ",k" : ""))
+    ("while(r.pos<c){")
+        ("var t=r.uint32()");
+    if (mtype.group) gen
+        ("if((t&7)===4)")
+            ("break");
+    gen
+        ("switch(t>>>3){");
+
+    var i = 0;
+    for (; i < /* initializes */ mtype.fieldsArray.length; ++i) {
+        var field = mtype._fieldsArray[i].resolve(),
+            type  = field.resolvedType instanceof Enum ? "uint32" : field.type,
+            ref   = "m" + util.safeProp(field.name); gen
+            ("case %d:", field.id);
+
+        // Map fields
+        if (field.map) { gen
+                ("r.skip().pos++") // assumes id 1 + key wireType
+                ("if(%s===util.emptyObject)", ref)
+                    ("%s={}", ref)
+                ("k=r.%s()", field.keyType)
+                ("r.pos++"); // assumes id 2 + value wireType
+            if (types.long[field.keyType] !== undefined) {
+                if (types.basic[type] === undefined) gen
+                ("%s[typeof k===\"object\"?util.longToHash(k):k]=types[%d].decode(r,r.uint32())", ref, i); // can't be groups
+                else gen
+                ("%s[typeof k===\"object\"?util.longToHash(k):k]=r.%s()", ref, type);
+            } else {
+                if (types.basic[type] === undefined) gen
+                ("%s[k]=types[%d].decode(r,r.uint32())", ref, i); // can't be groups
+                else gen
+                ("%s[k]=r.%s()", ref, type);
+            }
+
+        // Repeated fields
+        } else if (field.repeated) { gen
+
+                ("if(!(%s&&%s.length))", ref, ref)
+                    ("%s=[]", ref);
+
+            // Packable (always check for forward and backward compatiblity)
+            if (types.packed[type] !== undefined) gen
+                ("if((t&7)===2){")
+                    ("var c2=r.uint32()+r.pos")
+                    ("while(r.pos<c2)")
+                        ("%s.push(r.%s())", ref, type)
+                ("}else");
+
+            // Non-packed
+            if (types.basic[type] === undefined) gen(field.resolvedType.group
+                    ? "%s.push(types[%d].decode(r))"
+                    : "%s.push(types[%d].decode(r,r.uint32()))", ref, i);
+            else gen
+                    ("%s.push(r.%s())", ref, type);
+
+        // Non-repeated
+        } else if (types.basic[type] === undefined) gen(field.resolvedType.group
+                ? "%s=types[%d].decode(r)"
+                : "%s=types[%d].decode(r,r.uint32())", ref, i);
+        else gen
+                ("%s=r.%s()", ref, type);
+        gen
+                ("break");
+    // Unknown fields
+    } gen
+            ("default:")
+                ("r.skipType(t&7)")
+                ("break")
+
+        ("}")
+    ("}");
+
+    // Field presence
+    for (i = 0; i < mtype._fieldsArray.length; ++i) {
+        var rfield = mtype._fieldsArray[i];
+        if (rfield.required) gen
+    ("if(!m.hasOwnProperty(%j))", rfield.name)
+        ("throw util.ProtocolError(%j,{instance:m})", missing(rfield));
+    }
+
+    return gen
+    ("return m");
+    /* eslint-enable no-unexpected-multiline */
+}
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = encoder;
+
+var Enum     = __webpack_require__(1),
+    types    = __webpack_require__(5),
+    util     = __webpack_require__(0);
+
+/**
+ * Generates a partial message type encoder.
+ * @param {Codegen} gen Codegen instance
+ * @param {Field} field Reflected field
+ * @param {number} fieldIndex Field index
+ * @param {string} ref Variable reference
+ * @returns {Codegen} Codegen instance
+ * @ignore
+ */
+function genTypePartial(gen, field, fieldIndex, ref) {
+    return field.resolvedType.group
+        ? gen("types[%d].encode(%s,w.uint32(%d)).uint32(%d)", fieldIndex, ref, (field.id << 3 | 3) >>> 0, (field.id << 3 | 4) >>> 0)
+        : gen("types[%d].encode(%s,w.uint32(%d).fork()).ldelim()", fieldIndex, ref, (field.id << 3 | 2) >>> 0);
+}
+
+/**
+ * Generates an encoder specific to the specified message type.
+ * @param {Type} mtype Message type
+ * @returns {Codegen} Codegen instance
+ */
+function encoder(mtype) {
+    /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
+    var gen = util.codegen("m", "w")
+    ("if(!w)")
+        ("w=Writer.create()");
+
+    var i, ref;
+
+    // "when a message is serialized its known fields should be written sequentially by field number"
+    var fields = /* initializes */ mtype.fieldsArray.slice().sort(util.compareFieldsById);
+
+    for (var i = 0; i < fields.length; ++i) {
+        var field    = fields[i].resolve(),
+            index    = mtype._fieldsArray.indexOf(field),
+            type     = field.resolvedType instanceof Enum ? "uint32" : field.type,
+            wireType = types.basic[type];
+            ref      = "m" + util.safeProp(field.name);
+
+        // Map fields
+        if (field.map) {
+            gen
+    ("if(%s!=null&&m.hasOwnProperty(%j)){", ref, field.name) // !== undefined && !== null
+        ("for(var ks=Object.keys(%s),i=0;i<ks.length;++i){", ref)
+            ("w.uint32(%d).fork().uint32(%d).%s(ks[i])", (field.id << 3 | 2) >>> 0, 8 | types.mapKey[field.keyType], field.keyType);
+            if (wireType === undefined) gen
+            ("types[%d].encode(%s[ks[i]],w.uint32(18).fork()).ldelim().ldelim()", index, ref); // can't be groups
+            else gen
+            (".uint32(%d).%s(%s[ks[i]]).ldelim()", 16 | wireType, type, ref);
+            gen
+        ("}")
+    ("}");
+
+            // Repeated fields
+        } else if (field.repeated) { gen
+    ("if(%s!=null&&%s.length){", ref, ref); // !== undefined && !== null
+
+            // Packed repeated
+            if (field.packed && types.packed[type] !== undefined) { gen
+
+        ("w.uint32(%d).fork()", (field.id << 3 | 2) >>> 0)
+        ("for(var i=0;i<%s.length;++i)", ref)
+            ("w.%s(%s[i])", type, ref)
+        ("w.ldelim()");
+
+            // Non-packed
+            } else { gen
+
+        ("for(var i=0;i<%s.length;++i)", ref);
+                if (wireType === undefined)
+            genTypePartial(gen, field, index, ref + "[i]");
+                else gen
+            ("w.uint32(%d).%s(%s[i])", (field.id << 3 | wireType) >>> 0, type, ref);
+
+            } gen
+    ("}");
+
+        // Non-repeated
+        } else {
+            if (field.optional) gen
+    ("if(%s!=null&&m.hasOwnProperty(%j))", ref, field.name); // !== undefined && !== null
+
+            if (wireType === undefined)
+        genTypePartial(gen, field, index, ref);
+            else gen
+        ("w.uint32(%d).%s(%s)", (field.id << 3 | wireType) >>> 0, type, ref);
+
+        }
+    }
+
+    return gen
+    ("return w");
+    /* eslint-enable no-unexpected-multiline, block-scoped-var, no-redeclare */
+}
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = MapField;
+
+// extends Field
+var Field = __webpack_require__(3);
+((MapField.prototype = Object.create(Field.prototype)).constructor = MapField).className = "MapField";
+
+var types   = __webpack_require__(5),
+    util    = __webpack_require__(0);
+
+/**
+ * Constructs a new map field instance.
+ * @classdesc Reflected map field.
+ * @extends Field
+ * @constructor
+ * @param {string} name Unique name within its namespace
+ * @param {number} id Unique id within its namespace
+ * @param {string} keyType Key type
+ * @param {string} type Value type
+ * @param {Object.<string,*>} [options] Declared options
+ */
+function MapField(name, id, keyType, type, options) {
+    Field.call(this, name, id, type, options);
+
+    /* istanbul ignore if */
+    if (!util.isString(keyType))
+        throw TypeError("keyType must be a string");
+
+    /**
+     * Key type.
+     * @type {string}
+     */
+    this.keyType = keyType; // toJSON, marker
+
+    /**
+     * Resolved key type if not a basic type.
+     * @type {?ReflectionObject}
+     */
+    this.resolvedKeyType = null;
+
+    // Overrides Field#map
+    this.map = true;
+}
+
+/**
+ * Map field descriptor.
+ * @typedef MapFieldDescriptor
+ * @type {Object}
+ * @property {string} keyType Key type
+ * @property {string} type Value type
+ * @property {number} id Field id
+ * @property {Object.<string,*>} [options] Field options
+ */
+
+/**
+ * Extension map field descriptor.
+ * @typedef ExtensionMapFieldDescriptor
+ * @type {Object}
+ * @property {string} keyType Key type
+ * @property {string} type Value type
+ * @property {number} id Field id
+ * @property {string} extend Extended type
+ * @property {Object.<string,*>} [options] Field options
+ */
+
+/**
+ * Constructs a map field from a map field descriptor.
+ * @param {string} name Field name
+ * @param {MapFieldDescriptor} json Map field descriptor
+ * @returns {MapField} Created map field
+ * @throws {TypeError} If arguments are invalid
+ */
+MapField.fromJSON = function fromJSON(name, json) {
+    return new MapField(name, json.id, json.keyType, json.type, json.options);
 };
 
 /**
- * Converts this message to JSON.
- * @returns {Object.<string,*>} JSON object
+ * Converts this map field to a map field descriptor.
+ * @returns {MapFieldDescriptor} Map field descriptor
  */
-Message.prototype.toJSON = function toJSON() {
-    return this.$type.toObject(this, util.toJSONOptions);
+MapField.prototype.toJSON = function toJSON() {
+    return {
+        keyType : this.keyType,
+        type    : this.type,
+        id      : this.id,
+        extend  : this.extend,
+        options : this.options
+    };
 };
 
-/*eslint-enable valid-jsdoc*/
+/**
+ * @override
+ */
+MapField.prototype.resolve = function resolve() {
+    if (this.resolved)
+        return this;
+
+    // Besides a value type, map fields have a key type that may be "any scalar type except for floating point types and bytes"
+    if (types.mapKey[this.keyType] === undefined)
+        throw Error("invalid key type: " + this.keyType);
+
+    return Field.prototype.resolve.call(this);
+};
+
 
 /***/ }),
-/* 16 */
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = Method;
+
+// extends ReflectionObject
+var ReflectionObject = __webpack_require__(4);
+((Method.prototype = Object.create(ReflectionObject.prototype)).constructor = Method).className = "Method";
+
+var util = __webpack_require__(0);
+
+/**
+ * Constructs a new service method instance.
+ * @classdesc Reflected service method.
+ * @extends ReflectionObject
+ * @constructor
+ * @param {string} name Method name
+ * @param {string|undefined} type Method type, usually `"rpc"`
+ * @param {string} requestType Request message type
+ * @param {string} responseType Response message type
+ * @param {boolean|Object.<string,*>} [requestStream] Whether the request is streamed
+ * @param {boolean|Object.<string,*>} [responseStream] Whether the response is streamed
+ * @param {Object.<string,*>} [options] Declared options
+ */
+function Method(name, type, requestType, responseType, requestStream, responseStream, options) {
+
+    /* istanbul ignore next */
+    if (util.isObject(requestStream)) {
+        options = requestStream;
+        requestStream = responseStream = undefined;
+    } else if (util.isObject(responseStream)) {
+        options = responseStream;
+        responseStream = undefined;
+    }
+
+    /* istanbul ignore if */
+    if (!(type === undefined || util.isString(type)))
+        throw TypeError("type must be a string");
+
+    /* istanbul ignore if */
+    if (!util.isString(requestType))
+        throw TypeError("requestType must be a string");
+
+    /* istanbul ignore if */
+    if (!util.isString(responseType))
+        throw TypeError("responseType must be a string");
+
+    ReflectionObject.call(this, name, options);
+
+    /**
+     * Method type.
+     * @type {string}
+     */
+    this.type = type || "rpc"; // toJSON
+
+    /**
+     * Request type.
+     * @type {string}
+     */
+    this.requestType = requestType; // toJSON, marker
+
+    /**
+     * Whether requests are streamed or not.
+     * @type {boolean|undefined}
+     */
+    this.requestStream = requestStream ? true : undefined; // toJSON
+
+    /**
+     * Response type.
+     * @type {string}
+     */
+    this.responseType = responseType; // toJSON
+
+    /**
+     * Whether responses are streamed or not.
+     * @type {boolean|undefined}
+     */
+    this.responseStream = responseStream ? true : undefined; // toJSON
+
+    /**
+     * Resolved request type.
+     * @type {?Type}
+     */
+    this.resolvedRequestType = null;
+
+    /**
+     * Resolved response type.
+     * @type {?Type}
+     */
+    this.resolvedResponseType = null;
+}
+
+/**
+ * @typedef MethodDescriptor
+ * @type {Object}
+ * @property {string} [type="rpc"] Method type
+ * @property {string} requestType Request type
+ * @property {string} responseType Response type
+ * @property {boolean} [requestStream=false] Whether requests are streamed
+ * @property {boolean} [responseStream=false] Whether responses are streamed
+ * @property {Object.<string,*>} [options] Method options
+ */
+
+/**
+ * Constructs a method from a method descriptor.
+ * @param {string} name Method name
+ * @param {MethodDescriptor} json Method descriptor
+ * @returns {Method} Created method
+ * @throws {TypeError} If arguments are invalid
+ */
+Method.fromJSON = function fromJSON(name, json) {
+    return new Method(name, json.type, json.requestType, json.responseType, json.requestStream, json.responseStream, json.options);
+};
+
+/**
+ * Converts this method to a method descriptor.
+ * @returns {MethodDescriptor} Method descriptor
+ */
+Method.prototype.toJSON = function toJSON() {
+    return {
+        type           : this.type !== "rpc" && /* istanbul ignore next */ this.type || undefined,
+        requestType    : this.requestType,
+        requestStream  : this.requestStream,
+        responseType   : this.responseType,
+        responseStream : this.responseStream,
+        options        : this.options
+    };
+};
+
+/**
+ * @override
+ */
+Method.prototype.resolve = function resolve() {
+
+    /* istanbul ignore if */
+    if (this.resolved)
+        return this;
+
+    this.resolvedRequestType = this.parent.lookupType(this.requestType);
+    this.resolvedResponseType = this.parent.lookupType(this.responseType);
+
+    return ReflectionObject.prototype.resolve.call(this);
+};
+
+
+/***/ }),
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17152,8 +18582,7 @@ module.exports = OneOf;
 var ReflectionObject = __webpack_require__(4);
 ((OneOf.prototype = Object.create(ReflectionObject.prototype)).constructor = OneOf).className = "OneOf";
 
-var Field = __webpack_require__(3),
-    util  = __webpack_require__(0);
+var Field = __webpack_require__(3);
 
 /**
  * Constructs a new oneof instance.
@@ -17191,7 +18620,8 @@ function OneOf(name, fieldNames, options) {
 
 /**
  * Oneof descriptor.
- * @interface IOneOf
+ * @typedef OneOfDescriptor
+ * @type {Object}
  * @property {Array.<string>} oneof Oneof field names
  * @property {Object.<string,*>} [options] Oneof options
  */
@@ -17199,7 +18629,7 @@ function OneOf(name, fieldNames, options) {
 /**
  * Constructs a oneof from a oneof descriptor.
  * @param {string} name Oneof name
- * @param {IOneOf} json Oneof descriptor
+ * @param {OneOfDescriptor} json Oneof descriptor
  * @returns {OneOf} Created oneof
  * @throws {TypeError} If arguments are invalid
  */
@@ -17209,13 +18639,13 @@ OneOf.fromJSON = function fromJSON(name, json) {
 
 /**
  * Converts this oneof to a oneof descriptor.
- * @returns {IOneOf} Oneof descriptor
+ * @returns {OneOfDescriptor} Oneof descriptor
  */
 OneOf.prototype.toJSON = function toJSON() {
-    return util.toObject([
-        "options" , this.options,
-        "oneof"   , this.oneof
-    ]);
+    return {
+        oneof   : this.oneof,
+        options : this.options
+    };
 };
 
 /**
@@ -17308,65 +18738,9 @@ OneOf.prototype.onRemove = function onRemove(parent) {
     ReflectionObject.prototype.onRemove.call(this, parent);
 };
 
-/**
- * Decorator function as returned by {@link OneOf.d} (TypeScript).
- * @typedef OneOfDecorator
- * @type {function}
- * @param {Object} prototype Target prototype
- * @param {string} oneofName OneOf name
- * @returns {undefined}
- */
-
-/**
- * OneOf decorator (TypeScript).
- * @function
- * @param {...string} fieldNames Field names
- * @returns {OneOfDecorator} Decorator function
- * @template T extends string
- */
-OneOf.d = function decorateOneOf() {
-    var fieldNames = new Array(arguments.length),
-        index = 0;
-    while (index < arguments.length)
-        fieldNames[index] = arguments[index++];
-    return function oneOfDecorator(prototype, oneofName) {
-        util.decorateType(prototype.constructor)
-            .add(new OneOf(oneofName, fieldNames));
-        Object.defineProperty(prototype, oneofName, {
-            get: util.oneOfGetter(fieldNames),
-            set: util.oneOfSetter(fieldNames)
-        });
-    };
-};
-
 
 /***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = {};
-
-/**
- * Named roots.
- * This is where pbjs stores generated structures (the option `-r, --root` specifies a name).
- * Can also be used manually to make roots available accross modules.
- * @name roots
- * @type {Object.<string,Root>}
- * @example
- * // pbjs -r myroot -o compiled.js ...
- *
- * // in another module:
- * require("./compiled.js");
- *
- * // in any subsequent module:
- * var root = protobuf.roots["myroot"];
- */
-
-
-/***/ }),
-/* 18 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17382,7 +18756,7 @@ var rpc = exports;
  * RPC implementation passed to {@link Service#create} performing a service request on network level, i.e. by utilizing http requests or websockets.
  * @typedef RPCImpl
  * @type {function}
- * @param {Method|rpc.ServiceMethod<Message<{}>,Message<{}>>} method Reflected or static method being called
+ * @param {Method|rpc.ServiceMethod} method Reflected or static method being called
  * @param {Uint8Array} requestData Request data
  * @param {RPCImplCallback} callback Callback function
  * @returns {undefined}
@@ -17400,16 +18774,366 @@ var rpc = exports;
  * Node-style callback as used by {@link RPCImpl}.
  * @typedef RPCImplCallback
  * @type {function}
- * @param {Error|null} error Error, if any, otherwise `null`
- * @param {Uint8Array|null} [response] Response data or `null` to signal end of stream, if there hasn't been an error
+ * @param {?Error} error Error, if any, otherwise `null`
+ * @param {?Uint8Array} [response] Response data or `null` to signal end of stream, if there hasn't been an error
  * @returns {undefined}
  */
 
-rpc.Service = __webpack_require__(41);
+rpc.Service = __webpack_require__(45);
 
 
 /***/ }),
-/* 19 */
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = Service;
+
+// extends Namespace
+var Namespace = __webpack_require__(6);
+((Service.prototype = Object.create(Namespace.prototype)).constructor = Service).className = "Service";
+
+var Method = __webpack_require__(21),
+    util   = __webpack_require__(0),
+    rpc    = __webpack_require__(23);
+
+/**
+ * Constructs a new service instance.
+ * @classdesc Reflected service.
+ * @extends NamespaceBase
+ * @constructor
+ * @param {string} name Service name
+ * @param {Object.<string,*>} [options] Service options
+ * @throws {TypeError} If arguments are invalid
+ */
+function Service(name, options) {
+    Namespace.call(this, name, options);
+
+    /**
+     * Service methods.
+     * @type {Object.<string,Method>}
+     */
+    this.methods = {}; // toJSON, marker
+
+    /**
+     * Cached methods as an array.
+     * @type {?Method[]}
+     * @private
+     */
+    this._methodsArray = null;
+}
+
+/**
+ * Service descriptor.
+ * @typedef ServiceDescriptor
+ * @type {Object}
+ * @property {Object.<string,*>} [options] Service options
+ * @property {Object.<string,MethodDescriptor>} methods Method descriptors
+ * @property {Object.<string,AnyNestedDescriptor>} [nested] Nested object descriptors
+ */
+
+/**
+ * Constructs a service from a service descriptor.
+ * @param {string} name Service name
+ * @param {ServiceDescriptor} json Service descriptor
+ * @returns {Service} Created service
+ * @throws {TypeError} If arguments are invalid
+ */
+Service.fromJSON = function fromJSON(name, json) {
+    var service = new Service(name, json.options);
+    /* istanbul ignore else */
+    if (json.methods)
+        for (var names = Object.keys(json.methods), i = 0; i < names.length; ++i)
+            service.add(Method.fromJSON(names[i], json.methods[names[i]]));
+    if (json.nested)
+        service.addJSON(json.nested);
+    return service;
+};
+
+/**
+ * Converts this service to a service descriptor.
+ * @returns {ServiceDescriptor} Service descriptor
+ */
+Service.prototype.toJSON = function toJSON() {
+    var inherited = Namespace.prototype.toJSON.call(this);
+    return {
+        options : inherited && inherited.options || undefined,
+        methods : Namespace.arrayToJSON(this.methodsArray) || /* istanbul ignore next */ {},
+        nested  : inherited && inherited.nested || undefined
+    };
+};
+
+/**
+ * Methods of this service as an array for iteration.
+ * @name Service#methodsArray
+ * @type {Method[]}
+ * @readonly
+ */
+Object.defineProperty(Service.prototype, "methodsArray", {
+    get: function() {
+        return this._methodsArray || (this._methodsArray = util.toArray(this.methods));
+    }
+});
+
+function clearCache(service) {
+    service._methodsArray = null;
+    return service;
+}
+
+/**
+ * @override
+ */
+Service.prototype.get = function get(name) {
+    return this.methods[name]
+        || Namespace.prototype.get.call(this, name);
+};
+
+/**
+ * @override
+ */
+Service.prototype.resolveAll = function resolveAll() {
+    var methods = this.methodsArray;
+    for (var i = 0; i < methods.length; ++i)
+        methods[i].resolve();
+    return Namespace.prototype.resolve.call(this);
+};
+
+/**
+ * @override
+ */
+Service.prototype.add = function add(object) {
+
+    /* istanbul ignore if */
+    if (this.get(object.name))
+        throw Error("duplicate name '" + object.name + "' in " + this);
+
+    if (object instanceof Method) {
+        this.methods[object.name] = object;
+        object.parent = this;
+        return clearCache(this);
+    }
+    return Namespace.prototype.add.call(this, object);
+};
+
+/**
+ * @override
+ */
+Service.prototype.remove = function remove(object) {
+    if (object instanceof Method) {
+
+        /* istanbul ignore if */
+        if (this.methods[object.name] !== object)
+            throw Error(object + " is not a member of " + this);
+
+        delete this.methods[object.name];
+        object.parent = null;
+        return clearCache(this);
+    }
+    return Namespace.prototype.remove.call(this, object);
+};
+
+/**
+ * Creates a runtime service using the specified rpc implementation.
+ * @param {RPCImpl} rpcImpl RPC implementation
+ * @param {boolean} [requestDelimited=false] Whether requests are length-delimited
+ * @param {boolean} [responseDelimited=false] Whether responses are length-delimited
+ * @returns {rpc.Service} RPC service. Useful where requests and/or responses are streamed.
+ */
+Service.prototype.create = function create(rpcImpl, requestDelimited, responseDelimited) {
+    var rpcService = new rpc.Service(rpcImpl, requestDelimited, responseDelimited);
+    for (var i = 0; i < /* initializes */ this.methodsArray.length; ++i) {
+        rpcService[util.lcFirst(this._methodsArray[i].resolve().name)] = util.codegen("r","c")("return this.rpcCall(m,q,s,r,c)").eof(util.lcFirst(this._methodsArray[i].name), {
+            m: this._methodsArray[i],
+            q: this._methodsArray[i].resolvedRequestType.ctor,
+            s: this._methodsArray[i].resolvedResponseType.ctor
+        });
+    }
+    return rpcService;
+};
+
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = verifier;
+
+var Enum      = __webpack_require__(1),
+    util      = __webpack_require__(0);
+
+function invalid(field, expected) {
+    return field.name + ": " + expected + (field.repeated && expected !== "array" ? "[]" : field.map && expected !== "object" ? "{k:"+field.keyType+"}" : "") + " expected";
+}
+
+/**
+ * Generates a partial value verifier.
+ * @param {Codegen} gen Codegen instance
+ * @param {Field} field Reflected field
+ * @param {number} fieldIndex Field index
+ * @param {string} ref Variable reference
+ * @returns {Codegen} Codegen instance
+ * @ignore
+ */
+function genVerifyValue(gen, field, fieldIndex, ref) {
+    /* eslint-disable no-unexpected-multiline */
+    if (field.resolvedType) {
+        if (field.resolvedType instanceof Enum) { gen
+            ("switch(%s){", ref)
+                ("default:")
+                    ("return%j", invalid(field, "enum value"));
+            for (var keys = Object.keys(field.resolvedType.values), j = 0; j < keys.length; ++j) gen
+                ("case %d:", field.resolvedType.values[keys[j]]);
+            gen
+                    ("break")
+            ("}");
+        } else gen
+            ("var e=types[%d].verify(%s);", fieldIndex, ref)
+            ("if(e)")
+                ("return%j+e", field.name + ".");
+    } else {
+        switch (field.type) {
+            case "int32":
+            case "uint32":
+            case "sint32":
+            case "fixed32":
+            case "sfixed32": gen
+                ("if(!util.isInteger(%s))", ref)
+                    ("return%j", invalid(field, "integer"));
+                break;
+            case "int64":
+            case "uint64":
+            case "sint64":
+            case "fixed64":
+            case "sfixed64": gen
+                ("if(!util.isInteger(%s)&&!(%s&&util.isInteger(%s.low)&&util.isInteger(%s.high)))", ref, ref, ref, ref)
+                    ("return%j", invalid(field, "integer|Long"));
+                break;
+            case "float":
+            case "double": gen
+                ("if(typeof %s!==\"number\")", ref)
+                    ("return%j", invalid(field, "number"));
+                break;
+            case "bool": gen
+                ("if(typeof %s!==\"boolean\")", ref)
+                    ("return%j", invalid(field, "boolean"));
+                break;
+            case "string": gen
+                ("if(!util.isString(%s))", ref)
+                    ("return%j", invalid(field, "string"));
+                break;
+            case "bytes": gen
+                ("if(!(%s&&typeof %s.length===\"number\"||util.isString(%s)))", ref, ref, ref)
+                    ("return%j", invalid(field, "buffer"));
+                break;
+        }
+    }
+    return gen;
+    /* eslint-enable no-unexpected-multiline */
+}
+
+/**
+ * Generates a partial key verifier.
+ * @param {Codegen} gen Codegen instance
+ * @param {Field} field Reflected field
+ * @param {string} ref Variable reference
+ * @returns {Codegen} Codegen instance
+ * @ignore
+ */
+function genVerifyKey(gen, field, ref) {
+    /* eslint-disable no-unexpected-multiline */
+    switch (field.keyType) {
+        case "int32":
+        case "uint32":
+        case "sint32":
+        case "fixed32":
+        case "sfixed32": gen
+            ("if(!util.key32Re.test(%s))", ref)
+                ("return%j", invalid(field, "integer key"));
+            break;
+        case "int64":
+        case "uint64":
+        case "sint64":
+        case "fixed64":
+        case "sfixed64": gen
+            ("if(!util.key64Re.test(%s))", ref) // see comment above: x is ok, d is not
+                ("return%j", invalid(field, "integer|Long key"));
+            break;
+        case "bool": gen
+            ("if(!util.key2Re.test(%s))", ref)
+                ("return%j", invalid(field, "boolean key"));
+            break;
+    }
+    return gen;
+    /* eslint-enable no-unexpected-multiline */
+}
+
+/**
+ * Generates a verifier specific to the specified message type.
+ * @param {Type} mtype Message type
+ * @returns {Codegen} Codegen instance
+ */
+function verifier(mtype) {
+    /* eslint-disable no-unexpected-multiline */
+
+    var gen = util.codegen("m")
+    ("if(typeof m!==\"object\"||m===null)")
+        ("return%j", "object expected");
+    var oneofs = mtype.oneofsArray,
+        seenFirstField = {};
+    if (oneofs.length) gen
+    ("var p={}");
+
+    for (var i = 0; i < /* initializes */ mtype.fieldsArray.length; ++i) {
+        var field = mtype._fieldsArray[i].resolve(),
+            ref   = "m" + util.safeProp(field.name);
+
+        if (field.optional) gen
+        ("if(%s!=null&&m.hasOwnProperty(%j)){", ref, field.name); // !== undefined && !== null
+
+        // map fields
+        if (field.map) { gen
+            ("if(!util.isObject(%s))", ref)
+                ("return%j", invalid(field, "object"))
+            ("var k=Object.keys(%s)", ref)
+            ("for(var i=0;i<k.length;++i){");
+                genVerifyKey(gen, field, "k[i]");
+                genVerifyValue(gen, field, i, ref + "[k[i]]")
+            ("}");
+
+        // repeated fields
+        } else if (field.repeated) { gen
+            ("if(!Array.isArray(%s))", ref)
+                ("return%j", invalid(field, "array"))
+            ("for(var i=0;i<%s.length;++i){", ref);
+                genVerifyValue(gen, field, i, ref + "[i]")
+            ("}");
+
+        // required or present fields
+        } else {
+            if (field.partOf) {
+                var oneofProp = util.safeProp(field.partOf.name);
+                if (seenFirstField[field.partOf.name] === 1) gen
+            ("if(p%s===1)", oneofProp)
+                ("return%j", field.partOf.name + ": multiple values");
+                seenFirstField[field.partOf.name] = 1;
+                gen
+            ("p%s=1", oneofProp);
+            }
+            genVerifyValue(gen, field, i, ref);
+        }
+        if (field.optional) gen
+        ("}");
+    }
+    return gen
+    ("return null");
+    /* eslint-enable no-unexpected-multiline */
+}
+
+/***/ }),
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17420,7 +19144,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = parseJSON;
 
-var _util = __webpack_require__(6);
+var _util = __webpack_require__(7);
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -17467,7 +19191,7 @@ function parseJSON(input) {
 }
 
 /***/ }),
-/* 20 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17478,27 +19202,27 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = parseProtoBuf;
 
-var _converter = __webpack_require__(14);
+var _converter = __webpack_require__(8);
 
 var _converter2 = _interopRequireDefault(_converter);
 
-var _protobufjsConverter = __webpack_require__(22);
+var _protobufjsConverter = __webpack_require__(29);
 
 var _protobufjsConverter2 = _interopRequireDefault(_protobufjsConverter);
 
-var _dzhyunProto = __webpack_require__(12);
+var _dzhyunProto = __webpack_require__(15);
 
 var _dzhyunProto2 = _interopRequireDefault(_dzhyunProto);
 
-var _pbTable = __webpack_require__(32);
+var _pbTable = __webpack_require__(39);
 
 var _pbTable2 = _interopRequireDefault(_pbTable);
 
-var _yfloat = __webpack_require__(13);
+var _yfloat = __webpack_require__(16);
 
 var _yfloat2 = _interopRequireDefault(_yfloat);
 
-var _util = __webpack_require__(6);
+var _util = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -17548,7 +19272,7 @@ function parseProtoBuf(input, parseYfloat) {
 }
 
 /***/ }),
-/* 21 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17580,7 +19304,7 @@ function uncompress(compressed) {
 }
 
 /***/ }),
-/* 22 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17798,7 +19522,7 @@ converter.toObject = function toObject(mtype) {
 };
 
 /***/ }),
-/* 23 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17944,113 +19668,157 @@ base64.test = function test(string) {
 
 
 /***/ }),
-/* 24 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 module.exports = codegen;
 
+var blockOpenRe  = /[{[]$/,
+    blockCloseRe = /^[}\]]/,
+    casingRe     = /:$/,
+    branchRe     = /^\s*(?:if|}?else if|while|for)\b|\b(?:else)\s*$/,
+    breakRe      = /\b(?:break|continue)(?: \w+)?;?$|^\s*return\b/;
+
 /**
- * Begins generating a function.
+ * A closure for generating functions programmatically.
  * @memberof util
- * @param {string[]} functionParams Function parameter names
- * @param {string} [functionName] Function name if not anonymous
- * @returns {Codegen} Appender that appends code to the function's body
+ * @namespace
+ * @function
+ * @param {...string} params Function parameter names
+ * @returns {Codegen} Codegen instance
+ * @property {boolean} supported Whether code generation is supported by the environment.
+ * @property {boolean} verbose=false When set to true, codegen will log generated code to console. Useful for debugging.
+ * @property {function(string, ...*):string} sprintf Underlying sprintf implementation
  */
-function codegen(functionParams, functionName) {
-
-    /* istanbul ignore if */
-    if (typeof functionParams === "string") {
-        functionName = functionParams;
-        functionParams = undefined;
-    }
-
-    var body = [];
+function codegen() {
+    var params = [],
+        src    = [],
+        indent = 1,
+        inCase = false;
+    for (var i = 0; i < arguments.length;)
+        params.push(arguments[i++]);
 
     /**
-     * Appends code to the function's body or finishes generation.
+     * A codegen instance as returned by {@link codegen}, that also is a sprintf-like appender function.
      * @typedef Codegen
      * @type {function}
-     * @param {string|Object.<string,*>} [formatStringOrScope] Format string or, to finish the function, an object of additional scope variables, if any
-     * @param {...*} [formatParams] Format parameters
-     * @returns {Codegen|Function} Itself or the generated function if finished
-     * @throws {Error} If format parameter counts do not match
+     * @param {string} format Format string
+     * @param {...*} args Replacements
+     * @returns {Codegen} Itself
+     * @property {function(string=):string} str Stringifies the so far generated function source.
+     * @property {function(string=, Object=):function} eof Ends generation and builds the function whilst applying a scope.
      */
+    /**/
+    function gen() {
+        var args = [],
+            i = 0;
+        for (; i < arguments.length;)
+            args.push(arguments[i++]);
+        var line = sprintf.apply(null, args);
+        var level = indent;
+        if (src.length) {
+            var prev = src[src.length - 1];
 
-    function Codegen(formatStringOrScope) {
-        // note that explicit array handling below makes this ~50% faster
+            // block open or one time branch
+            if (blockOpenRe.test(prev))
+                level = ++indent; // keep
+            else if (branchRe.test(prev))
+                ++level; // once
 
-        // finish the function
-        if (typeof formatStringOrScope !== "string") {
-            var source = toString();
-            if (codegen.verbose)
-                console.log("codegen: " + source); // eslint-disable-line no-console
-            source = "return " + source;
-            if (formatStringOrScope) {
-                var scopeKeys   = Object.keys(formatStringOrScope),
-                    scopeParams = new Array(scopeKeys.length + 1),
-                    scopeValues = new Array(scopeKeys.length),
-                    scopeOffset = 0;
-                while (scopeOffset < scopeKeys.length) {
-                    scopeParams[scopeOffset] = scopeKeys[scopeOffset];
-                    scopeValues[scopeOffset] = formatStringOrScope[scopeKeys[scopeOffset++]];
-                }
-                scopeParams[scopeOffset] = source;
-                return Function.apply(null, scopeParams).apply(null, scopeValues); // eslint-disable-line no-new-func
+            // casing
+            if (casingRe.test(prev) && !casingRe.test(line)) {
+                level = ++indent;
+                inCase = true;
+            } else if (inCase && breakRe.test(prev)) {
+                level = --indent;
+                inCase = false;
             }
-            return Function(source)(); // eslint-disable-line no-new-func
+
+            // block close
+            if (blockCloseRe.test(line))
+                level = --indent;
         }
-
-        // otherwise append to body
-        var formatParams = new Array(arguments.length - 1),
-            formatOffset = 0;
-        while (formatOffset < formatParams.length)
-            formatParams[formatOffset] = arguments[++formatOffset];
-        formatOffset = 0;
-        formatStringOrScope = formatStringOrScope.replace(/%([%dfijs])/g, function replace($0, $1) {
-            var value = formatParams[formatOffset++];
-            switch ($1) {
-                case "d": case "f": return String(Number(value));
-                case "i": return String(Math.floor(value));
-                case "j": return JSON.stringify(value);
-                case "s": return String(value);
-            }
-            return "%";
-        });
-        if (formatOffset !== formatParams.length)
-            throw Error("parameter count mismatch");
-        body.push(formatStringOrScope);
-        return Codegen;
+        for (i = 0; i < level; ++i)
+            line = "\t" + line;
+        src.push(line);
+        return gen;
     }
 
-    function toString(functionNameOverride) {
-        return "function " + (functionNameOverride || functionName || "") + "(" + (functionParams && functionParams.join(",") || "") + "){\n  " + body.join("\n  ") + "\n}";
+    /**
+     * Stringifies the so far generated function source.
+     * @param {string} [name] Function name, defaults to generate an anonymous function
+     * @returns {string} Function source using tabs for indentation
+     * @inner
+     */
+    function str(name) {
+        return "function" + (name ? " " + name.replace(/[^\w_$]/g, "_") : "") + "(" + params.join(",") + ") {\n" + src.join("\n") + "\n}";
     }
 
-    Codegen.toString = toString;
-    return Codegen;
+    gen.str = str;
+
+    /**
+     * Ends generation and builds the function whilst applying a scope.
+     * @param {string} [name] Function name, defaults to generate an anonymous function
+     * @param {Object.<string,*>} [scope] Function scope
+     * @returns {function} The generated function, with scope applied if specified
+     * @inner
+     */
+    function eof(name, scope) {
+        if (typeof name === "object") {
+            scope = name;
+            name = undefined;
+        }
+        var source = gen.str(name);
+        if (codegen.verbose)
+            console.log("--- codegen ---\n" + source.replace(/^/mg, "> ").replace(/\t/g, "  ")); // eslint-disable-line no-console
+        var keys = Object.keys(scope || (scope = {}));
+        return Function.apply(null, keys.concat("return " + source)).apply(null, keys.map(function(key) { return scope[key]; })); // eslint-disable-line no-new-func
+        //     ^ Creates a wrapper function with the scoped variable names as its parameters,
+        //       calls it with the respective scoped variable values ^
+        //       and returns our brand-new properly scoped function.
+        //
+        // This works because "Invoking the Function constructor as a function (without using the
+        // new operator) has the same effect as invoking it as a constructor."
+        // https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/Function
+    }
+
+    gen.eof = eof;
+
+    return gen;
 }
 
-/**
- * Begins generating a function.
- * @memberof util
- * @function codegen
- * @param {string} [functionName] Function name if not anonymous
- * @returns {Codegen} Appender that appends code to the function's body
- * @variation 2
- */
+function sprintf(format) {
+    var args = [],
+        i = 1;
+    for (; i < arguments.length;)
+        args.push(arguments[i++]);
+    i = 0;
+    format = format.replace(/%([dfjs])/g, function($0, $1) {
+        switch ($1) {
+            case "d":
+                return Math.floor(args[i++]);
+            case "f":
+                return Number(args[i++]);
+            case "j":
+                return JSON.stringify(args[i++]);
+            default:
+                return args[i++];
+        }
+    });
+    if (i !== args.length)
+        throw Error("argument count mismatch");
+    return format;
+}
 
-/**
- * When set to `true`, codegen will log generated code to console. Useful for debugging.
- * @name util.codegen.verbose
- * @type {boolean}
- */
-codegen.verbose = false;
+codegen.sprintf   = sprintf;
+codegen.supported = false; try { codegen.supported = codegen("a","b")("return a-b").eof()(2,1) === 1; } catch (e) {} // eslint-disable-line no-empty
+codegen.verbose   = false;
 
 
 /***/ }),
-/* 25 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18133,15 +19901,15 @@ EventEmitter.prototype.emit = function emit(evt) {
 
 
 /***/ }),
-/* 26 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 module.exports = fetch;
 
-var asPromise = __webpack_require__(10),
-    inquire   = __webpack_require__(11);
+var asPromise = __webpack_require__(13),
+    inquire   = __webpack_require__(14);
 
 var fs = inquire("fs");
 
@@ -18255,7 +20023,7 @@ fetch.xhr = function fetch_xhr(filename, options, callback) {
 
 
 /***/ }),
-/* 27 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18597,7 +20365,7 @@ function readUintBE(buf, pos) {
 
 
 /***/ }),
-/* 28 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18669,7 +20437,7 @@ path.resolve = function resolve(originPath, includePath, alreadyNormalized) {
 
 
 /***/ }),
-/* 29 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18724,7 +20492,7 @@ function pool(alloc, slice, size) {
 
 
 /***/ }),
-/* 30 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18836,7 +20604,7 @@ utf8.write = function utf8_write(string, buffer, offset) {
 
 
 /***/ }),
-/* 31 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18844,19 +20612,19 @@ utf8.write = function utf8_write(string, buffer, offset) {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _snappyjsUncompress = __webpack_require__(21);
+var _snappyjsUncompress = __webpack_require__(28);
 
 var _snappyjsUncompress2 = _interopRequireDefault(_snappyjsUncompress);
 
-var _parseProtoBuf2 = __webpack_require__(20);
+var _parseProtoBuf2 = __webpack_require__(27);
 
 var _parseProtoBuf3 = _interopRequireDefault(_parseProtoBuf2);
 
-var _parseJSON2 = __webpack_require__(19);
+var _parseJSON2 = __webpack_require__(26);
 
 var _parseJSON3 = _interopRequireDefault(_parseJSON2);
 
-var _util = __webpack_require__(6);
+var _util = __webpack_require__(7);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -18940,7 +20708,7 @@ var DzhyunDataParser = function () {
 module.exports = DzhyunDataParser;
 
 /***/ }),
-/* 32 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18955,11 +20723,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       */
 
 
-var _dzhyunProto = __webpack_require__(12);
+var _dzhyunProto = __webpack_require__(15);
 
 var _dzhyunProto2 = _interopRequireDefault(_dzhyunProto);
 
-var _yfloat = __webpack_require__(13);
+var _yfloat = __webpack_require__(16);
 
 var _yfloat2 = _interopRequireDefault(_yfloat);
 
@@ -19223,237 +20991,127 @@ exports.default = {
 };
 
 /***/ }),
-/* 33 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-// minimal library entry point.
+// light library entry point.
 
 
-module.exports = __webpack_require__(36);
-
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = decoder;
-
-var Enum    = __webpack_require__(1),
-    types   = __webpack_require__(5),
-    util    = __webpack_require__(0);
-
-function missing(field) {
-    return "missing required '" + field.name + "'";
-}
-
-/**
- * Generates a decoder specific to the specified message type.
- * @param {Type} mtype Message type
- * @returns {Codegen} Codegen instance
- */
-function decoder(mtype) {
-    /* eslint-disable no-unexpected-multiline */
-    var gen = util.codegen(["r", "l"], mtype.name + "$decode")
-    ("if(!(r instanceof Reader))")
-        ("r=Reader.create(r)")
-    ("var c=l===undefined?r.len:r.pos+l,m=new this.ctor" + (mtype.fieldsArray.filter(function(field) { return field.map; }).length ? ",k" : ""))
-    ("while(r.pos<c){")
-        ("var t=r.uint32()");
-    if (mtype.group) gen
-        ("if((t&7)===4)")
-            ("break");
-    gen
-        ("switch(t>>>3){");
-
-    var i = 0;
-    for (; i < /* initializes */ mtype.fieldsArray.length; ++i) {
-        var field = mtype._fieldsArray[i].resolve(),
-            type  = field.resolvedType instanceof Enum ? "int32" : field.type,
-            ref   = "m" + util.safeProp(field.name); gen
-            ("case %i:", field.id);
-
-        // Map fields
-        if (field.map) { gen
-                ("r.skip().pos++") // assumes id 1 + key wireType
-                ("if(%s===util.emptyObject)", ref)
-                    ("%s={}", ref)
-                ("k=r.%s()", field.keyType)
-                ("r.pos++"); // assumes id 2 + value wireType
-            if (types.long[field.keyType] !== undefined) {
-                if (types.basic[type] === undefined) gen
-                ("%s[typeof k===\"object\"?util.longToHash(k):k]=types[%i].decode(r,r.uint32())", ref, i); // can't be groups
-                else gen
-                ("%s[typeof k===\"object\"?util.longToHash(k):k]=r.%s()", ref, type);
-            } else {
-                if (types.basic[type] === undefined) gen
-                ("%s[k]=types[%i].decode(r,r.uint32())", ref, i); // can't be groups
-                else gen
-                ("%s[k]=r.%s()", ref, type);
-            }
-
-        // Repeated fields
-        } else if (field.repeated) { gen
-
-                ("if(!(%s&&%s.length))", ref, ref)
-                    ("%s=[]", ref);
-
-            // Packable (always check for forward and backward compatiblity)
-            if (types.packed[type] !== undefined) gen
-                ("if((t&7)===2){")
-                    ("var c2=r.uint32()+r.pos")
-                    ("while(r.pos<c2)")
-                        ("%s.push(r.%s())", ref, type)
-                ("}else");
-
-            // Non-packed
-            if (types.basic[type] === undefined) gen(field.resolvedType.group
-                    ? "%s.push(types[%i].decode(r))"
-                    : "%s.push(types[%i].decode(r,r.uint32()))", ref, i);
-            else gen
-                    ("%s.push(r.%s())", ref, type);
-
-        // Non-repeated
-        } else if (types.basic[type] === undefined) gen(field.resolvedType.group
-                ? "%s=types[%i].decode(r)"
-                : "%s=types[%i].decode(r,r.uint32())", ref, i);
-        else gen
-                ("%s=r.%s()", ref, type);
-        gen
-                ("break");
-    // Unknown fields
-    } gen
-            ("default:")
-                ("r.skipType(t&7)")
-                ("break")
-
-        ("}")
-    ("}");
-
-    // Field presence
-    for (i = 0; i < mtype._fieldsArray.length; ++i) {
-        var rfield = mtype._fieldsArray[i];
-        if (rfield.required) gen
-    ("if(!m.hasOwnProperty(%j))", rfield.name)
-        ("throw util.ProtocolError(%j,{instance:m})", missing(rfield));
-    }
-
-    return gen
-    ("return m");
-    /* eslint-enable no-unexpected-multiline */
-}
-
+module.exports = __webpack_require__(41);
 
 /***/ }),
-/* 35 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-module.exports = encoder;
+var protobuf = module.exports = __webpack_require__(42);
 
-var Enum     = __webpack_require__(1),
-    types    = __webpack_require__(5),
-    util     = __webpack_require__(0);
+protobuf.build = "light";
 
 /**
- * Generates a partial message type encoder.
- * @param {Codegen} gen Codegen instance
- * @param {Field} field Reflected field
- * @param {number} fieldIndex Field index
- * @param {string} ref Variable reference
- * @returns {Codegen} Codegen instance
- * @ignore
+ * A node-style callback as used by {@link load} and {@link Root#load}.
+ * @typedef LoadCallback
+ * @type {function}
+ * @param {?Error} error Error, if any, otherwise `null`
+ * @param {Root} [root] Root, if there hasn't been an error
+ * @returns {undefined}
  */
-function genTypePartial(gen, field, fieldIndex, ref) {
-    return field.resolvedType.group
-        ? gen("types[%i].encode(%s,w.uint32(%i)).uint32(%i)", fieldIndex, ref, (field.id << 3 | 3) >>> 0, (field.id << 3 | 4) >>> 0)
-        : gen("types[%i].encode(%s,w.uint32(%i).fork()).ldelim()", fieldIndex, ref, (field.id << 3 | 2) >>> 0);
+
+/**
+ * Loads one or multiple .proto or preprocessed .json files into a common root namespace and calls the callback.
+ * @param {string|string[]} filename One or multiple files to load
+ * @param {Root} root Root namespace, defaults to create a new one if omitted.
+ * @param {LoadCallback} callback Callback function
+ * @returns {undefined}
+ * @see {@link Root#load}
+ */
+function load(filename, root, callback) {
+    if (typeof root === "function") {
+        callback = root;
+        root = new protobuf.Root();
+    } else if (!root)
+        root = new protobuf.Root();
+    return root.load(filename, callback);
 }
 
 /**
- * Generates an encoder specific to the specified message type.
- * @param {Type} mtype Message type
- * @returns {Codegen} Codegen instance
+ * Loads one or multiple .proto or preprocessed .json files into a common root namespace and calls the callback.
+ * @name load
+ * @function
+ * @param {string|string[]} filename One or multiple files to load
+ * @param {LoadCallback} callback Callback function
+ * @returns {undefined}
+ * @see {@link Root#load}
+ * @variation 2
  */
-function encoder(mtype) {
-    /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
-    var gen = util.codegen(["m", "w"], mtype.name + "$encode")
-    ("if(!w)")
-        ("w=Writer.create()");
+// function load(filename:string, callback:LoadCallback):undefined
 
-    var i, ref;
+/**
+ * Loads one or multiple .proto or preprocessed .json files into a common root namespace and returns a promise.
+ * @name load
+ * @function
+ * @param {string|string[]} filename One or multiple files to load
+ * @param {Root} [root] Root namespace, defaults to create a new one if omitted.
+ * @returns {Promise<Root>} Promise
+ * @see {@link Root#load}
+ * @variation 3
+ */
+// function load(filename:string, [root:Root]):Promise<Root>
 
-    // "when a message is serialized its known fields should be written sequentially by field number"
-    var fields = /* initializes */ mtype.fieldsArray.slice().sort(util.compareFieldsById);
+protobuf.load = load;
 
-    for (var i = 0; i < fields.length; ++i) {
-        var field    = fields[i].resolve(),
-            index    = mtype._fieldsArray.indexOf(field),
-            type     = field.resolvedType instanceof Enum ? "int32" : field.type,
-            wireType = types.basic[type];
-            ref      = "m" + util.safeProp(field.name);
-
-        // Map fields
-        if (field.map) {
-            gen
-    ("if(%s!=null&&m.hasOwnProperty(%j)){", ref, field.name) // !== undefined && !== null
-        ("for(var ks=Object.keys(%s),i=0;i<ks.length;++i){", ref)
-            ("w.uint32(%i).fork().uint32(%i).%s(ks[i])", (field.id << 3 | 2) >>> 0, 8 | types.mapKey[field.keyType], field.keyType);
-            if (wireType === undefined) gen
-            ("types[%i].encode(%s[ks[i]],w.uint32(18).fork()).ldelim().ldelim()", index, ref); // can't be groups
-            else gen
-            (".uint32(%i).%s(%s[ks[i]]).ldelim()", 16 | wireType, type, ref);
-            gen
-        ("}")
-    ("}");
-
-            // Repeated fields
-        } else if (field.repeated) { gen
-    ("if(%s!=null&&%s.length){", ref, ref); // !== undefined && !== null
-
-            // Packed repeated
-            if (field.packed && types.packed[type] !== undefined) { gen
-
-        ("w.uint32(%i).fork()", (field.id << 3 | 2) >>> 0)
-        ("for(var i=0;i<%s.length;++i)", ref)
-            ("w.%s(%s[i])", type, ref)
-        ("w.ldelim()");
-
-            // Non-packed
-            } else { gen
-
-        ("for(var i=0;i<%s.length;++i)", ref);
-                if (wireType === undefined)
-            genTypePartial(gen, field, index, ref + "[i]");
-                else gen
-            ("w.uint32(%i).%s(%s[i])", (field.id << 3 | wireType) >>> 0, type, ref);
-
-            } gen
-    ("}");
-
-        // Non-repeated
-        } else {
-            if (field.optional) gen
-    ("if(%s!=null&&m.hasOwnProperty(%j))", ref, field.name); // !== undefined && !== null
-
-            if (wireType === undefined)
-        genTypePartial(gen, field, index, ref);
-            else gen
-        ("w.uint32(%i).%s(%s)", (field.id << 3 | wireType) >>> 0, type, ref);
-
-        }
-    }
-
-    return gen
-    ("return w");
-    /* eslint-enable no-unexpected-multiline, block-scoped-var, no-redeclare */
+/**
+ * Synchronously loads one or multiple .proto or preprocessed .json files into a common root namespace (node only).
+ * @param {string|string[]} filename One or multiple files to load
+ * @param {Root} [root] Root namespace, defaults to create a new one if omitted.
+ * @returns {Root} Root namespace
+ * @throws {Error} If synchronous fetching is not supported (i.e. in browsers) or if a file's syntax is invalid
+ * @see {@link Root#loadSync}
+ */
+function loadSync(filename, root) {
+    if (!root)
+        root = new protobuf.Root();
+    return root.loadSync(filename);
 }
+
+protobuf.loadSync = loadSync;
+
+// Serialization
+protobuf.encoder          = __webpack_require__(19);
+protobuf.decoder          = __webpack_require__(18);
+protobuf.verifier         = __webpack_require__(25);
+protobuf.converter        = __webpack_require__(8);
+
+// Reflection
+protobuf.ReflectionObject = __webpack_require__(4);
+protobuf.Namespace        = __webpack_require__(6);
+protobuf.Root             = __webpack_require__(44);
+protobuf.Enum             = __webpack_require__(1);
+protobuf.Type             = __webpack_require__(11);
+protobuf.Field            = __webpack_require__(3);
+protobuf.OneOf            = __webpack_require__(22);
+protobuf.MapField         = __webpack_require__(20);
+protobuf.Service          = __webpack_require__(24);
+protobuf.Method           = __webpack_require__(21);
+
+// Runtime
+protobuf.Class            = __webpack_require__(17);
+protobuf.Message          = __webpack_require__(9);
+
+// Utility
+protobuf.types            = __webpack_require__(5);
+protobuf.util             = __webpack_require__(0);
+
+// Configure reflection
+protobuf.ReflectionObject._configure(protobuf.Root);
+protobuf.Namespace._configure(protobuf.Type, protobuf.Service);
+protobuf.Root._configure(protobuf.Type);
+
 
 /***/ }),
-/* 36 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19468,16 +21126,32 @@ var protobuf = exports;
  */
 protobuf.build = "minimal";
 
+/**
+ * Named roots.
+ * This is where pbjs stores generated structures (the option `-r, --root` specifies a name).
+ * Can also be used manually to make roots available accross modules.
+ * @name roots
+ * @type {Object.<string,Root>}
+ * @example
+ * // pbjs -r myroot -o compiled.js ...
+ *
+ * // in another module:
+ * require("./compiled.js");
+ *
+ * // in any subsequent module:
+ * var root = protobuf.roots["myroot"];
+ */
+protobuf.roots = {};
+
 // Serialization
-protobuf.Writer       = __webpack_require__(9);
+protobuf.Writer       = __webpack_require__(12);
 protobuf.BufferWriter = __webpack_require__(47);
-protobuf.Reader       = __webpack_require__(8);
-protobuf.BufferReader = __webpack_require__(39);
+protobuf.Reader       = __webpack_require__(10);
+protobuf.BufferReader = __webpack_require__(43);
 
 // Utility
 protobuf.util         = __webpack_require__(2);
-protobuf.rpc          = __webpack_require__(18);
-protobuf.roots        = __webpack_require__(17);
+protobuf.rpc          = __webpack_require__(23);
 protobuf.configure    = configure;
 
 /* istanbul ignore next */
@@ -19496,284 +21170,7 @@ configure();
 
 
 /***/ }),
-/* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = MapField;
-
-// extends Field
-var Field = __webpack_require__(3);
-((MapField.prototype = Object.create(Field.prototype)).constructor = MapField).className = "MapField";
-
-var types   = __webpack_require__(5),
-    util    = __webpack_require__(0);
-
-/**
- * Constructs a new map field instance.
- * @classdesc Reflected map field.
- * @extends FieldBase
- * @constructor
- * @param {string} name Unique name within its namespace
- * @param {number} id Unique id within its namespace
- * @param {string} keyType Key type
- * @param {string} type Value type
- * @param {Object.<string,*>} [options] Declared options
- */
-function MapField(name, id, keyType, type, options) {
-    Field.call(this, name, id, type, options);
-
-    /* istanbul ignore if */
-    if (!util.isString(keyType))
-        throw TypeError("keyType must be a string");
-
-    /**
-     * Key type.
-     * @type {string}
-     */
-    this.keyType = keyType; // toJSON, marker
-
-    /**
-     * Resolved key type if not a basic type.
-     * @type {ReflectionObject|null}
-     */
-    this.resolvedKeyType = null;
-
-    // Overrides Field#map
-    this.map = true;
-}
-
-/**
- * Map field descriptor.
- * @interface IMapField
- * @extends {IField}
- * @property {string} keyType Key type
- */
-
-/**
- * Extension map field descriptor.
- * @interface IExtensionMapField
- * @extends IMapField
- * @property {string} extend Extended type
- */
-
-/**
- * Constructs a map field from a map field descriptor.
- * @param {string} name Field name
- * @param {IMapField} json Map field descriptor
- * @returns {MapField} Created map field
- * @throws {TypeError} If arguments are invalid
- */
-MapField.fromJSON = function fromJSON(name, json) {
-    return new MapField(name, json.id, json.keyType, json.type, json.options);
-};
-
-/**
- * Converts this map field to a map field descriptor.
- * @returns {IMapField} Map field descriptor
- */
-MapField.prototype.toJSON = function toJSON() {
-    return util.toObject([
-        "keyType" , this.keyType,
-        "type"    , this.type,
-        "id"      , this.id,
-        "extend"  , this.extend,
-        "options" , this.options
-    ]);
-};
-
-/**
- * @override
- */
-MapField.prototype.resolve = function resolve() {
-    if (this.resolved)
-        return this;
-
-    // Besides a value type, map fields have a key type that may be "any scalar type except for floating point types and bytes"
-    if (types.mapKey[this.keyType] === undefined)
-        throw Error("invalid key type: " + this.keyType);
-
-    return Field.prototype.resolve.call(this);
-};
-
-/**
- * Map field decorator (TypeScript).
- * @name MapField.d
- * @function
- * @param {number} fieldId Field id
- * @param {"int32"|"uint32"|"sint32"|"fixed32"|"sfixed32"|"int64"|"uint64"|"sint64"|"fixed64"|"sfixed64"|"bool"|"string"} fieldKeyType Field key type
- * @param {"double"|"float"|"int32"|"uint32"|"sint32"|"fixed32"|"sfixed32"|"int64"|"uint64"|"sint64"|"fixed64"|"sfixed64"|"bool"|"string"|"bytes"|Object|Constructor<{}>} fieldValueType Field value type
- * @returns {FieldDecorator} Decorator function
- * @template T extends { [key: string]: number | Long | string | boolean | Uint8Array | Buffer | number[] | Message<{}> }
- */
-MapField.d = function decorateMapField(fieldId, fieldKeyType, fieldValueType) {
-
-    // submessage value: decorate the submessage and use its name as the type
-    if (typeof fieldValueType === "function")
-        fieldValueType = util.decorateType(fieldValueType).name;
-
-    // enum reference value: create a reflected copy of the enum and keep reuseing it
-    else if (fieldValueType && typeof fieldValueType === "object")
-        fieldValueType = util.decorateEnum(fieldValueType).name;
-
-    return function mapFieldDecorator(prototype, fieldName) {
-        util.decorateType(prototype.constructor)
-            .add(new MapField(fieldName, fieldId, fieldKeyType, fieldValueType));
-    };
-};
-
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = Method;
-
-// extends ReflectionObject
-var ReflectionObject = __webpack_require__(4);
-((Method.prototype = Object.create(ReflectionObject.prototype)).constructor = Method).className = "Method";
-
-var util = __webpack_require__(0);
-
-/**
- * Constructs a new service method instance.
- * @classdesc Reflected service method.
- * @extends ReflectionObject
- * @constructor
- * @param {string} name Method name
- * @param {string|undefined} type Method type, usually `"rpc"`
- * @param {string} requestType Request message type
- * @param {string} responseType Response message type
- * @param {boolean|Object.<string,*>} [requestStream] Whether the request is streamed
- * @param {boolean|Object.<string,*>} [responseStream] Whether the response is streamed
- * @param {Object.<string,*>} [options] Declared options
- */
-function Method(name, type, requestType, responseType, requestStream, responseStream, options) {
-
-    /* istanbul ignore next */
-    if (util.isObject(requestStream)) {
-        options = requestStream;
-        requestStream = responseStream = undefined;
-    } else if (util.isObject(responseStream)) {
-        options = responseStream;
-        responseStream = undefined;
-    }
-
-    /* istanbul ignore if */
-    if (!(type === undefined || util.isString(type)))
-        throw TypeError("type must be a string");
-
-    /* istanbul ignore if */
-    if (!util.isString(requestType))
-        throw TypeError("requestType must be a string");
-
-    /* istanbul ignore if */
-    if (!util.isString(responseType))
-        throw TypeError("responseType must be a string");
-
-    ReflectionObject.call(this, name, options);
-
-    /**
-     * Method type.
-     * @type {string}
-     */
-    this.type = type || "rpc"; // toJSON
-
-    /**
-     * Request type.
-     * @type {string}
-     */
-    this.requestType = requestType; // toJSON, marker
-
-    /**
-     * Whether requests are streamed or not.
-     * @type {boolean|undefined}
-     */
-    this.requestStream = requestStream ? true : undefined; // toJSON
-
-    /**
-     * Response type.
-     * @type {string}
-     */
-    this.responseType = responseType; // toJSON
-
-    /**
-     * Whether responses are streamed or not.
-     * @type {boolean|undefined}
-     */
-    this.responseStream = responseStream ? true : undefined; // toJSON
-
-    /**
-     * Resolved request type.
-     * @type {Type|null}
-     */
-    this.resolvedRequestType = null;
-
-    /**
-     * Resolved response type.
-     * @type {Type|null}
-     */
-    this.resolvedResponseType = null;
-}
-
-/**
- * Method descriptor.
- * @interface IMethod
- * @property {string} [type="rpc"] Method type
- * @property {string} requestType Request type
- * @property {string} responseType Response type
- * @property {boolean} [requestStream=false] Whether requests are streamed
- * @property {boolean} [responseStream=false] Whether responses are streamed
- * @property {Object.<string,*>} [options] Method options
- */
-
-/**
- * Constructs a method from a method descriptor.
- * @param {string} name Method name
- * @param {IMethod} json Method descriptor
- * @returns {Method} Created method
- * @throws {TypeError} If arguments are invalid
- */
-Method.fromJSON = function fromJSON(name, json) {
-    return new Method(name, json.type, json.requestType, json.responseType, json.requestStream, json.responseStream, json.options);
-};
-
-/**
- * Converts this method to a method descriptor.
- * @returns {IMethod} Method descriptor
- */
-Method.prototype.toJSON = function toJSON() {
-    return util.toObject([
-        "type"           , this.type !== "rpc" && /* istanbul ignore next */ this.type || undefined,
-        "requestType"    , this.requestType,
-        "requestStream"  , this.requestStream,
-        "responseType"   , this.responseType,
-        "responseStream" , this.responseStream,
-        "options"        , this.options
-    ]);
-};
-
-/**
- * @override
- */
-Method.prototype.resolve = function resolve() {
-
-    /* istanbul ignore if */
-    if (this.resolved)
-        return this;
-
-    this.resolvedRequestType = this.parent.lookupType(this.requestType);
-    this.resolvedResponseType = this.parent.lookupType(this.responseType);
-
-    return ReflectionObject.prototype.resolve.call(this);
-};
-
-
-/***/ }),
-/* 39 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19781,7 +21178,7 @@ Method.prototype.resolve = function resolve() {
 module.exports = BufferReader;
 
 // extends Reader
-var Reader = __webpack_require__(8);
+var Reader = __webpack_require__(10);
 (BufferReader.prototype = Object.create(Reader.prototype)).constructor = BufferReader;
 
 var util = __webpack_require__(2);
@@ -19824,7 +21221,7 @@ BufferReader.prototype.string = function read_string_buffer() {
 
 
 /***/ }),
-/* 40 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19832,12 +21229,11 @@ BufferReader.prototype.string = function read_string_buffer() {
 module.exports = Root;
 
 // extends Namespace
-var Namespace = __webpack_require__(7);
+var Namespace = __webpack_require__(6);
 ((Root.prototype = Object.create(Namespace.prototype)).constructor = Root).className = "Root";
 
 var Field   = __webpack_require__(3),
     Enum    = __webpack_require__(1),
-    OneOf   = __webpack_require__(16),
     util    = __webpack_require__(0);
 
 var Type,   // cyclic
@@ -19869,7 +21265,7 @@ function Root(options) {
 
 /**
  * Loads a namespace descriptor into a root namespace.
- * @param {INamespace} json Nameespace descriptor
+ * @param {NamespaceDescriptor} json Nameespace descriptor
  * @param {Root} [root] Root namespace, defaults to create a new one if omitted
  * @returns {Root} Root namespace
  */
@@ -19887,7 +21283,7 @@ Root.fromJSON = function fromJSON(json, root) {
  * @function
  * @param {string} origin The file name of the importing file
  * @param {string} target The file name being imported
- * @returns {string|null} Resolved path to `target` or `null` to skip the file
+ * @returns {?string} Resolved path to `target` or `null` to skip the file
  */
 Root.prototype.resolvePath = util.path.resolve;
 
@@ -19898,7 +21294,7 @@ function SYNC() {} // eslint-disable-line no-empty-function
 /**
  * Loads one or multiple .proto or preprocessed .json files into this root namespace and calls the callback.
  * @param {string|string[]} filename Names of one or multiple files to load
- * @param {IParseOptions} options Parse options
+ * @param {ParseOptions} options Parse options
  * @param {LoadCallback} callback Callback function
  * @returns {undefined}
  */
@@ -20029,11 +21425,10 @@ Root.prototype.load = function load(filename, options, callback) {
         finish(null, self);
     return undefined;
 };
-// function load(filename:string, options:IParseOptions, callback:LoadCallback):undefined
+// function load(filename:string, options:ParseOptions, callback:LoadCallback):undefined
 
 /**
  * Loads one or multiple .proto or preprocessed .json files into this root namespace and calls the callback.
- * @function Root#load
  * @param {string|string[]} filename Names of one or multiple files to load
  * @param {LoadCallback} callback Callback function
  * @returns {undefined}
@@ -20043,19 +21438,21 @@ Root.prototype.load = function load(filename, options, callback) {
 
 /**
  * Loads one or multiple .proto or preprocessed .json files into this root namespace and returns a promise.
- * @function Root#load
+ * @name Root#load
+ * @function
  * @param {string|string[]} filename Names of one or multiple files to load
- * @param {IParseOptions} [options] Parse options. Defaults to {@link parse.defaults} when omitted.
+ * @param {ParseOptions} [options] Parse options. Defaults to {@link parse.defaults} when omitted.
  * @returns {Promise<Root>} Promise
  * @variation 3
  */
-// function load(filename:string, [options:IParseOptions]):Promise<Root>
+// function load(filename:string, [options:ParseOptions]):Promise<Root>
 
 /**
  * Synchronously loads one or multiple .proto or preprocessed .json files into this root namespace (node only).
- * @function Root#loadSync
+ * @name Root#loadSync
+ * @function
  * @param {string|string[]} filename Names of one or multiple files to load
- * @param {IParseOptions} [options] Parse options. Defaults to {@link parse.defaults} when omitted.
+ * @param {ParseOptions} [options] Parse options. Defaults to {@link parse.defaults} when omitted.
  * @returns {Root} Root namespace
  * @throws {Error} If synchronous fetching is not supported (i.e. in browsers) or if a file's syntax is invalid
  */
@@ -20117,7 +21514,7 @@ Root.prototype._handleAdd = function _handleAdd(object) {
         if (exposeRe.test(object.name))
             object.parent[object.name] = object.values; // expose enum values as property of its parent
 
-    } else if (!(object instanceof OneOf)) /* everything else is a namespace */ {
+    } else /* everything else is a namespace */ {
 
         if (object instanceof Type) // Try to handle any deferred extensions
             for (var i = 0; i < this.deferred.length;)
@@ -20181,7 +21578,7 @@ Root._configure = function(Type_, parse_, common_) {
 
 
 /***/ }),
-/* 41 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -20198,22 +21595,30 @@ var util = __webpack_require__(2);
  *
  * Differs from {@link RPCImplCallback} in that it is an actual callback of a service method which may not return `response = null`.
  * @typedef rpc.ServiceMethodCallback
- * @template TRes extends Message<TRes>
  * @type {function}
- * @param {Error|null} error Error, if any
- * @param {TRes} [response] Response message
+ * @param {?Error} error Error, if any
+ * @param {?Message} [response] Response message
  * @returns {undefined}
  */
 
 /**
- * A service method part of a {@link rpc.Service} as created by {@link Service.create}.
+ * A service method part of a {@link rpc.ServiceMethodMixin|ServiceMethodMixin} and thus {@link rpc.Service} as created by {@link Service.create}.
  * @typedef rpc.ServiceMethod
- * @template TReq extends Message<TReq>
- * @template TRes extends Message<TRes>
  * @type {function}
- * @param {TReq|Properties<TReq>} request Request message or plain object
- * @param {rpc.ServiceMethodCallback<TRes>} [callback] Node-style callback called with the error, if any, and the response message
- * @returns {Promise<Message<TRes>>} Promise if `callback` has been omitted, otherwise `undefined`
+ * @param {Message|Object.<string,*>} request Request message or plain object
+ * @param {rpc.ServiceMethodCallback} [callback] Node-style callback called with the error, if any, and the response message
+ * @returns {Promise<Message>} Promise if `callback` has been omitted, otherwise `undefined`
+ */
+
+/**
+ * A service method mixin.
+ *
+ * When using TypeScript, mixed in service methods are only supported directly with a type definition of a static module (used with reflection). Otherwise, explicit casting is required.
+ * @typedef rpc.ServiceMethodMixin
+ * @type {Object.<string,rpc.ServiceMethod>}
+ * @example
+ * // Explicit casting with TypeScript
+ * (myRpcService["myMethod"] as protobuf.rpc.ServiceMethod)(...)
  */
 
 /**
@@ -20221,6 +21626,7 @@ var util = __webpack_require__(2);
  * @classdesc An RPC service as returned by {@link Service#create}.
  * @exports rpc.Service
  * @extends util.EventEmitter
+ * @augments rpc.ServiceMethodMixin
  * @constructor
  * @param {RPCImpl} rpcImpl RPC implementation
  * @param {boolean} [requestDelimited=false] Whether requests are length-delimited
@@ -20235,7 +21641,7 @@ function Service(rpcImpl, requestDelimited, responseDelimited) {
 
     /**
      * RPC implementation. Becomes `null` once the service is ended.
-     * @type {RPCImpl|null}
+     * @type {?RPCImpl}
      */
     this.rpcImpl = rpcImpl;
 
@@ -20254,14 +21660,12 @@ function Service(rpcImpl, requestDelimited, responseDelimited) {
 
 /**
  * Calls a service method through {@link rpc.Service#rpcImpl|rpcImpl}.
- * @param {Method|rpc.ServiceMethod<TReq,TRes>} method Reflected or static method
- * @param {Constructor<TReq>} requestCtor Request constructor
- * @param {Constructor<TRes>} responseCtor Response constructor
- * @param {TReq|Properties<TReq>} request Request message or plain object
- * @param {rpc.ServiceMethodCallback<TRes>} callback Service callback
+ * @param {Method|rpc.ServiceMethod} method Reflected or static method
+ * @param {function} requestCtor Request constructor
+ * @param {function} responseCtor Response constructor
+ * @param {Message|Object.<string,*>} request Request message or plain object
+ * @param {rpc.ServiceMethodCallback} callback Service callback
  * @returns {undefined}
- * @template TReq extends Message<TReq>
- * @template TRes extends Message<TRes>
  */
 Service.prototype.rpcCall = function rpcCall(method, requestCtor, responseCtor, request, callback) {
 
@@ -20330,775 +21734,7 @@ Service.prototype.end = function end(endedByRPC) {
 
 
 /***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = Service;
-
-// extends Namespace
-var Namespace = __webpack_require__(7);
-((Service.prototype = Object.create(Namespace.prototype)).constructor = Service).className = "Service";
-
-var Method = __webpack_require__(38),
-    util   = __webpack_require__(0),
-    rpc    = __webpack_require__(18);
-
-/**
- * Constructs a new service instance.
- * @classdesc Reflected service.
- * @extends NamespaceBase
- * @constructor
- * @param {string} name Service name
- * @param {Object.<string,*>} [options] Service options
- * @throws {TypeError} If arguments are invalid
- */
-function Service(name, options) {
-    Namespace.call(this, name, options);
-
-    /**
-     * Service methods.
-     * @type {Object.<string,Method>}
-     */
-    this.methods = {}; // toJSON, marker
-
-    /**
-     * Cached methods as an array.
-     * @type {Method[]|null}
-     * @private
-     */
-    this._methodsArray = null;
-}
-
-/**
- * Service descriptor.
- * @interface IService
- * @extends INamespace
- * @property {Object.<string,IMethod>} methods Method descriptors
- */
-
-/**
- * Constructs a service from a service descriptor.
- * @param {string} name Service name
- * @param {IService} json Service descriptor
- * @returns {Service} Created service
- * @throws {TypeError} If arguments are invalid
- */
-Service.fromJSON = function fromJSON(name, json) {
-    var service = new Service(name, json.options);
-    /* istanbul ignore else */
-    if (json.methods)
-        for (var names = Object.keys(json.methods), i = 0; i < names.length; ++i)
-            service.add(Method.fromJSON(names[i], json.methods[names[i]]));
-    if (json.nested)
-        service.addJSON(json.nested);
-    return service;
-};
-
-/**
- * Converts this service to a service descriptor.
- * @returns {IService} Service descriptor
- */
-Service.prototype.toJSON = function toJSON() {
-    var inherited = Namespace.prototype.toJSON.call(this);
-    return util.toObject([
-        "options" , inherited && inherited.options || undefined,
-        "methods" , Namespace.arrayToJSON(this.methodsArray) || /* istanbul ignore next */ {},
-        "nested"  , inherited && inherited.nested || undefined
-    ]);
-};
-
-/**
- * Methods of this service as an array for iteration.
- * @name Service#methodsArray
- * @type {Method[]}
- * @readonly
- */
-Object.defineProperty(Service.prototype, "methodsArray", {
-    get: function() {
-        return this._methodsArray || (this._methodsArray = util.toArray(this.methods));
-    }
-});
-
-function clearCache(service) {
-    service._methodsArray = null;
-    return service;
-}
-
-/**
- * @override
- */
-Service.prototype.get = function get(name) {
-    return this.methods[name]
-        || Namespace.prototype.get.call(this, name);
-};
-
-/**
- * @override
- */
-Service.prototype.resolveAll = function resolveAll() {
-    var methods = this.methodsArray;
-    for (var i = 0; i < methods.length; ++i)
-        methods[i].resolve();
-    return Namespace.prototype.resolve.call(this);
-};
-
-/**
- * @override
- */
-Service.prototype.add = function add(object) {
-
-    /* istanbul ignore if */
-    if (this.get(object.name))
-        throw Error("duplicate name '" + object.name + "' in " + this);
-
-    if (object instanceof Method) {
-        this.methods[object.name] = object;
-        object.parent = this;
-        return clearCache(this);
-    }
-    return Namespace.prototype.add.call(this, object);
-};
-
-/**
- * @override
- */
-Service.prototype.remove = function remove(object) {
-    if (object instanceof Method) {
-
-        /* istanbul ignore if */
-        if (this.methods[object.name] !== object)
-            throw Error(object + " is not a member of " + this);
-
-        delete this.methods[object.name];
-        object.parent = null;
-        return clearCache(this);
-    }
-    return Namespace.prototype.remove.call(this, object);
-};
-
-/**
- * Creates a runtime service using the specified rpc implementation.
- * @param {RPCImpl} rpcImpl RPC implementation
- * @param {boolean} [requestDelimited=false] Whether requests are length-delimited
- * @param {boolean} [responseDelimited=false] Whether responses are length-delimited
- * @returns {rpc.Service} RPC service. Useful where requests and/or responses are streamed.
- */
-Service.prototype.create = function create(rpcImpl, requestDelimited, responseDelimited) {
-    var rpcService = new rpc.Service(rpcImpl, requestDelimited, responseDelimited);
-    for (var i = 0, method; i < /* initializes */ this.methodsArray.length; ++i) {
-        rpcService[util.lcFirst((method = this._methodsArray[i]).resolve().name)] = util.codegen(["r","c"], util.lcFirst(method.name))("return this.rpcCall(m,q,s,r,c)")({
-            m: method,
-            q: method.resolvedRequestType.ctor,
-            s: method.resolvedResponseType.ctor
-        });
-    }
-    return rpcService;
-};
-
-
-/***/ }),
-/* 43 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = Type;
-
-// extends Namespace
-var Namespace = __webpack_require__(7);
-((Type.prototype = Object.create(Namespace.prototype)).constructor = Type).className = "Type";
-
-var Enum      = __webpack_require__(1),
-    OneOf     = __webpack_require__(16),
-    Field     = __webpack_require__(3),
-    MapField  = __webpack_require__(37),
-    Service   = __webpack_require__(42),
-    Message   = __webpack_require__(15),
-    Reader    = __webpack_require__(8),
-    Writer    = __webpack_require__(9),
-    util      = __webpack_require__(0),
-    encoder   = __webpack_require__(35),
-    decoder   = __webpack_require__(34),
-    verifier  = __webpack_require__(45),
-    converter = __webpack_require__(14),
-    wrappers  = __webpack_require__(46);
-
-/**
- * Constructs a new reflected message type instance.
- * @classdesc Reflected message type.
- * @extends NamespaceBase
- * @constructor
- * @param {string} name Message name
- * @param {Object.<string,*>} [options] Declared options
- */
-function Type(name, options) {
-    Namespace.call(this, name, options);
-
-    /**
-     * Message fields.
-     * @type {Object.<string,Field>}
-     */
-    this.fields = {};  // toJSON, marker
-
-    /**
-     * Oneofs declared within this namespace, if any.
-     * @type {Object.<string,OneOf>}
-     */
-    this.oneofs = undefined; // toJSON
-
-    /**
-     * Extension ranges, if any.
-     * @type {number[][]}
-     */
-    this.extensions = undefined; // toJSON
-
-    /**
-     * Reserved ranges, if any.
-     * @type {Array.<number[]|string>}
-     */
-    this.reserved = undefined; // toJSON
-
-    /*?
-     * Whether this type is a legacy group.
-     * @type {boolean|undefined}
-     */
-    this.group = undefined; // toJSON
-
-    /**
-     * Cached fields by id.
-     * @type {Object.<number,Field>|null}
-     * @private
-     */
-    this._fieldsById = null;
-
-    /**
-     * Cached fields as an array.
-     * @type {Field[]|null}
-     * @private
-     */
-    this._fieldsArray = null;
-
-    /**
-     * Cached oneofs as an array.
-     * @type {OneOf[]|null}
-     * @private
-     */
-    this._oneofsArray = null;
-
-    /**
-     * Cached constructor.
-     * @type {Constructor<{}>}
-     * @private
-     */
-    this._ctor = null;
-}
-
-Object.defineProperties(Type.prototype, {
-
-    /**
-     * Message fields by id.
-     * @name Type#fieldsById
-     * @type {Object.<number,Field>}
-     * @readonly
-     */
-    fieldsById: {
-        get: function() {
-
-            /* istanbul ignore if */
-            if (this._fieldsById)
-                return this._fieldsById;
-
-            this._fieldsById = {};
-            for (var names = Object.keys(this.fields), i = 0; i < names.length; ++i) {
-                var field = this.fields[names[i]],
-                    id = field.id;
-
-                /* istanbul ignore if */
-                if (this._fieldsById[id])
-                    throw Error("duplicate id " + id + " in " + this);
-
-                this._fieldsById[id] = field;
-            }
-            return this._fieldsById;
-        }
-    },
-
-    /**
-     * Fields of this message as an array for iteration.
-     * @name Type#fieldsArray
-     * @type {Field[]}
-     * @readonly
-     */
-    fieldsArray: {
-        get: function() {
-            return this._fieldsArray || (this._fieldsArray = util.toArray(this.fields));
-        }
-    },
-
-    /**
-     * Oneofs of this message as an array for iteration.
-     * @name Type#oneofsArray
-     * @type {OneOf[]}
-     * @readonly
-     */
-    oneofsArray: {
-        get: function() {
-            return this._oneofsArray || (this._oneofsArray = util.toArray(this.oneofs));
-        }
-    },
-
-    /**
-     * The registered constructor, if any registered, otherwise a generic constructor.
-     * Assigning a function replaces the internal constructor. If the function does not extend {@link Message} yet, its prototype will be setup accordingly and static methods will be populated. If it already extends {@link Message}, it will just replace the internal constructor.
-     * @name Type#ctor
-     * @type {Constructor<{}>}
-     */
-    ctor: {
-        get: function() {
-            return this._ctor || (this.ctor = Type.generateConstructor(this)());
-        },
-        set: function(ctor) {
-
-            // Ensure proper prototype
-            var prototype = ctor.prototype;
-            if (!(prototype instanceof Message)) {
-                (ctor.prototype = new Message()).constructor = ctor;
-                util.merge(ctor.prototype, prototype);
-            }
-
-            // Classes and messages reference their reflected type
-            ctor.$type = ctor.prototype.$type = this;
-
-            // Mix in static methods
-            util.merge(ctor, Message, true);
-
-            this._ctor = ctor;
-
-            // Messages have non-enumerable default values on their prototype
-            var i = 0;
-            for (; i < /* initializes */ this.fieldsArray.length; ++i)
-                this._fieldsArray[i].resolve(); // ensures a proper value
-
-            // Messages have non-enumerable getters and setters for each virtual oneof field
-            var ctorProperties = {};
-            for (i = 0; i < /* initializes */ this.oneofsArray.length; ++i)
-                ctorProperties[this._oneofsArray[i].resolve().name] = {
-                    get: util.oneOfGetter(this._oneofsArray[i].oneof),
-                    set: util.oneOfSetter(this._oneofsArray[i].oneof)
-                };
-            if (i)
-                Object.defineProperties(ctor.prototype, ctorProperties);
-        }
-    }
-});
-
-/**
- * Generates a constructor function for the specified type.
- * @param {Type} mtype Message type
- * @returns {Codegen} Codegen instance
- */
-Type.generateConstructor = function generateConstructor(mtype) {
-    /* eslint-disable no-unexpected-multiline */
-    var gen = util.codegen(["p"], mtype.name);
-    // explicitly initialize mutable object/array fields so that these aren't just inherited from the prototype
-    for (var i = 0, field; i < mtype.fieldsArray.length; ++i)
-        if ((field = mtype._fieldsArray[i]).map) gen
-            ("this%s={}", util.safeProp(field.name));
-        else if (field.repeated) gen
-            ("this%s=[]", util.safeProp(field.name));
-    return gen
-    ("if(p)for(var ks=Object.keys(p),i=0;i<ks.length;++i)if(p[ks[i]]!=null)") // omit undefined or null
-        ("this[ks[i]]=p[ks[i]]");
-    /* eslint-enable no-unexpected-multiline */
-};
-
-function clearCache(type) {
-    type._fieldsById = type._fieldsArray = type._oneofsArray = null;
-    delete type.encode;
-    delete type.decode;
-    delete type.verify;
-    return type;
-}
-
-/**
- * Message type descriptor.
- * @interface IType
- * @extends INamespace
- * @property {Object.<string,IOneOf>} [oneofs] Oneof descriptors
- * @property {Object.<string,IField>} fields Field descriptors
- * @property {number[][]} [extensions] Extension ranges
- * @property {number[][]} [reserved] Reserved ranges
- * @property {boolean} [group=false] Whether a legacy group or not
- */
-
-/**
- * Creates a message type from a message type descriptor.
- * @param {string} name Message name
- * @param {IType} json Message type descriptor
- * @returns {Type} Created message type
- */
-Type.fromJSON = function fromJSON(name, json) {
-    var type = new Type(name, json.options);
-    type.extensions = json.extensions;
-    type.reserved = json.reserved;
-    var names = Object.keys(json.fields),
-        i = 0;
-    for (; i < names.length; ++i)
-        type.add(
-            ( typeof json.fields[names[i]].keyType !== "undefined"
-            ? MapField.fromJSON
-            : Field.fromJSON )(names[i], json.fields[names[i]])
-        );
-    if (json.oneofs)
-        for (names = Object.keys(json.oneofs), i = 0; i < names.length; ++i)
-            type.add(OneOf.fromJSON(names[i], json.oneofs[names[i]]));
-    if (json.nested)
-        for (names = Object.keys(json.nested), i = 0; i < names.length; ++i) {
-            var nested = json.nested[names[i]];
-            type.add( // most to least likely
-                ( nested.id !== undefined
-                ? Field.fromJSON
-                : nested.fields !== undefined
-                ? Type.fromJSON
-                : nested.values !== undefined
-                ? Enum.fromJSON
-                : nested.methods !== undefined
-                ? Service.fromJSON
-                : Namespace.fromJSON )(names[i], nested)
-            );
-        }
-    if (json.extensions && json.extensions.length)
-        type.extensions = json.extensions;
-    if (json.reserved && json.reserved.length)
-        type.reserved = json.reserved;
-    if (json.group)
-        type.group = true;
-    return type;
-};
-
-/**
- * Converts this message type to a message type descriptor.
- * @returns {IType} Message type descriptor
- */
-Type.prototype.toJSON = function toJSON() {
-    var inherited = Namespace.prototype.toJSON.call(this);
-    return util.toObject([
-        "options"    , inherited && inherited.options || undefined,
-        "oneofs"     , Namespace.arrayToJSON(this.oneofsArray),
-        "fields"     , Namespace.arrayToJSON(this.fieldsArray.filter(function(obj) { return !obj.declaringField; })) || {},
-        "extensions" , this.extensions && this.extensions.length ? this.extensions : undefined,
-        "reserved"   , this.reserved && this.reserved.length ? this.reserved : undefined,
-        "group"      , this.group || undefined,
-        "nested"     , inherited && inherited.nested || undefined
-    ]);
-};
-
-/**
- * @override
- */
-Type.prototype.resolveAll = function resolveAll() {
-    var fields = this.fieldsArray, i = 0;
-    while (i < fields.length)
-        fields[i++].resolve();
-    var oneofs = this.oneofsArray; i = 0;
-    while (i < oneofs.length)
-        oneofs[i++].resolve();
-    return Namespace.prototype.resolveAll.call(this);
-};
-
-/**
- * @override
- */
-Type.prototype.get = function get(name) {
-    return this.fields[name]
-        || this.oneofs && this.oneofs[name]
-        || this.nested && this.nested[name]
-        || null;
-};
-
-/**
- * Adds a nested object to this type.
- * @param {ReflectionObject} object Nested object to add
- * @returns {Type} `this`
- * @throws {TypeError} If arguments are invalid
- * @throws {Error} If there is already a nested object with this name or, if a field, when there is already a field with this id
- */
-Type.prototype.add = function add(object) {
-
-    if (this.get(object.name))
-        throw Error("duplicate name '" + object.name + "' in " + this);
-
-    if (object instanceof Field && object.extend === undefined) {
-        // NOTE: Extension fields aren't actual fields on the declaring type, but nested objects.
-        // The root object takes care of adding distinct sister-fields to the respective extended
-        // type instead.
-
-        // avoids calling the getter if not absolutely necessary because it's called quite frequently
-        if (this._fieldsById ? /* istanbul ignore next */ this._fieldsById[object.id] : this.fieldsById[object.id])
-            throw Error("duplicate id " + object.id + " in " + this);
-        if (this.isReservedId(object.id))
-            throw Error("id " + object.id + " is reserved in " + this);
-        if (this.isReservedName(object.name))
-            throw Error("name '" + object.name + "' is reserved in " + this);
-
-        if (object.parent)
-            object.parent.remove(object);
-        this.fields[object.name] = object;
-        object.message = this;
-        object.onAdd(this);
-        return clearCache(this);
-    }
-    if (object instanceof OneOf) {
-        if (!this.oneofs)
-            this.oneofs = {};
-        this.oneofs[object.name] = object;
-        object.onAdd(this);
-        return clearCache(this);
-    }
-    return Namespace.prototype.add.call(this, object);
-};
-
-/**
- * Removes a nested object from this type.
- * @param {ReflectionObject} object Nested object to remove
- * @returns {Type} `this`
- * @throws {TypeError} If arguments are invalid
- * @throws {Error} If `object` is not a member of this type
- */
-Type.prototype.remove = function remove(object) {
-    if (object instanceof Field && object.extend === undefined) {
-        // See Type#add for the reason why extension fields are excluded here.
-
-        /* istanbul ignore if */
-        if (!this.fields || this.fields[object.name] !== object)
-            throw Error(object + " is not a member of " + this);
-
-        delete this.fields[object.name];
-        object.parent = null;
-        object.onRemove(this);
-        return clearCache(this);
-    }
-    if (object instanceof OneOf) {
-
-        /* istanbul ignore if */
-        if (!this.oneofs || this.oneofs[object.name] !== object)
-            throw Error(object + " is not a member of " + this);
-
-        delete this.oneofs[object.name];
-        object.parent = null;
-        object.onRemove(this);
-        return clearCache(this);
-    }
-    return Namespace.prototype.remove.call(this, object);
-};
-
-/**
- * Tests if the specified id is reserved.
- * @param {number} id Id to test
- * @returns {boolean} `true` if reserved, otherwise `false`
- */
-Type.prototype.isReservedId = function isReservedId(id) {
-    if (this.reserved)
-        for (var i = 0; i < this.reserved.length; ++i)
-            if (typeof this.reserved[i] !== "string" && this.reserved[i][0] <= id && this.reserved[i][1] >= id)
-                return true;
-    return false;
-};
-
-/**
- * Tests if the specified name is reserved.
- * @param {string} name Name to test
- * @returns {boolean} `true` if reserved, otherwise `false`
- */
-Type.prototype.isReservedName = function isReservedName(name) {
-    if (this.reserved)
-        for (var i = 0; i < this.reserved.length; ++i)
-            if (this.reserved[i] === name)
-                return true;
-    return false;
-};
-
-/**
- * Creates a new message of this type using the specified properties.
- * @param {Object.<string,*>} [properties] Properties to set
- * @returns {Message<{}>} Message instance
- */
-Type.prototype.create = function create(properties) {
-    return new this.ctor(properties);
-};
-
-/**
- * Sets up {@link Type#encode|encode}, {@link Type#decode|decode} and {@link Type#verify|verify}.
- * @returns {Type} `this`
- */
-Type.prototype.setup = function setup() {
-    // Sets up everything at once so that the prototype chain does not have to be re-evaluated
-    // multiple times (V8, soft-deopt prototype-check).
-
-    var fullName = this.fullName,
-        types    = [];
-    for (var i = 0; i < /* initializes */ this.fieldsArray.length; ++i)
-        types.push(this._fieldsArray[i].resolve().resolvedType);
-
-    // Replace setup methods with type-specific generated functions
-    this.encode = encoder(this)({
-        Writer : Writer,
-        types  : types,
-        util   : util
-    });
-    this.decode = decoder(this)({
-        Reader : Reader,
-        types  : types,
-        util   : util
-    });
-    this.verify = verifier(this)({
-        types : types,
-        util  : util
-    });
-    this.fromObject = converter.fromObject(this)({
-        types : types,
-        util  : util
-    });
-    this.toObject = converter.toObject(this)({
-        types : types,
-        util  : util
-    });
-
-    // Inject custom wrappers for common types
-    var wrapper = wrappers[fullName];
-    if (wrapper) {
-        var originalThis = Object.create(this);
-        // if (wrapper.fromObject) {
-            originalThis.fromObject = this.fromObject;
-            this.fromObject = wrapper.fromObject.bind(originalThis);
-        // }
-        // if (wrapper.toObject) {
-            originalThis.toObject = this.toObject;
-            this.toObject = wrapper.toObject.bind(originalThis);
-        // }
-    }
-
-    return this;
-};
-
-/**
- * Encodes a message of this type. Does not implicitly {@link Type#verify|verify} messages.
- * @param {Message<{}>|Object.<string,*>} message Message instance or plain object
- * @param {Writer} [writer] Writer to encode to
- * @returns {Writer} writer
- */
-Type.prototype.encode = function encode_setup(message, writer) {
-    return this.setup().encode(message, writer); // overrides this method
-};
-
-/**
- * Encodes a message of this type preceeded by its byte length as a varint. Does not implicitly {@link Type#verify|verify} messages.
- * @param {Message<{}>|Object.<string,*>} message Message instance or plain object
- * @param {Writer} [writer] Writer to encode to
- * @returns {Writer} writer
- */
-Type.prototype.encodeDelimited = function encodeDelimited(message, writer) {
-    return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
-};
-
-/**
- * Decodes a message of this type.
- * @param {Reader|Uint8Array} reader Reader or buffer to decode from
- * @param {number} [length] Length of the message, if known beforehand
- * @returns {Message<{}>} Decoded message
- * @throws {Error} If the payload is not a reader or valid buffer
- * @throws {util.ProtocolError<{}>} If required fields are missing
- */
-Type.prototype.decode = function decode_setup(reader, length) {
-    return this.setup().decode(reader, length); // overrides this method
-};
-
-/**
- * Decodes a message of this type preceeded by its byte length as a varint.
- * @param {Reader|Uint8Array} reader Reader or buffer to decode from
- * @returns {Message<{}>} Decoded message
- * @throws {Error} If the payload is not a reader or valid buffer
- * @throws {util.ProtocolError} If required fields are missing
- */
-Type.prototype.decodeDelimited = function decodeDelimited(reader) {
-    if (!(reader instanceof Reader))
-        reader = Reader.create(reader);
-    return this.decode(reader, reader.uint32());
-};
-
-/**
- * Verifies that field values are valid and that required fields are present.
- * @param {Object.<string,*>} message Plain object to verify
- * @returns {null|string} `null` if valid, otherwise the reason why it is not
- */
-Type.prototype.verify = function verify_setup(message) {
-    return this.setup().verify(message); // overrides this method
-};
-
-/**
- * Creates a new message of this type from a plain object. Also converts values to their respective internal types.
- * @param {Object.<string,*>} object Plain object to convert
- * @returns {Message<{}>} Message instance
- */
-Type.prototype.fromObject = function fromObject(object) {
-    return this.setup().fromObject(object);
-};
-
-/**
- * Conversion options as used by {@link Type#toObject} and {@link Message.toObject}.
- * @interface IConversionOptions
- * @property {Function} [longs] Long conversion type.
- * Valid values are `String` and `Number` (the global types).
- * Defaults to copy the present value, which is a possibly unsafe number without and a {@link Long} with a long library.
- * @property {Function} [enums] Enum value conversion type.
- * Only valid value is `String` (the global type).
- * Defaults to copy the present value, which is the numeric id.
- * @property {Function} [bytes] Bytes value conversion type.
- * Valid values are `Array` and (a base64 encoded) `String` (the global types).
- * Defaults to copy the present value, which usually is a Buffer under node and an Uint8Array in the browser.
- * @property {boolean} [defaults=false] Also sets default values on the resulting object
- * @property {boolean} [arrays=false] Sets empty arrays for missing repeated fields even if `defaults=false`
- * @property {boolean} [objects=false] Sets empty objects for missing map fields even if `defaults=false`
- * @property {boolean} [oneofs=false] Includes virtual oneof properties set to the present field's name, if any
- * @property {boolean} [json=false] Performs additional JSON compatibility conversions, i.e. NaN and Infinity to strings
- */
-
-/**
- * Creates a plain object from a message of this type. Also converts values to other types if specified.
- * @param {Message<{}>} message Message instance
- * @param {IConversionOptions} [options] Conversion options
- * @returns {Object.<string,*>} Plain object
- */
-Type.prototype.toObject = function toObject(message, options) {
-    return this.setup().toObject(message, options);
-};
-
-/**
- * Decorator function as returned by {@link Type.d} (TypeScript).
- * @typedef TypeDecorator
- * @type {function}
- * @param {Constructor<T>} target Target constructor
- * @returns {undefined}
- * @template T extends Message<T>
- */
-
-/**
- * Type decorator (TypeScript).
- * @param {string} [typeName] Type name, defaults to the constructor's name
- * @returns {TypeDecorator<T>} Decorator function
- * @template T extends Message<T>
- */
-Type.d = function decorateType(typeName) {
-    return function typeDecorator(target) {
-        util.decorateType(target, typeName);
-    };
-};
-
-
-/***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21305,271 +21941,6 @@ LongBits.prototype.length = function length() {
 
 
 /***/ }),
-/* 45 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = verifier;
-
-var Enum      = __webpack_require__(1),
-    util      = __webpack_require__(0);
-
-function invalid(field, expected) {
-    return field.name + ": " + expected + (field.repeated && expected !== "array" ? "[]" : field.map && expected !== "object" ? "{k:"+field.keyType+"}" : "") + " expected";
-}
-
-/**
- * Generates a partial value verifier.
- * @param {Codegen} gen Codegen instance
- * @param {Field} field Reflected field
- * @param {number} fieldIndex Field index
- * @param {string} ref Variable reference
- * @returns {Codegen} Codegen instance
- * @ignore
- */
-function genVerifyValue(gen, field, fieldIndex, ref) {
-    /* eslint-disable no-unexpected-multiline */
-    if (field.resolvedType) {
-        if (field.resolvedType instanceof Enum) { gen
-            ("switch(%s){", ref)
-                ("default:")
-                    ("return%j", invalid(field, "enum value"));
-            for (var keys = Object.keys(field.resolvedType.values), j = 0; j < keys.length; ++j) gen
-                ("case %i:", field.resolvedType.values[keys[j]]);
-            gen
-                    ("break")
-            ("}");
-        } else {
-            gen
-            ((gen.hasErrorVar ? "" : "var ") + "e=types[%i].verify(%s);", fieldIndex, ref)
-            ("if(e)")
-                ("return%j+e", field.name + ".");
-            gen.hasErrorVar = true;
-        }
-    } else {
-        switch (field.type) {
-            case "int32":
-            case "uint32":
-            case "sint32":
-            case "fixed32":
-            case "sfixed32": gen
-                ("if(!util.isInteger(%s))", ref)
-                    ("return%j", invalid(field, "integer"));
-                break;
-            case "int64":
-            case "uint64":
-            case "sint64":
-            case "fixed64":
-            case "sfixed64": gen
-                ("if(!util.isInteger(%s)&&!(%s&&util.isInteger(%s.low)&&util.isInteger(%s.high)))", ref, ref, ref, ref)
-                    ("return%j", invalid(field, "integer|Long"));
-                break;
-            case "float":
-            case "double": gen
-                ("if(typeof %s!==\"number\")", ref)
-                    ("return%j", invalid(field, "number"));
-                break;
-            case "bool": gen
-                ("if(typeof %s!==\"boolean\")", ref)
-                    ("return%j", invalid(field, "boolean"));
-                break;
-            case "string": gen
-                ("if(!util.isString(%s))", ref)
-                    ("return%j", invalid(field, "string"));
-                break;
-            case "bytes": gen
-                ("if(!(%s&&typeof %s.length===\"number\"||util.isString(%s)))", ref, ref, ref)
-                    ("return%j", invalid(field, "buffer"));
-                break;
-        }
-    }
-    return gen;
-    /* eslint-enable no-unexpected-multiline */
-}
-
-/**
- * Generates a partial key verifier.
- * @param {Codegen} gen Codegen instance
- * @param {Field} field Reflected field
- * @param {string} ref Variable reference
- * @returns {Codegen} Codegen instance
- * @ignore
- */
-function genVerifyKey(gen, field, ref) {
-    /* eslint-disable no-unexpected-multiline */
-    switch (field.keyType) {
-        case "int32":
-        case "uint32":
-        case "sint32":
-        case "fixed32":
-        case "sfixed32": gen
-            ("if(!util.key32Re.test(%s))", ref)
-                ("return%j", invalid(field, "integer key"));
-            break;
-        case "int64":
-        case "uint64":
-        case "sint64":
-        case "fixed64":
-        case "sfixed64": gen
-            ("if(!util.key64Re.test(%s))", ref) // see comment above: x is ok, d is not
-                ("return%j", invalid(field, "integer|Long key"));
-            break;
-        case "bool": gen
-            ("if(!util.key2Re.test(%s))", ref)
-                ("return%j", invalid(field, "boolean key"));
-            break;
-    }
-    return gen;
-    /* eslint-enable no-unexpected-multiline */
-}
-
-/**
- * Generates a verifier specific to the specified message type.
- * @param {Type} mtype Message type
- * @returns {Codegen} Codegen instance
- */
-function verifier(mtype) {
-    /* eslint-disable no-unexpected-multiline */
-
-    var gen = util.codegen(["m"], mtype.name + "$verify")
-    ("if(typeof m!==\"object\"||m===null)")
-        ("return%j", "object expected");
-    var oneofs = mtype.oneofsArray,
-        seenFirstField = {};
-    if (oneofs.length) gen
-    ("var p={}");
-
-    for (var i = 0; i < /* initializes */ mtype.fieldsArray.length; ++i) {
-        var field = mtype._fieldsArray[i].resolve(),
-            ref   = "m" + util.safeProp(field.name);
-
-        if (field.optional) gen
-        ("if(%s!=null&&m.hasOwnProperty(%j)){", ref, field.name); // !== undefined && !== null
-
-        // map fields
-        if (field.map) { gen
-            ("if(!util.isObject(%s))", ref)
-                ("return%j", invalid(field, "object"))
-            ("var k=Object.keys(%s)", ref)
-            ("for(var i=0;i<k.length;++i){");
-                genVerifyKey(gen, field, "k[i]");
-                genVerifyValue(gen, field, i, ref + "[k[i]]")
-            ("}");
-
-        // repeated fields
-        } else if (field.repeated) { gen
-            ("if(!Array.isArray(%s))", ref)
-                ("return%j", invalid(field, "array"))
-            ("for(var i=0;i<%s.length;++i){", ref);
-                genVerifyValue(gen, field, i, ref + "[i]")
-            ("}");
-
-        // required or present fields
-        } else {
-            if (field.partOf) {
-                var oneofProp = util.safeProp(field.partOf.name);
-                if (seenFirstField[field.partOf.name] === 1) gen
-            ("if(p%s===1)", oneofProp)
-                ("return%j", field.partOf.name + ": multiple values");
-                seenFirstField[field.partOf.name] = 1;
-                gen
-            ("p%s=1", oneofProp);
-            }
-            genVerifyValue(gen, field, i, ref);
-        }
-        if (field.optional) gen
-        ("}");
-    }
-    return gen
-    ("return null");
-    /* eslint-enable no-unexpected-multiline */
-}
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Wrappers for common types.
- * @type {Object.<string,IWrapper>}
- * @const
- */
-var wrappers = exports;
-
-var Message = __webpack_require__(15);
-
-/**
- * From object converter part of an {@link IWrapper}.
- * @typedef WrapperFromObjectConverter
- * @type {function}
- * @param {Object.<string,*>} object Plain object
- * @returns {Message<{}>} Message instance
- * @this Type
- */
-
-/**
- * To object converter part of an {@link IWrapper}.
- * @typedef WrapperToObjectConverter
- * @type {function}
- * @param {Message<{}>} message Message instance
- * @param {IConversionOptions} [options] Conversion options
- * @returns {Object.<string,*>} Plain object
- * @this Type
- */
-
-/**
- * Common type wrapper part of {@link wrappers}.
- * @interface IWrapper
- * @property {WrapperFromObjectConverter} [fromObject] From object converter
- * @property {WrapperToObjectConverter} [toObject] To object converter
- */
-
-// Custom wrapper for Any
-wrappers[".google.protobuf.Any"] = {
-
-    fromObject: function(object) {
-
-        // unwrap value type if mapped
-        if (object && object["@type"]) {
-            var type = this.lookup(object["@type"]);
-            /* istanbul ignore else */
-            if (type)
-                return this.create({
-                    type_url: object["@type"],
-                    value: type.encode(object).finish()
-                });
-        }
-
-        return this.fromObject(object);
-    },
-
-    toObject: function(message, options) {
-
-        // decode value if requested and unmapped
-        if (options && options.json && message.type_url && message.value) {
-            var type = this.lookup(message.type_url);
-            /* istanbul ignore else */
-            if (type)
-                message = type.decode(message.value);
-        }
-
-        // wrap value if unmapped
-        if (!(message instanceof this.ctor) && message instanceof Message) {
-            var object = message.$type.toObject(message, options);
-            object["@type"] = message.$type.fullName;
-            return object;
-        }
-
-        return this.toObject(message, options);
-    }
-};
-
-
-/***/ }),
 /* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -21578,7 +21949,7 @@ wrappers[".google.protobuf.Any"] = {
 module.exports = BufferWriter;
 
 // extends Writer
-var Writer = __webpack_require__(9);
+var Writer = __webpack_require__(12);
 (BufferWriter.prototype = Object.create(Writer.prototype)).constructor = BufferWriter;
 
 var util = __webpack_require__(2);
@@ -21626,7 +21997,7 @@ BufferWriter.prototype.bytes = function write_bytes_buffer(value) {
     var len = value.length >>> 0;
     this.uint32(len);
     if (len)
-        this._push(writeBytesBuffer, len, value);
+        this.push(writeBytesBuffer, len, value);
     return this;
 };
 
@@ -21644,7 +22015,7 @@ BufferWriter.prototype.string = function write_string_buffer(value) {
     var len = Buffer.byteLength(value);
     this.uint32(len);
     if (len)
-        this._push(writeStringBuffer, len, value);
+        this.push(writeStringBuffer, len, value);
     return this;
 };
 
