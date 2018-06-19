@@ -1,11 +1,10 @@
 {
   "name": "dzhyun-dataparser",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "大智慧云平台数据解析",
   "main": "lib/DzhyunDataParser",
   "browser": {
-    "./src/dzhyunProto.js": "./lib/dzhyunProto.js",
-    "protobufjs": "protobufjs/light"
+    "./src/dzhyunProto.js": "./lib/dzhyunProto.js"
   },
   "scripts": {},
   "author": "jiagang <jiagang1985@gmail.com>",
@@ -28,16 +27,16 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.10.3",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
     "gulp-babel": "^6.1.2",
     "gulp-if": "^2.0.2",
-    "null-loader": "^0.1.1",
     "through-gulp": "^0.5.0",
     "webpack": "^2.2.1",
     "webpack-stream": "^3.2.0"
   },
   "dependencies": {
-    "protobufjs": "6.7.3",
+    "null-loader": "^0.1.1",
+    "protobufjs": "^6.8.6",
     "snappyjs": "^0.5.0"
   }
 }
