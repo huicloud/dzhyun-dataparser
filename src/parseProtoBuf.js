@@ -20,7 +20,7 @@ export default function parseProtoBuf(input, parseYfloat) {
 
     // 错误消息直接返回，正确的数据消息再解析其中的Data
     if (responseMessage.Err !== 0) {
-      const result = responseMessage.toObject();
+      const result = UAResponse.toObject(responseMessage);
       if (result.Data) result.Data = JSON.parse(String.fromCharCode.apply(String, result.Data));
       return result;
     }
@@ -37,7 +37,7 @@ export default function parseProtoBuf(input, parseYfloat) {
         [key]: value,
       };
     } else {
-      data = dataMessage.toObject(parseYfloat ? {
+      data = MSG.toObject(dataMessage, parseYfloat ? {
         longs: yfloat.unmakeValueToNumber,
       } : undefined);
     }

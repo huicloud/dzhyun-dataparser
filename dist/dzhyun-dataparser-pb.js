@@ -19487,7 +19487,7 @@ function parseProtoBuf(input, parseYfloat) {
 
     // 错误消息直接返回，正确的数据消息再解析其中的Data
     if (responseMessage.Err !== 0) {
-      var result = responseMessage.toObject();
+      var result = UAResponse.toObject(responseMessage);
       if (result.Data) result.Data = JSON.parse(String.fromCharCode.apply(String, result.Data));
       return result;
     }
@@ -19503,7 +19503,7 @@ function parseProtoBuf(input, parseYfloat) {
         Id: dataMessage.Id
       }, key, value);
     } else {
-      data = dataMessage.toObject(parseYfloat ? {
+      data = MSG.toObject(dataMessage, parseYfloat ? {
         longs: _yfloat2.default.unmakeValueToNumber
       } : undefined);
     }
@@ -19583,9 +19583,9 @@ function genValuePartial_fromObject(gen, field, fieldIndex, prop) {
       gen("switch(d%s){", prop);
       for (var values = field.resolvedType.values, keys = Object.keys(values), i = 0; i < keys.length; ++i) {
         if (field.repeated && values[keys[i]] === field.typeDefault) gen("default:");
-        gen("case%j:", keys[i])("case %j:", values[keys[i]])("m%s=%j", prop, values[keys[i]])("break");
+        gen("case%j:", keys[i])("case %i:", values[keys[i]])("m%s=%j", prop, values[keys[i]])("break");
       }gen("}");
-    } else gen("if(typeof d%s!==\"object\")", prop)("throw TypeError(%j)", field.fullName + ": object expected")("m%s=types[%d].fromObject(d%s)", prop, fieldIndex, prop);
+    } else gen("if(typeof d%s!==\"object\")", prop)("throw TypeError(%j)", field.fullName + ": object expected")("m%s=types[%i].fromObject(d%s)", prop, fieldIndex, prop);
   } else {
     var isUnsigned = false;
     switch (field.type) {
@@ -19637,7 +19637,7 @@ function genValuePartial_fromObject(gen, field, fieldIndex, prop) {
 converter.fromObject = function fromObject(mtype) {
   /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
   var fields = mtype.fieldsArray;
-  var gen = util.codegen("d")("if(d instanceof this.ctor)")("return d");
+  var gen = util.codegen(["d"], mtype.name + "$fromObject")("if(d instanceof this.ctor)")("return d");
   if (!fields.length) return gen("return new this.ctor");
   gen("var m=new this.ctor");
   for (var i = 0; i < fields.length; ++i) {
@@ -19677,10 +19677,14 @@ converter.fromObject = function fromObject(mtype) {
 function genValuePartial_toObject(gen, field, fieldIndex, prop) {
   /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
   if (field.resolvedType) {
-    if (field.resolvedType instanceof Enum) gen("d%s=o.enums===String?types[%d].values[m%s]:m%s", prop, fieldIndex, prop, prop);else gen("d%s=types[%d].toObject(m%s,o)", prop, fieldIndex, prop);
+    if (field.resolvedType instanceof Enum) gen("d%s=o.enums===String?types[%i].values[m%s]:m%s", prop, fieldIndex, prop, prop);else gen("d%s=types[%i].toObject(m%s,o)", prop, fieldIndex, prop);
   } else {
     var isUnsigned = false;
     switch (field.type) {
+      case "double":
+      case "float":
+        gen("d%s=o.json&&!isFinite(m%s)?String(m%s):m%s", prop, prop, prop, prop);
+        break;
       case "uint64":
         isUnsigned = true;
       // eslint-disable-line no-fallthrough
@@ -19712,7 +19716,7 @@ converter.toObject = function toObject(mtype) {
   /* eslint-disable no-unexpected-multiline, block-scoped-var, no-redeclare */
   var fields = mtype.fieldsArray.slice().sort(util.compareFieldsById);
   if (!fields.length) return util.codegen()("return {}");
-  var gen = util.codegen("m", "o")("if(!o)")("o={}")("var d={}");
+  var gen = util.codegen(["m", "o"], mtype.name + "$toObject")("if(!o)")("o={}")("var d={}");
 
   var repeatedFields = [],
       mapFields = [],

@@ -1,6 +1,6 @@
 {
   "name": "dzhyun-dataparser",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "大智慧云平台数据解析",
   "main": "lib/DzhyunDataParser",
   "browser": {
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "null-loader": "^0.1.1",
-    "protobufjs": "^6.8.6",
+    "protobufjs": "6.8.6",
     "snappyjs": "^0.5.0"
   }
 }
