@@ -17,7 +17,7 @@ function convertToJsonArray(input) {
 
 export default function parseJSON(input) {
   return Promise.resolve().then(() => {
-    const json = input instanceof ArrayBuffer ? arrayBufferToString(input) : input;
+    const json = (typeof ArrayBuffer !== 'undefined' && input instanceof ArrayBuffer) ? arrayBufferToString(input) : input;
     const response = JSON.parse(json);
     if (response.Err !== 0) {
       return response;
