@@ -3,6 +3,7 @@ module.exports = {
   "parser": "babel-eslint",
   "globals" : {
     window: true,
+    TextDecoder: true,
   },
   "plugins": [
     'html'

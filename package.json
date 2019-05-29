@@ -1,6 +1,6 @@
 {
   "name": "dzhyun-dataparser",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "大智慧云平台数据解析",
   "main": "lib/DzhyunDataParser",
   "browser": {
