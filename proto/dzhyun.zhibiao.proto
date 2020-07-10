@@ -2,14 +2,13 @@ package dzhyun;
 
 option java_package = "com.dzhyun.proto";
 
-import "dzhyun.zhibiaojisuan.proto";
-
 // 指标计算输出
 message ZhiBiaoShuChu { // ->MSG
   // 指标输出数据
   message ZBShuJu {
     required int64 ShiJian = 1; // 时间
     repeated int64 JieGuo  = 2; // 指标计算结果
+    optional int64 JieGuoZongShu = 3; //指标结果总数
   }
 
   // 指标输出属性
@@ -97,6 +96,8 @@ message ZhiBiaoShuChu { // ->MSG
   repeated ZBShuJu   ShuJu   = 2; // 指标数据输出
   repeated ZBShuXing ShuXing = 3; // 指标属性输出
   repeated ZBHuiTu   HuiTu   = 4; // 指标绘图指令输出
+  optional int64   ZongGeShu = 5; // 总个数
+  repeated string  ZBJieGuoMing =6; // 指标结果名字
 }
 
 // 指标属性输出
@@ -169,4 +170,20 @@ message ZhiBiao { // ->MSG
   repeated int64           EWaiShuJu      = 16; // 额外数据
   repeated ZBCanShu        CanShu         = 17; // 指标参数
   repeated ZBShuChu        ShuChu         = 18; // 指标输出
+}
+
+message ZhiBiaoSort { // ->MSG
+    required  int32 Total  =1;
+    repeated  ZiJinXianFeng Zjxf =2;
+}
+
+message ZiJinXianFeng {
+    required  string Obj =1;
+    optional  int64  Value =2;
+}
+
+//指标存储结构, svc
+message ZhiBiaoCunChu {
+  optional string obj = 1;
+  optional ZhiBiaoShuChu.ZBShuJu ShuJu = 2;
 }

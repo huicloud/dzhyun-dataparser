@@ -66,22 +66,6 @@ message StkData // ->MSG
   optional int64 ShangZhangJiaShu = 50; // 所在市场的上涨家数
   optional int64 XiaDieJiaShu = 51; // 所在市场的下跌家数
   optional int64 PingPanJiaShu = 52; // 所在市场的平盘家数
-  optional int64 AGuShangZhangJiaShu = 53; // 所在市场的A股上涨家数
-  optional int64 AGuXiaDieJiaShu = 54; // 所在市场的A股下跌家数
-  optional int64 AGuPingPanJiaShu = 55; // 所在市场的A股平盘家数
-  optional int64 AGuChengJiaoE = 56; // 所在市场的A股成交额(亿)
-  optional int64 BGuShangZhangJiaShu = 57; // 所在市场的B股上涨家数
-  optional int64 BGuXiaDieJiaShu = 58; // 所在市场的B股下跌家数
-  optional int64 BGuPingPanJiaShu = 59; // 所在市场的B股平盘家数
-  optional int64 BGuChengJiaoE = 60; // 所在市场的B股成交额(亿)
-  optional int64 JiJinShangZhangJiaShu = 61; // 所在市场的基金上涨家数
-  optional int64 JiJinXiaDieJiaShu = 62; // 所在市场的基金下跌家数
-  optional int64 JiJinPingPanJiaShu = 63; // 所在市场的基金平盘家数
-  optional int64 JiJinChengJiaoE = 64; // 所在市场的基金成交额(亿)
-  optional int64 QiTaShangZhangJiaShu = 65; // 所在市场的其他上涨家数
-  optional int64 QiTaXiaDieJiaShu = 66; // 所在市场的其他下跌家数
-  optional int64 QiTaPingPanJiaShu = 67; // 所在市场的其他平盘家数
-  optional int64 QiTaChengJiaoE = 68; // 所在市场的其他成交额(亿)
   optional int64 MaiRuDanShu = 69; // 买入单数
   optional int64 MaiChuDanShu = 70; // 卖出单数
   optional int64 FenZhongZhangFu1 = 77; // 1分钟涨幅
@@ -93,13 +77,6 @@ message StkData // ->MSG
   optional int64 ZhangTing = 83; // 涨停
   optional int64 DieTing = 84; // 跌停
   optional string ShiChangMingCheng = 85; // 所在市场的市场名称
-  optional string ShiChangDuanMingCheng = 86; // 所在市场的市场短名称
-  optional int64 JiGouChiHuoShu = 87; // 机构吃货数
-  optional int64 JiGouTuHuoShu = 88; // 机构吐货数
-  optional int64 JiGouChiHuoLiang = 89; // 机构吃货量
-  optional int64 JiGouTuHuoLiang = 90; // 机构吐货量
-  optional int64 JiGouChiHuoJunE = 91; // 机构吃货均额
-  optional int64 JiGouTuHuoJunE = 92; // 机构吐货均额
   optional int64 MeiShouGuShu = 93; // 每手股数
   optional int64 JiaoYiDanWei = 94; // 交易单位
   optional int64 ShiXiaoLv = 95; // 市销率
@@ -107,7 +84,6 @@ message StkData // ->MSG
   optional int64 ShiJingLv = 97;  // 市净率
   optional int64 ZongShiZhi = 98;  // 总市值
   optional int64 LiuTongShiZhi = 99;  // 流通市值
-
   optional int64 RiZhangFu5 = 101;  // 5日涨幅
   optional int64 RiPingJunZhangFu3 = 102;  //3日平均涨幅
   optional int64 JingTaiShiYingLv = 103; //静态市盈率
@@ -155,152 +131,6 @@ message StkData // ->MSG
   optional int64 DaDanLiuChuZongE5 = 143; //5日大单流出总额
   optional int64 DDXLianXuPiaoHongTianShu = 144; //连续飘红天数
 
-  // 指标相关字段
-  // MA
-  optional int64 MA1minMA1 = 200; // MA + 1min + MA1
-  optional int64 MA1minMA2 = 201; // MA + 1min + MA2
-  optional int64 MA1minMA3 = 202; // MA + 1min + MA3
-  optional int64 MA1minMA4 = 203; // MA + 1min + MA4
-  optional int64 MA1minMA5 = 204; // MA + 1min + MA5
-  optional int64 MA1minMA6 = 205; // MA + 1min + MA6
-  optional int64 MA5minMA1 = 206; // MA + 5min + MA1
-  optional int64 MA5minMA2 = 207; // MA + 5min + MA2
-  optional int64 MA5minMA3 = 208; // MA + 5min + MA3
-  optional int64 MA5minMA4 = 209; // MA + 5min + MA4
-  optional int64 MA5minMA5 = 210; // MA + 5min + MA5
-  optional int64 MA5minMA6 = 211; // MA + 5min + MA6
-  optional int64 MA1dayMA1 = 212; // MA + 1day + MA1
-  optional int64 MA1dayMA2 = 213; // MA + 1day + MA2
-  optional int64 MA1dayMA3 = 214; // MA + 1day + MA3
-  optional int64 MA1dayMA4 = 215; // MA + 1day + MA4
-  optional int64 MA1dayMA5 = 216; // MA + 1day + MA5
-  optional int64 MA1dayMA6 = 217; // MA + 1day + MA6
-  // BOLL
-  optional int64 BOLL1minMID = 218;   // BOLL + 1min + MID
-  optional int64 BOLL1minUPPER = 219; // BOLL + 1min + UPPER
-  optional int64 BOLL1minLOWER = 220; // BOLL + 1min + LOWER
-  optional int64 BOLL5minMID = 221;   // BOLL + 5min + MID
-  optional int64 BOLL5minUPPER = 222; // BOLL + 5min + UPPER
-  optional int64 BOLL5minLOWER = 223; // BOLL + 5min + LOWER
-  optional int64 BOLL1dayMID = 224;   // BOLL + 5min + MID
-  optional int64 BOLL1dayUPPER = 225; // BOLL + 5min + UPPER
-  optional int64 BOLL1dayLOWER = 226; // BOLL + 5min + LOWER
-  // VOL
-  optional int64 VOL1min = 227;    // VOL + 1min + _
-  optional int64 VOL1minMA1 = 228; // VOL + 1min + MA1
-  optional int64 VOL1minMA2 = 229; // VOL + 1min + MA2
-  optional int64 VOL1minMA3 = 230; // VOL + 1min + MA3
-  optional int64 VOL5min = 231;    // VOL + 5min + _
-  optional int64 VOL5minMA1 = 232; // VOL + 5min + MA1
-  optional int64 VOL5minMA2 = 233; // VOL + 5min + MA2
-  optional int64 VOL5minMA3 = 234; // VOL + 5min + MA3
-  optional int64 VOL1day = 235;    // VOL + 1day + _
-  optional int64 VOL1dayMA1 = 236; // VOL + 1day + MA1
-  optional int64 VOL1dayMA2 = 237; // VOL + 1day + MA2
-  optional int64 VOL1dayMA3 = 238; // VOL + 1day + MA3
-  // ARBR
-  optional int64 ARBR1minAR = 239; // ARBR + 1min + AR
-  optional int64 ARBR1minBR = 240; // ARBR + 1min + BR
-  optional int64 ARBR5minAR = 241; // ARBR + 5min + AR
-  optional int64 ARBR5minBR = 242; // ARBR + 5min + BR
-  optional int64 ARBR1dayAR = 243; // ARBR + 1day + AR
-  optional int64 ARBR1dayBR = 244; // ARBR + 1day + BR
-  // BIAS
-  optional int64 BIAS1minBIAS1 = 245; // BIAS + 1min + BIAS1
-  optional int64 BIAS1minBIAS2 = 246; // BIAS + 1min + BIAS2
-  optional int64 BIAS1minBIAS3 = 247; // BIAS + 1min + BIAS3
-  optional int64 BIAS5minBIAS1 = 248; // BIAS + 5min + BIAS1
-  optional int64 BIAS5minBIAS2 = 249; // BIAS + 5min + BIAS2
-  optional int64 BIAS5minBIAS3 = 250; // BIAS + 5min + BIAS3
-  optional int64 BIAS1dayBIAS1 = 251; // BIAS + 1day + BIAS1
-  optional int64 BIAS1dayBIAS2 = 252; // BIAS + 1day + BIAS2
-  optional int64 BIAS1dayBIAS3 = 253; // BIAS + 1day + BIAS3
-  // CCI
-  optional int64 CCI1min = 254; // CCI + 1min + _
-  optional int64 CCI5min = 255; // CCI + 5min + _
-  optional int64 CCI1day = 256; // CCI + 1day + _
-  // CJBS
-  optional int64 CJBS1minCJBS = 257; // CJBS + 1min + CJBS
-  optional int64 CJBS5minCJBS = 258; // CJBS + 5min + CJBS
-  optional int64 CJBS1dayCJBS = 259; // CJBS + 1day + CJBS
-  // CR
-  optional int64 CR1minCR = 260;  // CR + 1min + CR
-  optional int64 CR1minMA1 = 261; // CR + 1min + MA1
-  optional int64 CR1minMA2 = 262; // CR + 1min + MA2
-  optional int64 CR1minMA3 = 263; // CR + 1min + MA3
-  optional int64 CR5minCR = 264;  // CR + 5min + CR
-  optional int64 CR5minMA1 = 265; // CR + 5min + MA1
-  optional int64 CR5minMA2 = 266; // CR + 5min + MA2
-  optional int64 CR5minMA3 = 267; // CR + 5min + MA3
-  optional int64 CR1dayCR = 268;  // CR + 1day + CR
-  optional int64 CR1dayMA1 = 269; // CR + 1day + MA1
-  optional int64 CR1dayMA2 = 270; // CR + 1day + MA2
-  optional int64 CR1dayMA3 = 271; // CR + 1day + MA3
-  // DMA
-  optional int64 DMA1minDDD = 272; // DMA + 1min + DDD
-  optional int64 DMA1minAMA = 273; // DMA + 1min + AMA
-  optional int64 DMA5minDDD = 274; // DMA + 5min + DDD
-  optional int64 DMA5minAMA = 275; // DMA + 5min + AMA
-  optional int64 DMA1dayDDD = 276; // DMA + 1day + DDD
-  optional int64 DMA1dayAMA = 277; // DMA + 1day + AMA
-  // DMI
-  optional int64 DMI1minPDI = 278;  // DMI + 1min + PDI
-  optional int64 DMI1minMDI = 279;  // DMI + 1min + MDI
-  optional int64 DMI1minADX = 280;  // DMI + 1min + ADX
-  optional int64 DMI1minADXR = 281; // DMI + 1min + ADXR
-  optional int64 DMI5minPDI = 282;  // DMI + 5min + PDI
-  optional int64 DMI5minMDI = 283;  // DMI + 5min + MDI
-  optional int64 DMI5minADX = 284;  // DMI + 5min + ADX
-  optional int64 DMI5minADXR = 285; // DMI + 5min + ADXR
-  optional int64 DMI1dayPDI = 286;  // DMI + 1day + PDI
-  optional int64 DMI1dayMDI = 287;  // DMI + 1day + MDI
-  optional int64 DMI1dayADX = 288;  // DMI + 1day + ADX
-  optional int64 DMI1dayADXR = 289; // DMI + 1day + ADXR
-  // KDJ
-  optional int64 KDJ1minK = 290; // KDJ + 1min + K
-  optional int64 KDJ1minD = 291; // KDJ + 1min + D
-  optional int64 KDJ1minJ = 292; // KDJ + 1min + J
-  optional int64 KDJ5minK = 293; // KDJ + 5min + K
-  optional int64 KDJ5minD = 294; // KDJ + 5min + D
-  optional int64 KDJ5minJ = 295; // KDJ + 5min + J
-  optional int64 KDJ1dayK = 296; // KDJ + 1day + K
-  optional int64 KDJ1dayD = 297; // KDJ + 1day + D
-  optional int64 KDJ1dayJ = 298; // KDJ + 1day + J
-  // MACD
-  optional int64 MACD1minDIFF = 299; // MACD + 1min + DIFF
-  optional int64 MACD1minDEA = 300;  // MACD + 1min + DEA
-  optional int64 MACD1minMACD = 301; // MACD + 1min + MACD
-  optional int64 MACD5minDIFF = 302; // MACD + 5min + DIFF
-  optional int64 MACD5minDEA = 303;  // MACD + 5min + DEA
-  optional int64 MACD5minMACD = 304; // MACD + 5min + MACD
-  optional int64 MACD1dayDIFF = 305; // MACD + 1day + DIFF
-  optional int64 MACD1dayDEA = 306;  // MACD + 1day + DEA
-  optional int64 MACD1dayMACD = 307; // MACD + 1day + MACD
-  // OBV
-  optional int64 OBV1min = 308; // OBV + 1min + _
-  optional int64 OBV5min = 309; // OBV + 5min + _
-  optional int64 OBV1day = 310; // OBV + 1day + _
-  // PSY
-  optional int64 PSY1min = 311; // PSY + 1min + _
-  optional int64 PSY5min = 312; // PSY + 5min + _
-  optional int64 PSY1day = 313; // PSY + 1day + _
-  // RSI
-  optional int64 RSI1minRSI1 = 314; // RSI + 1min + RSI1
-  optional int64 RSI1minRSI2 = 315; // RSI + 1min + RSI2
-  optional int64 RSI1minRSI3 = 316; // RSI + 1min + RSI3
-  optional int64 RSI5minRSI1 = 317; // RSI + 5min + RSI1
-  optional int64 RSI5minRSI2 = 318; // RSI + 5min + RSI2
-  optional int64 RSI5minRSI3 = 319; // RSI + 5min + RSI3
-  optional int64 RSI1dayRSI1 = 320; // RSI + 1day + RSI1
-  optional int64 RSI1dayRSI2 = 321; // RSI + 1day + RSI2
-  optional int64 RSI1dayRSI3 = 322; // RSI + 1day + RSI3
-  // WR
-  optional int64 WR1minWR1 = 323; // WR + 1min + WR1
-  optional int64 WR1minWR2 = 324; // WR + 1min + WR2
-  optional int64 WR5minWR1 = 325; // WR + 5min + WR1
-  optional int64 WR5minWR2 = 326; // WR + 5min + WR2
-  optional int64 WR1dayWR1 = 327; // WR + 1day + WR1
-  optional int64 WR1dayWR2 = 328; // WR + 1day + WR2
   //DDX
   optional int64 DDXJinRi = 330; 
   optional int64 DDX60Ri = 331; 
@@ -310,28 +140,13 @@ message StkData // ->MSG
   optional int64 DDY5Ri = 335; 
   optional int64 DDZJinRi = 336;
 
-
   // 股票信息
   optional int64 LeiXing = 400;               // 类型
   optional int64 ZiLeiXing = 401;             // 子类型
   optional string LeiXingMingCheng = 402;     // 类型名称
   optional int64 ChengJiaoLiangDanWei = 403; // 成交量单位
 
-  optional string MaBiao = 410;  //市场码表
-
-   // 分级基金
-  optional int64 FJJJLeiXing  = 501; // 分级基金类型
-
-  optional int64 ZhengTiYiJia     = 502; // 整体溢价
-  optional int64 MYiJia           = 551; //母基金溢价
-  optional int64 MShiShiJingZhi   = 552; // 母基金实时净值
-  optional int64 MShangZheXuZhang = 553; // 上折母基需涨
-  optional int64 MXiaZheXuDie     = 554; // 下折母基需跌
-  optional int64 YinHanShouYi     = 511; // 隐含收益，仅A基金
-  optional int64 JiaGeGangGan     = 512; // 价格杠杆，仅B基金
-
   //财务数据
-    optional string PinZhongObj = 601;                  // 品种Obj CO
     optional string BaoGaoQi = 602;              // 报告期YYYYMMDDttmmss EndDate
     optional string ShangShiRiQi = 603;             // 上市日期YYYYMMDDttmmss C35
     optional int64 MeiGuShouYi = 604;               // 每股收益 C3   
@@ -383,21 +198,7 @@ message StkData // ->MSG
     optional int64 JingWaiZiRanRenGu = 650;   // 境外自然人股 C49
     optional int64 YouXianGuHuoQiTa = 651;  // 优先股或其他 C50    
 
-  // Level2统计数据
-    optional int64  WeiTuoMaiRu          = 700; // 委托单买入数量
-    optional int64  WeiTuoMaiChu         = 701; // 委托单卖出数量
-    optional int64  MaiRuZhongDanBiLi    = 702; // 买入中单比例
-    optional int64  MaiRuDaDanBiLi       = 703; // 买入大单比例
-    optional int64  MaiRuTeDaDanBiLi     = 704; // 买入特大单比例
-    optional int64  MaiChuZhongDanBiLi   = 705; // 卖出中单比例
-    optional int64  MaiChuDaDanBiLi      = 706; // 卖出大单比例
-    optional int64  MaiChuTeDaDanBiLi    = 707; // 卖出特大单比例
-    optional int64  DuanXianMaiRu        = 708; // 短线精灵买入大单统计
-    optional int64  DuanXianMaiChu       = 709; // 短线精灵卖出大单统计
-    optional int64  DuanXianChiHuo       = 710; // 短线精灵吃货大单统计
-    optional int64  DuanXianTuHuo        = 711; // 短线精灵吐货大单统计
-
-        //市场动态
+    //市场动态
     optional int64 BiShi = 801; //闭市 (休市)
 
     //领涨股
@@ -412,7 +213,6 @@ message StkData // ->MSG
     optional int64 KaiPing = 1006;                // 开平
     optional int64 JieSuanZhangDie = 1007;                    //结算价涨跌
     optional int64 JieSuanZhangFu = 1008;                    //结算价涨幅
-    //
     optional int64  RongZiMaiRuE = 1009; //融资买入额
     optional int64  RongZiRongQuanBiaoJi = 1010; //融资融券标记
     optional int64  ZiJinJingE = 1011; //板块资金净流入
@@ -429,7 +229,6 @@ message StkData // ->MSG
     optional int64 PanKouBianHuaMaiRu8 = 1022;   //盘口变化买入8
     optional int64 PanKouBianHuaMaiRu9 = 1023;   //盘口变化买入9
     optional int64 PanKouBianHuaMaiRu10 = 1024;   //盘口变化买入10
-
     optional int64 PanKouBianHuaMaiChu1 = 1025;   //盘口变化卖出1
     optional int64 PanKouBianHuaMaiChu2 = 1026;   //盘口变化卖出2
     optional int64 PanKouBianHuaMaiChu3 = 1027;   //盘口变化卖出3
@@ -441,10 +240,174 @@ message StkData // ->MSG
     optional int64 PanKouBianHuaMaiChu9 = 1033;   //盘口变化卖出9
     optional int64 PanKouBianHuaMaiChu10 = 1034;  //盘口变化卖出10
 
-    //焦点股票
-    optional int64 ShiFouGuanZhu = 1100; //是否关注
     optional int64 XuHao = 1101;  //排序序号
     optional int64 XiaoShuWei = 1102;  //小数位
 
+	//个股涨幅
+	optional int64   DangZhouZhangFu = 1301; //当周涨幅
+	optional int64   DangYueZhangFu  = 1302; //当月涨幅
+	optional int64   DangNianZhangFu = 1303; //当年涨幅
 
+	optional int64   JingJiaWeiMaiRuChe = 1304; //委买撤
+	optional int64   JingJiaWeiMaiChuChe = 1305; //委卖撤
+	optional int64   JingJiaHuanShou = 1306; // 预计换手率
+	optional int64   JingJiaZhangSu = 1307; //竞价涨速
+	optional int64   JingJiaMaiRuDanShu = 1308; //主力买入单数
+	optional int64   JingJiaMaiChuDanShu = 1309; //主力卖出单数
+	optional int64   JingJiaDanShuChaZhi = 1310; //主力成交单差
+	optional int64   JingJiaMaiRuE = 1311; //主力买入成交额
+	optional int64   JingJiaMaiChuE = 1312; //主力卖出成交额
+	optional int64   JingJiaEChaZhi = 1313; //主力成交额差
+	
+	//科创板盘后15:00个股交易数据
+	optional int64	PanHouShiJian                     = 1332;	//时间
+	optional int64	PanHouChengJiaoLiang              = 1333; //成交量
+	optional int64 	PanHouChengJiaoE                  = 1334; //成交额
+	optional int64 	PanHouZuiXinJia 				  = 1335; //最新价
+	optional int64  PanHouWeiTuoMaiRuJia              = 1336; //委托买入价                                           
+	optional int64  PanHouWeiTuoMaiRuLiang            = 1337; //委托买入量
+	optional int64  PanHouWeiTuoMaiChuJia             = 1338; //委托卖出价
+	optional int64  PanHouWeiTuoMaiChuLiang           = 1339; //委托卖出量
+	optional string PanHouJiaoYiZhuangTai			  = 1340; //交易状态
+	optional int64  PanHouCengJiaoBiShu    		      = 1341; //成交笔数
+	optional int64	PanHouWeiTuoMaiRuBiShu			  = 1342; //委买笔数
+	optional int64	PanHouWeiTuoMaiRuCheDanBiShu	  = 1343; //买方撤单笔数
+	optional int64	PanHouWeiTuoMaiChuBiShu	 	      = 1344; //委卖笔数
+	optional int64	PanHouWeiTuoMaiChuCheDanBiShu	  = 1345; //卖方撤单笔数
+	optional int64	PanHouWeiTuoMaiRuZongLiang	 	  = 1346; //委托买入总量
+	optional int64	PanHouWeiTuoMaiRuCheDanZongLiang  = 1347; //买方撤单总量
+	optional int64	PanHouWeiTuoMaiChuZongLiang       = 1348; //委托卖出总量
+	optional int64	PanHouWeiTuoMaiChuCheDanZongLiang = 1349; //卖方撤单总量
+	
+	//科创板的相关标记信息
+	optional int32 KuoZhanLeiXing = 1350; // 扩展类型
+	
+	optional int64 RiZhangFu10 = 1351;  // 10日涨幅
+	optional int64 RiZhangFu20 = 1352;  // 20日涨幅
+}
+
+
+message QuoteDynaInfo // ->MSG
+{
+	required string Obj = 1; 						//股票代码
+  	optional int64 ShiJian = 2; 					//时间
+  	optional string ZhongWenJianCheng = 3; 			//名称
+	optional int32 ShiFouTingPai = 4; 				//是否停牌1:是，0:否
+	//动态行情
+  	optional int64 ZuiXinJia = 5; 					//最新价
+  	optional int64 KaiPanJia = 6; 					//今开
+  	optional int64 ZuiGaoJia = 7; 					//最高
+  	optional int64 ZuiDiJia = 8; 					//最低
+  	optional int64 ZuoShou = 9; 					//昨收
+  	optional int64 JunJia = 10; 					//均价
+  	optional int64 ZhangDie = 11; 					//涨跌
+  	optional int64 ZhangFu = 12; 					//涨幅
+    optional int64 ZhenFu = 13; 					//振幅
+    optional int64 ChengJiaoLiang = 14; 			//总手-总成交量，单位股
+    optional int64 XianShou = 15; 					//现手-最新一笔交量，单位股
+    optional int64 ChengJiaoE = 16; 				//总成交额
+    optional int64 ZongChengJiaoBiShu = 17; 		//总成交笔数
+    optional int64 MeiBiChengJiaoGuShu = 18; 		//每笔成交股数
+    optional int64 HuanShou = 19; 					//换手,千分比
+    optional int64 LiangBi = 20; 					//量比,千分比
+    optional int64 NeiPan = 21; 					//内盘
+    optional int64 WaiPan = 22; 					//外盘
+	//lv2数据
+    optional int64 ZongMaiRu = 23; 					//总买
+    optional int64 ZongMaiChu = 24; 				//总卖
+    optional int64 ZongMaiRuJunJia = 25; 			//总买均价
+    optional int64 ZongMaiChuJunJia = 26; 			//总卖均价
+    optional int64 ZhangTing = 27;                  //涨停
+    optional int64 DieTing = 28;                    //跌停
+    optional int64 FenZhongZhangFu1 = 29;          	//1分钟涨幅
+    optional int64 FenZhongZhangFu2 = 30;          	//2分钟涨幅
+    optional int64 FenZhongZhangFu3 = 31;          	//3分钟涨幅
+    optional int64 FenZhongZhangFu4 = 32;          	//4分钟涨幅
+    optional int64 FenZhongZhangFu5 = 33;          	//5分钟涨幅
+    //买卖盘
+    optional int64 WeiTuoMaiRuJia1 = 34;  			//委托买入价1
+    optional int64 WeiTuoMaiRuLiang1 = 35;   		//委托买入量1，单位股
+    optional int64 WeiTuoMaiRuJia2 = 36;     		//委托买入价2
+    optional int64 WeiTuoMaiRuLiang2 = 37;   		//委托买入量2，单位股
+    optional int64 WeiTuoMaiRuJia3 = 38;     		//委托买入价3
+    optional int64 WeiTuoMaiRuLiang3 = 39;   		//委托买入量3，单位股
+    optional int64 WeiTuoMaiRuJia4 = 40;     		//委托买入价4
+    optional int64 WeiTuoMaiRuLiang4 = 41;  		//委托买入量4，单位股
+    optional int64 WeiTuoMaiRuJia5 = 42;    		//委托买入价5
+    optional int64 WeiTuoMaiRuLiang5 = 43;  		//委托买入量5，单位股
+    optional int64 WeiTuoMaiChuJia1 = 44;   		//委托卖出价1
+    optional int64 WeiTuoMaiChuLiang1 = 45; 		//委托卖出量1，单位股
+    optional int64 WeiTuoMaiChuJia2 = 46;   		//委托卖出价2
+    optional int64 WeiTuoMaiChuLiang2 = 47; 		//委托卖出量2，单位股
+    optional int64 WeiTuoMaiChuJia3 = 48;   		//委托卖出价3
+    optional int64 WeiTuoMaiChuLiang3 = 49; 		//委托卖出量3，单位股
+    optional int64 WeiTuoMaiChuJia4 = 50;   		//委托卖出价4
+    optional int64 WeiTuoMaiChuLiang4 = 51; 		//委托卖出量4，单位股
+    optional int64 WeiTuoMaiChuJia5 = 52;   		//委托卖出价5
+    optional int64 WeiTuoMaiChuLiang5 = 53; 		//委托卖出量5，单位股
+    optional int64 WeiBi = 54;   					//委比
+    optional int64 WeiCha = 55; 					//委差
+    //扩展买卖盘 /quote/dynaex 服务专用字段
+    optional int64 JiaQuanPingJunWeiTuoMaiRuJia = 56; 	//加权平均委买价格
+    optional int64 WeiTuoMaiRuZongLiang = 57;           //委买总量
+    optional int64 JiaQuanPingJunWeiTuoMaiChuJia = 58;  //加权平均委卖总量
+    optional int64 WeiTuoMaiChuZongLiang = 59;          //委卖总量
+    optional int64 KuoZhanMaiRuJia1 = 60;        		//委买价1
+    optional int64 KuoZhanMaiRuJia2 = 61;        		//委买价2
+    optional int64 KuoZhanMaiRuJia3 = 62;        		//委买价3
+    optional int64 KuoZhanMaiRuJia4 = 63;        		//委买价4
+    optional int64 KuoZhanMaiRuJia5 = 64;        		//委买价5
+    optional int64 KuoZhanMaiRuLiang1 = 65; 			//委买量1
+    optional int64 KuoZhanMaiRuLiang2 = 66; 			//委买量2
+    optional int64 KuoZhanMaiRuLiang3 = 67; 			//委买量3
+    optional int64 KuoZhanMaiRuLiang4 = 68; 			//委买量4
+    optional int64 KuoZhanMaiRuLiang5 = 69; 			//委买量5
+    optional int64 KuoZhanMaiChuJia1 = 70;      		//委卖价1
+    optional int64 KuoZhanMaiChuJia2 = 71;      		//委卖价2
+    optional int64 KuoZhanMaiChuJia3 = 72;      		//委卖价3
+    optional int64 KuoZhanMaiChuJia4 = 73;      		//委卖价4
+    optional int64 KuoZhanMaiChuJia5 = 74;      		//委卖价5
+    optional int64 KuoZhanMaiChuLiang1 = 75;    		//委卖量1
+    optional int64 KuoZhanMaiChuLiang2 = 76;    		//委卖量2
+    optional int64 KuoZhanMaiChuLiang3 = 77;    		//委卖量3
+    optional int64 KuoZhanMaiChuLiang4 = 78;    		//委卖量4
+    optional int64 KuoZhanMaiChuLiang5 = 79;    		//委卖量5
+    //期货特有
+    optional int64 ChiCang = 80;                //持仓
+    optional int64 ZengCang = 81;               //增仓
+    optional int64 RiZeng = 82;                 //日增
+    optional int64 JieSuanJia = 83;             //结算价
+    optional int64 ZuoRiJieSuanJia = 84;        //昨日结算价
+    optional int64 KaiPing = 85;                //开平
+    optional int64 JieSuanZhangDie = 86;        //结算价涨跌
+    optional int64 JieSuanZhangFu = 87;         //结算价涨幅
+    //盘口变化
+    optional int64 PanKouBianHuaMaiRu1 = 88;  	//盘口变化买入1
+    optional int64 PanKouBianHuaMaiRu2 = 89;  	//盘口变化买入2
+    optional int64 PanKouBianHuaMaiRu3 = 90;  	//盘口变化买入3
+    optional int64 PanKouBianHuaMaiRu4 = 91;  	//盘口变化买入4
+    optional int64 PanKouBianHuaMaiRu5 = 92;  	//盘口变化买入5
+    optional int64 PanKouBianHuaMaiRu6 = 93;   	//盘口变化买入6
+    optional int64 PanKouBianHuaMaiRu7 = 94;   	//盘口变化买入7
+    optional int64 PanKouBianHuaMaiRu8 = 95;   	//盘口变化买入8
+    optional int64 PanKouBianHuaMaiRu9 = 96;   	//盘口变化买入9
+    optional int64 PanKouBianHuaMaiRu10 = 97;   //盘口变化买入10
+    optional int64 PanKouBianHuaMaiChu1 = 98;   //盘口变化卖出1
+    optional int64 PanKouBianHuaMaiChu2 = 99;   //盘口变化卖出2
+    optional int64 PanKouBianHuaMaiChu3 = 100;  //盘口变化卖出3
+    optional int64 PanKouBianHuaMaiChu4 = 101;  //盘口变化卖出4
+    optional int64 PanKouBianHuaMaiChu5 = 102;  //盘口变化卖出5
+    optional int64 PanKouBianHuaMaiChu6 = 103;  //盘口变化卖出6
+    optional int64 PanKouBianHuaMaiChu7 = 104;  //盘口变化卖出7
+    optional int64 PanKouBianHuaMaiChu8 = 105;  //盘口变化卖出8
+    optional int64 PanKouBianHuaMaiChu9 = 106;  //盘口变化卖出9
+    optional int64 PanKouBianHuaMaiChu10 = 107; //盘口变化卖出10
+    //财务数据+最新价计算 目前只支持沪深股票
+    optional int64 JingNeiZongShiZhi = 108;  	// 境内总市值
+    optional int64 ShiXiaoLv = 109; 			// 市销率
+  	optional string BaoGaoQi = 110; 			// 时间
+  	optional int64 ShiJingLv = 111;  			// 市净率
+  	optional int64 ZongShiZhi = 112;  			// 总市值
+  	optional int64 LiuTongShiZhi = 113;  		// 流通市值
+  	optional int64 ShiYingLv = 114; 			// 市盈率
 }

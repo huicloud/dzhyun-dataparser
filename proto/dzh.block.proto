@@ -12,3 +12,21 @@ message BlockPropOutput // ->MSG
 {
     repeated string name = 1;
 }
+message IndustryBlock // ->MSG
+{
+    required string Industry = 1;//行业或分类
+	repeated string BlockList = 2; //对应行业或分类下的板块列表
+	repeated string BlockInterList = 3;//大智慧云平台内部板块唯一标识，用于其它服务的板块查询
+}
+
+//个股行业概念输出结构
+message ObjIndustryConcepts // ->MSG
+{
+    optional string     Obj = 1;//股票代码
+    optional InnerBlock Industry = 2;//行业
+    repeated InnerBlock Concepts = 3;//所属概念
+    message InnerBlock {
+        optional string Obj = 1;//行业id或概念id
+        optional string ObjName = 2; //行业名称或概念名称
+    }
+}

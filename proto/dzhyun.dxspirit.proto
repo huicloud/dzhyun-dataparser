@@ -10,9 +10,11 @@ option java_package = "com.dzhyun.proto";
 message DXSpirit // ->MSG
 {
   required int64 ShiJian = 1;  // 时间
-  optional string Obj = 2; // 
+  optional string Obj = 2; //
   optional string TongZhi = 3;//通知编号
   optional int64   ShuJu = 4;//显示数据
+  optional string ObjName = 5; //股票名称 
+  optional int32 XuHao = 6; //序列号
 }
 
 //通知编号,数值,依次递增 

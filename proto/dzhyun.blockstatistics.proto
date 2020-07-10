@@ -49,3 +49,17 @@ message TongJiApp{ // ->MSG
 	optional int64 JunJia = 12; //均价
 	optional int64 JiaQuanJunJia = 13; //加权均价
 }
+
+/* 涨跌统计 */
+message ZdStatistics {  //->MSG
+	optional string Block = 1; 		// 板块名
+    optional string Date = 2;      // 日期 
+    optional uint64 ZhangTingShu = 3;      // 涨停家数
+	optional uint64 DieTingShu  = 4;    // 跌停家数
+	optional uint64 ShangZhangShu  = 5;    // 上涨家数
+	optional uint64 XiaDieShu  = 6;    // 下跌家数
+	optional uint64 PingPanShu  = 7;    // 平盘家数
+	optional uint64 YzZhangTingShu = 8;      // 一字涨停家数
+	optional uint64 YzDieTingShu  = 9;    // 一字跌停家数
+	repeated uint64 Data = 10;       // 涨幅数据
+ }

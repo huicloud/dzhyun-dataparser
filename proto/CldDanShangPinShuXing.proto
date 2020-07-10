@@ -1,7 +1,7 @@
 package dzhyun;
 
 option java_package = "com.dzhyun.proto";
-
+import "dzhyun.static.proto";
 
 /* 单商品-单商品属性 */
 message DanShangPinShuXing {
@@ -16,12 +16,16 @@ message DanShangPinShuXing {
 	optional int32 shangShiZhuangTai = 9;		// 上市状态 C30 (0:上市,1:未上市,2:暂停上市)
 	optional string zhengQuanLeiBie = 10;		// 证券类别 C37 
 	optional int32 tingPai = 11;                // 停牌 dzh_stock.tEQ9112.C5 
+	optional int32 isInStk = 12;                // 该obj在行情中是否存在，1存在，0不存在
+	optional int32  leiXing = 13;				// 类型 1->指数、2->股票、3->基金、4->债券...
+	optional int32 	meiShouGuShu = 14;			// 交易单位; 如:A股:100, 港股:1
+	optional Static static =15; 				// 码表属性
 }
 
-/* 市场交易日期列表(最近两年) */
-message MarketTradeDate {
+/* 市场交易日期列表*/
+message MarketTradeDate { //->MSG
 	required string Market = 1;        // 交易市场
-	repeated string TradeDate = 2;     //　最近两年可交易日期列表
+	repeated string TradeDate = 2;     // 交易日期列表
 }
 
 /* 期货基本信息 */
@@ -59,3 +63,75 @@ message NewStockInfo {//->MSG
 	optional string IncreaseTotal = 20; //总涨幅(一字板打开时的)
 }
 
+/* 获取标的信息 */
+message SecurityInfo {//->MSG
+	required string Code = 1;		// 代码 如:SH600000
+	optional string Cname = 2;		// 中文名 如:浦发银行
+	optional string Ename = 3;		// 英文简称或拼音缩写
+	optional int32 	Precision = 4;	// 价格单位小数精度
+	optional int32  Type = 5;		// 类型
+	optional int32 	TradeUnit = 6;	// 交易单位; 如:A股:100, 港股:1
+	optional string StartDate = 7;	// 上市日期
+	optional string EndDate = 8;	// 退市日期
+	optional int32 	Status = 9;		// 上市状态 0:上市 1:未上市 2:暂停上市
+	optional int32  IsInStk = 10;    // 该obj在行情中是否存在，1存在，0不存在
+
+}
+
+/* 属性信息 */
+message PropertyInfo {//->MSG
+	required string Obj = 1;	               	//股票代码
+	optional string ShangShiShiJian = 2;	   	//上市时间 格式:19991110
+	optional string TuiShiShiJian = 3;	       	//退市时间 格式:19991110
+	optional int32 	ShangShiZhuangTai = 4;	   	//上市状态 0:上市 1:未上市 2:暂停上市
+	optional string ZhongWenJianCheng = 5;	   	//中文简称
+	optional string YingWenQuanCheng = 6;	   	//英文简称
+	optional int32 LeiXing = 7;	           		//类型 0:指数,1:股票,2:基金,3:债券,4:其它股票,5:选择权,6:外汇,7:期货,8:期指,9:认购证,10:ETF,11:LOF,12:可转债,13:信托,14:权证,15:回购,16:B股,17:商品现货,18:出入库
+	optional int32 ZiLeiXing = 8;	           	//子类型 'A':A股,仅对STOCK,WARRANT有效,'B':B股,仅对STOCK,WARRANT有效,'G':国债,仅对BOND有效,'O':企业债,仅对BOND有效,'F':金融债,仅对BOND有效
+	optional int32 XiaoShuWei = 9;	           	//价格单位小数精度
+	optional int32 ChengJiaoLiangDanWei = 10;   //成交量单位 如:A股:100, 港股:1
+	optional int32 TingPai = 11;	           	//是否停牌 0未停牌，1停牌
+	optional int32 CunZaiMaoBiao = 12;	       	//是否存在于码表 1是，0否
+	optional double ZuoShou = 13;	           	//昨收
+	optional double ZhangTing = 14;	       		//涨停
+	optional double DieTing = 15;	           	//跌停
+	optional int32 TradeTimeNum = 16;	       	//交易时间数
+	repeated TradeTime TradeTimes = 17;	       	//交易时间列表
+	repeated JiaoYiRiQi JiaoYiRiQis = 18;   	//交易时期
+	optional uint64  ZuoChiCang = 19;	        //昨持仓
+	optional double ZuoJieSuan = 20;	      	//昨结算 
+	optional int32 KuoZhanLeiXing = 21;	      	//扩展类型                
+}
+
+/* 停牌信息数据部分 */
+message StockSuspensInfo {
+	optional string REMINDERDATE = 1;		// 提示日期  varchar(8)  
+	optional string REMINDERSIGN = 2;		// 提示标记  varchar(20)  0111006 单日停牌,0111003 连续停牌
+	optional string PUBLISHDATE = 3;		// 公告日期  varchar(8)  
+	optional string SESNAME = 4;			// 证券简称  varchar(100)  
+	optional string  REMINDERMEMO = 5;		// 提示信息备注  varchar(5000)           
+}
+
+/* 停牌信息 */
+message StockSuspensOutput {//->MSG
+    required string Obj = 1; 	//SYMBOL  证券代码  varchar(20)  
+    repeated StockSuspensInfo Data = 2;
+}
+
+/* 股票简称变更数据部分 */
+message StockNameChangedInfo {
+	optional string REMINDERDATE = 1;		// 提示日期  varchar(8)  
+	optional string PUBLISHDATE = 2;		// 公告日期  varchar(8)  
+	optional string SESNAME = 3;			// 证券简称  varchar(100)  
+	optional string REMINDERMEMO = 4;		// 提示信息备注  varchar(5000)  存储时使用 
+	optional string BEFORECHANGE = 5; 		// 变动前简称 string
+	optional string AFTERCHANGE = 6;        // 变动后简称 string
+	optional string CHANGECAUSE = 7;        // 变动原因 string
+	optional string CHANGEDATE = 8;         // 变动日期 string
+}
+
+/*  股票简称变更信息 */
+message StockNameChangedOutput {//->MSG
+    required string Obj = 1; 	//SYMBOL  证券代码  varchar(20)  
+    repeated StockNameChangedInfo Data = 2;
+}

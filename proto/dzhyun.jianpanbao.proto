@@ -12,6 +12,10 @@ enum JPBLeiXing {
     TYPE_BLKOBJ = 4;//block obj
     TYPE_TOPICANALY = 5;//topic analysis
     TYPE_OBJPHONE = 6;//topic phone
+	TYPE_OBJATFUND = 7; //股票所在基金
+	TYPE_OBJATBLOCK = 8; //股票所在板块
+  TYPE_HKBROKER = 9; //经纪队列名称
+  TYPE_ISSUESQL = 10; //sql数据
 }
 
 message JPBShuJu {

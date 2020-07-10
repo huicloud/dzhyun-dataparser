@@ -1,0 +1,67 @@
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+message TradeTime
+{
+	optional int64 StartTime = 1; // starttime
+	optional int64 EndTime = 2; // endtime
+}
+
+message JiaoYiRiQi
+{
+     optional int64 StartRiqi = 1; // starttime
+     optional int64 EndRiqi = 2; // endtime
+}
+
+message Static // ->MSG
+{
+	required string Obj = 1;
+	optional string ZhongWenJianCheng = 2; // stkname
+	optional int64 LeiXing = 3; // type
+	optional int64 ZiLeiXing = 4; // subtype
+	optional int64 XiaoShuWei = 5; // pricedigit
+	optional int64 MeiShouGuShu = 6; // volunit
+	optional int64 LiuTongGuBen = 7; // floatissued
+	optional int64 ZongGuBen = 8; // totalissued
+	optional int64 ZuoShou = 9; // lastclose
+	optional int64 ZhangTing = 10; // advstop
+	optional int64 DieTing = 11; // decstop
+	optional int64 TradeTimeNum = 12; // tradetimenum
+	repeated TradeTime TradeTimes = 13; // TradeTime
+	repeated JiaoYiRiQi JiaoYiRiQis = 14; // jiaoyiriqi
+    optional int64 ZuoChiCang = 15; // zuochicang
+    optional int64 ZuoJieSuan = 16; // zuojiesuan
+    optional int64 GupiaoShuxing = 17; // gupiaoshuxing
+	optional int64 JiaoYiDanWei = 18; //jiaoyidanwei
+	optional int64 JiHeJingJiaDianShu = 19; //jihejingjiadianshu
+}
+
+message StaticTable
+{
+	repeated Static Rows = 1;
+}
+
+message FenshiStatic
+{
+	required string Obj = 1;
+	optional string ZhongWenJianCheng = 2; // stkname
+	optional int64 LeiXing = 3; // type
+	optional int64 ZiLeiXing = 4; // subtype
+	optional int64 XiaoShuWei = 5; // pricedigit
+	optional int64 MeiShouGuShu = 6; // volunit
+	optional int64 LiuTongGuBen = 7; // floatissued
+	optional int64 ZongGuBen = 8; // totalissued
+	optional int64 ZuoShou = 9; // lastclose
+	optional int64 ZhangTing = 10; // advstop
+	optional int64 DieTing = 11; // decstop
+	optional int64 TradeTimeNum = 12; // tradetimenum
+	repeated TradeTime TradeTimes = 13; // TradeTime
+	repeated JiaoYiRiQi JiaoYiRiQis = 14; // jiaoyiriqi
+     optional int64 ZuoChiCang = 15; // zuochicang
+     optional int64 ZuoJieSuan = 16; // zuojiesuan
+     optional int64 GupiaoShuxing = 17; // gupiaoshuxing
+     optional int64 RiQi = 18; // gupiaoshuxing
+     optional int64 ShiQu = 19; // gupiaoshuxing
+}
+

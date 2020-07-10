@@ -114,3 +114,94 @@ message InnerReportDataItem {
 	required int64 Version = 1;				  // 研报版本号
 	optional ReportDataItem Data = 2;         // 研报数据
 }
+
+/* 资讯类输出结构 */
+message MobileNews {           //->MSG
+	optional string summary  =1;
+	optional string id  =2;
+	optional string stockcode  =3;
+	optional string title =4;
+	optional string otime =5;
+	optional string source =6;
+	optional string stockname =7;
+	optional string img =8;
+	optional string type  =9;
+	optional string url  =10;
+	optional string output = 11;//输出文件格式
+}
+
+/* 新闻 */
+/* 个股新闻 */
+message StockNewsV2 {  //->MSG
+	optional string Obj = 1; 		// 股票代码
+    optional uint64 NewsId = 2;      // 新闻ID
+    optional string Date = 3;       // 新闻日期 
+    optional string Title = 4;      // 新闻标题
+	optional string Source  = 5;    // 新闻来源
+	optional string ContentUrl = 6;	// 新闻内容url
+}
+
+ /* 分类新闻*/
+message NewsCenterV2 {  //->MSG
+	optional uint64 ClassId = 1;     // 新闻分类ID
+    optional uint64 NewsId = 2;      // 新闻ID
+    optional string Date = 3;       // 新闻日期 
+    optional string Title = 4;      // 新闻标题
+	optional string Source  = 5;    // 新闻来源
+	optional string ContentUrl = 6;	// 新闻内容url
+}
+
+/* 新闻内容 */
+message NewsContent {  //->MSG
+	optional int64 NewsId = 1;      // 新闻ID
+	optional string Date = 2;       // 新闻日期 
+    optional string Title = 3;      // 新闻标题
+	optional string Source  = 4;    // 新闻来源
+    optional string Context = 5;    // 新闻内容
+}
+
+/* 盯盘小秘书 */
+message NewsSecretary {  //->MSG
+	optional string Title = 1;      // 新闻标题
+	optional string Date = 2;       // 新闻日期 
+	optional string Url = 3;        // 新闻url
+}
+
+/* 个股行业新闻 */
+message StockIndustryNews {  //->MSG
+	optional string Obj = 1; 		// 股票代码
+    optional uint64 NewsId = 2;      // 新闻ID
+    optional string Date = 3;       // 新闻日期 
+    optional string Title = 4;      // 新闻标题
+	optional string Source  = 5;    // 新闻来源
+	optional string ContentUrl = 6;	// 新闻内容url
+}
+
+/* 公告 */
+/* 个股公告 */
+message StockAnnouncemtV2 {  //->MSG
+	optional string Obj = 1;                //股票代码
+    optional string Date = 2;               // 公告日期
+    optional uint64 AnnouncemId = 3;         // 公告唯一ID
+    optional string Title = 4;              // 公告标题
+	optional string Context = 5;            // pdf文件下载url
+	optional string ContentUrl = 6;			// 公告内容摘要url
+}   
+
+/* 公告中心 */
+message AnnouncemtCenterV2 {  //->MSG
+	optional string Date = 1;               // 公告日期
+    optional uint64 AnnouncemId = 2;         // 公告唯一ID
+    optional string Title = 3;              // 公告标题
+	optional string Context = 4;            // pdf文件下载url
+	optional string ContentUrl = 5;			// 公告内容摘要url
+}
+
+/* 公告内容摘要 */
+message AnnouncemtContent {  //->MSG
+	optional uint64 AnnouncemId = 1;      // 公告ID
+	optional string Date = 2;       // 公告日期 
+	optional string Title = 3;      // 公告标题
+	optional string ContextUrl = 4;    // pdf文件下载url
+    optional string Context = 5;    // 公告内容摘要
+}

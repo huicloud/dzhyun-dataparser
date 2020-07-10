@@ -1,3 +1,4 @@
+syntax = "proto2";
 package dzhyun;
 
 option java_package = "com.dzhyun.proto";
@@ -5,74 +6,25 @@ option java_package = "com.dzhyun.proto";
 import "dzhyun.gupiaoqiepian.proto";
 import "dzhyun.gupiaolianxu.proto";
 import "dzhyun.zhubi.proto";
+import "dzhyun.hkdyna.proto";
 
 // 动态行情
-
-message QuoteDyna
-{
-    optional int32 Time = 1;
-    optional float LastClose = 2;
-    optional float High = 3;
-    optional float Open = 4;
-    optional float Low = 5;
-    optional float New = 6;
-    optional float Volume = 7;
-    optional float Amount = 8;
-}
-
 message QuoteDynaSingle // ->MSG
 {
     required string Obj = 1;
     optional GeGuDongTai Data = 2;
 }
 
-message QuoteDynaOutput
-{
-    repeated QuoteDynaSingle Results = 1;
-}
 
 // K线
-
-message QuoteKline
-{
-    optional int32 Time = 1;
-    optional float High = 2;
-    optional float Open = 3;
-    optional float Low = 4;
-    optional float Close = 5;
-    optional float Volume = 6;
-    optional float Amount = 7;
-    optional int32 TickCount = 8;      // 成交笔数
-    optional int32 Advance = 9;        // 上涨家数
-    optional int32 Decline = 10;       // 下跌家数
-}
-
 message QuoteKlineSingle // ->MSG
 {
     required string Obj = 1;
     repeated KXian Data = 2;
 }
 
-message QuoteKlineOutput
-{
-    repeated QuoteKlineSingle Results = 1;
-}
 
 //分笔
-message QuoteTick
-{
-    optional int32 Time = 1;
-    optional float Price = 2;
-    optional float Volume = 3;
-    optional float Amount = 4;
-    optional int32 TickCount = 5;
-    repeated float BuyPrice = 6;
-    repeated float BuyVolume = 7;
-    repeated float SellPrice = 8;
-    repeated float SellVolume = 9;
-    optional int32 Outter = 10;
-}
-
 message QuoteTickSingle // ->MSG
 {
     required string Obj = 1;
@@ -80,25 +32,7 @@ message QuoteTickSingle // ->MSG
     optional int64 QingPan = 3;
 }
 
-message QuoteTickOutput
-{
-    repeated QuoteTickSingle Results = 1;
-}
-
 //分时
-message QuoteMin
-{
-    optional int32 Time = 1;
-    optional float Price = 2;
-    optional float Volume = 3;
-    optional float Amount = 4;
-    optional int32 TickCount = 5;
-    repeated float BuyPrice = 6;
-    repeated float BuyVolume = 7;
-    repeated float SellPrice = 8;
-    repeated float SellVolume = 9;
-}
-
 message QuoteMinSingle // ->MSG
 {
     message JiaoYiShiJianDuanJieGou 
@@ -107,6 +41,7 @@ message QuoteMinSingle // ->MSG
         optional int64 JieShuShiJian = 2;
         optional int64 KaiShiRiQi = 3;
         optional int64 JieShuRiQi = 4;
+		optional int32 PanHouShiJiaDuan = 5; //15:00~15:30盘后时间段(科创板专用)
     }
 
     required string Obj = 1;
@@ -119,11 +54,6 @@ message QuoteMinSingle // ->MSG
     optional int64 QingPan = 8;
     optional int64 ZuoRiJieSuanJia = 9;
     repeated FenShiLishi LiShiFenShi = 10;
-}
-
-message QuoteMinOutput
-{
-    repeated QuoteMinSingle Results = 1;
 }
 
 // Level大单
@@ -153,11 +83,6 @@ message QuoteBOrderSingle // ->MSG
     repeated QuoteBOrder Data = 2;
 }
 
-message QuoteBOrderOutput
-{
-    repeated QuoteBOrderSingle Results = 1;
-}
-
 // 除权参数
 message QuoteDivid
 {
@@ -170,11 +95,6 @@ message QuoteDividSingle // ->MSG
 {
     required string Obj = 1;
     repeated QuoteDivid Data = 2;
-}
-
-message QuoteDividOutput
-{
-    repeated QuoteDividSingle Results = 1;
 }
 
 // 个股动态分时
@@ -246,4 +166,18 @@ message QuoteBOrderMinSingle // ->MSG
     required string Obj = 1;
     repeated QuoteBOrderMin Data = 2;
     optional int64 QingPan = 3;
+}
+
+// 港股经纪队列
+message QuoteHkQueueSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated HKDynaInfo Data = 2;
+}
+
+// 大单统计动态
+message QuoteL2DynaSingle // ->MSG
+{
+    required string Obj = 1;
+    repeated Level2TongJi Data = 2;
 }

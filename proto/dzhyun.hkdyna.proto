@@ -1,0 +1,22 @@
+// 针对排序的数据结构
+// 
+// protoc --go_out=../dzhyun.git dzhyun.hkdyna.proto
+// 需要安装 https://github.com/google/protobuf
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+// 港股经纪队列存储结构
+message HKDynaInfo { // 港股经纪队列
+    message HKBroker{
+        optional int64 DuiLieHao   = 1; // 经纪队列Num
+        optional string LeiXing = 2; // 'B':broker,'R':register trader,'S':number of spread
+        optional int64  JiaGe      = 3; //平衡价
+	   optional int64  Liang     = 4; //平衡量
+        repeated int64 DuiLieShuJu = 5; // 经纪队列Data
+    }
+    required string Obj          = 1; // obj 股票代码
+    optional int64  ShiJian      = 2; // time 时间
+    repeated HKBroker MaiRuJingJiDuiLie  = 3; // BuyBroker 买盘经纪队列
+    repeated HKBroker MaiChuJingJiDuiLie  = 4; // SellBroker 卖盘经纪队列
+}

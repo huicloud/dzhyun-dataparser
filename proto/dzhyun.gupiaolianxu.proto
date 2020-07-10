@@ -2,6 +2,7 @@ package dzhyun;
 
 option java_package = "com.dzhyun.proto";
 
+
 message KXian	//K线
 {
 	required int64 ShiJian = 1; 				//时间
@@ -11,16 +12,26 @@ message KXian	//K线
     optional int64 ShouPanJia = 5; 				//收盘价
     optional int64 ChengJiaoLiang = 6; 			//成交量
     optional int64 ChengJiaoE = 7; 				//成交额
-    optional int64 ChengJiaoBiShu = 8;			// 成交笔数(非指数时有效)
-    optional int64 ShangZhangJiaShu = 9; 		// 上涨家数(仅指数时有效)
-    optional int64 XiaDieJiaShu = 10; 			// 下跌家数(仅指数时有效)
-    optional int64 ChiCang = 11;                // 持仓(仅期货时有效)
-    optional int64 ZengCang = 12;               // 增仓(仅期货时有效)
-    optional int64 ZengLiang = 13;              // 增量(仅期货时有效)
-    optional int64 JieSuanJia = 14;             // 结算价(仅期货时有效)
+    optional int64 ChengJiaoBiShu = 8;			//成交笔数(非指数时有效)
+    optional int64 ShangZhangJiaShu = 9; 		//上涨家数(仅指数时有效)
+    optional int64 XiaDieJiaShu = 10; 			//下跌家数(仅指数时有效)
+    optional int64 ChiCang = 11;                //持仓(仅期货时有效)
+    optional int64 ZengCang = 12;               //增仓(仅期货时有效)
+    optional int64 ZengLiang = 13;              //增量(仅期货时有效)
+    optional int64 JieSuanJia = 14;             //结算价(仅期货时有效)
+	optional int64 Id = 15; 					//序号(仅数字货币有效)
+	optional int64 LiuRuE = 16;					//流入额(仅数字货币有效)
+	optional int64 LiuChuE = 17;      			//流出额(仅数字货币有效)
+    optional int64 PanHouChengJiaoLiang = 18; 	//盘后成交量(科创板股票有效)
+    optional int64 PanHouChengJiaoE = 19; 		//盘后成交额(科创板股票有效)
+    optional int64 PanHouChengJiaoBiShu = 20;	//盘后成交笔数(科创板股票有效)
+	
 }
 
-
+message KXianList
+{
+	repeated KXian Data = 1;
+}
 
 message FenShi //分时
 {
@@ -29,16 +40,20 @@ message FenShi //分时
     optional int64 ChengJiaoLiang = 3; 			//成交量
     optional int64 ChengJiaoE = 4; 				//成交额
     optional int64 JunJia = 5; 					//均价
-    optional int64 LingXianZhiBiao = 6;              //领先指标
-    optional int64 DuoKongXian = 7;                  //多空线
-    optional int64 WeiTuoMaiRuZongLiang = 8;                //allbuyvol f   委买总量
-    optional int64 WeiTuoMaiChuZongLiang = 9;               //allselvol f   委卖总量
+    optional int64 LingXianZhiBiao = 6;         //领先指标
+    optional int64 DuoKongXian = 7;             //多空线
+    optional int64 WeiTuoMaiRuZongLiang = 8;    //allbuyvol f   委买总量
+    optional int64 WeiTuoMaiChuZongLiang = 9;   //allselvol f   委卖总量
+	optional int64 Id = 10; 					//序号
 }
 
 message FenShiLishi //分时
 {
     repeated FenShi Rows = 1;
     optional int64  RiQi = 2;
+	optional int64  ZuoShou = 3; 
+	repeated JiaoYiShiJianDuanJieGou JiaoYiShiJianDuan = 4;	
+	optional int64  ZuoJieSuan = 5;			
 }
 
 message DynaAlib //分时
@@ -75,4 +90,12 @@ message LingxianDuokongZhibiaoStatus //领先多空指标
     required int64 JiaoYiRiQi = 1;  //记录领先多空指标分时状态时间
     optional int64 IndexStatuc = 2; //记录领先多空指标分时状态下标
     optional LingxianDuokongZhibiao DataStatus = 3; //记录领先多空指标分时状态数据
+}
+
+message JiaoYiShiJianDuanJieGou 
+{
+    optional int64 KaiShiShiJian = 1;
+    optional int64 JieShuShiJian = 2;
+    optional int64 KaiShiRiQi = 3;
+    optional int64 JieShuRiQi = 4;
 }

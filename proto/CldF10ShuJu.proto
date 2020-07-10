@@ -837,6 +837,7 @@ message F10GdjcKggdOutPut { //->MSG
 	optional string clrq = 5;  	//成立日期  varchar(10)         
 	optional string jyyw = 6;	//经营业务  varchar(2000)           
 	optional string qylx = 7;	//企业类型  varchar(20)
+	optional string sm = 8;	//说明，控股股东为个人时，有此项  varchar(200) 
 }
 
 /*股东新出_实际控制人*/ 
@@ -844,6 +845,7 @@ message F10GdjcSjkzrOutPut { //->MSG
 	required string obj = 1;	// 股票代码
 	optional string mc  = 2; 	//名称  varchar(100)
 	optional string sm  = 3; 	//说明  varchar(4000)
+	repeated GdjcSjkzrData data = 4; 
 }
 
 
@@ -953,7 +955,7 @@ message F10ZbyzXmtzFmjzjxm {
 }
 
 
-/*行业地位*/
+/*行业地位 ----------已废弃，数据通过"关联个股"采集*/
 message HydwData{
 	required string obj = 1;  	//股票代码
 	optional string gpmc = 2;	//股票名称
@@ -1015,6 +1017,7 @@ message RsrInvestRatingData{
 	optional int64 jc = 5;  		//减持  int                
 	optional int64 mc = 6;   		//卖出  int                 
 	optional int64 jgzs = 7; 		//机构总数  int
+	optional string zhpj = 8;		//综合评级 string
 }
 message F10RsrInvestRatingOutPut{ //->MSG
 	required string obj = 1;    //股票代码
@@ -2051,4 +2054,99 @@ message F10SpotYxys {
 message F10SpotYxysOutput {//->MSG
     required string Obj = 1;		// 交易品种  varchar(20)  
     repeated F10SpotYxys Data = 2;
+}
+
+/*股票中持股基金信息*/
+message StockFundCgData {          
+	optional string jjdm = 1;  	// 基金代码	varchar(10)
+	optional double sl = 2; 		// 数量（万股）	numeric(19,3)
+	optional double sz = 3;  	// 市值（万元）	numeric(19,2)
+	optional double zjzb = 4; 	// 占净值比（%）numeric(19,2)
+	optional string tbzjc = 5;  // 同比增减仓	varchar(20)
+}
+
+/*股票中基金持股列表*/
+message F10StockFundCgOutput {
+    required string Obj = 1;		// 股票代码
+    repeated StockFundCgData Data = 2;
+}
+
+
+/*关联个股*/
+message F10GlggData{
+	required string gpdm = 1;  	//股票代码
+	optional string gpmc = 2;	//股票名称
+	optional double ltg = 3; 	//流通股 numeric(20,4)
+	optional int32 pm1 = 4; 	//流通股排名 int
+	optional double zzc = 5; 	//总资产 numeric(20,4)
+	optional int32 pm2 = 6; 	//总资产排名 int
+	optional double zysr = 7; 	//主营收入 numeric(20,4)
+	optional int32 pm3 = 8; 	//主营收入排名 int
+	optional double mgsy  = 9;	//每股收益 numeric(20,4)
+	optional int32 pm4  = 10;	//每股收益排名 int
+	optional double zgb = 11; 	//总股本 numeric(20,4)
+	optional int32 pm5 = 12; 	//总股本排名 int
+	optional double jzc = 13; 	//净资产 numeric(20,4)
+	optional int32 pm6 = 14; 	//净资产排名 int
+	optional double jlr  = 15;	//净利润 numeric(20,4)
+	optional int32 pm7 = 16; 	//净利排名 int
+	optional double jzcsyl = 17; //净资产收益率 numeric(20,4)
+	optional int32 pm8 = 18; 	//净资产收益率排名 int
+	optional string date = 19;		//日期 
+	optional int32 sslx = 20;   	//所属类型 1 同行业，2 同地域，3 同概念
+	optional string sslxmc = 21; 	//所属类型名称
+	optional string sshy = 22;    	//所属行业，当sslx=1时，该字段有效
+}
+
+message F10Glgg{
+	optional int32 sslx = 1;   		//所属类型 1 同行业，2 同地域，3 同概念
+	optional string sslxmc = 2; 	//所属类型名称
+	optional string sshy = 3;    	//所属行业，当sslx=1时，该字段有效
+	optional int32 tlxggzs = 4;    	//同类型个股总数
+	repeated F10GlggData data = 5;
+}
+
+message F10GlggOutPut {   //->MSG
+	required string gpdm = 1;		//股票代码
+	optional string gpmc = 2;		//股票名称   
+	repeated F10Glgg data = 3;
+}
+
+/*股东新出_实际控制人数据*/ 
+message GdjcSjkzrData { 
+	optional string mc  = 1; 	//名称  varchar(100)
+	optional string sm  = 2; 	//说明  varchar(4000)
+}
+
+/*事件提醒*/
+message F10Sjtx{  //->MSG
+	optional string Obj = 1;                // 股票代码
+	optional string ObjName = 2;            // 股票名
+	optional uint64 Id = 3;              // 事件id
+    optional string Date = 4;               // 事件日期
+    optional string TypeName = 5;           // 事件类型
+    optional string Remindermemo = 6;       // 事件标题
+	optional string Reminderurl = 7;        // 事件内容
+}
+
+/*高管增持*/
+message F10Ggzc{  //->MSG
+	optional string Riqi = 1;                // 日期
+	optional int64 ChiGuShu = 2;            // 持股数
+	optional int64 BianDongGuShu = 3;         // 变动股数
+    optional double BianDongJunJia = 4;        // 变动均价
+    optional string BianDongYuanYin = 5;       // 变动原因
+    optional string GuanXiLeiXing = 6;       // 关系类型
+	optional string ChiGuRen = 7;        	// 持股人
+	optional int64  BianDongCiShu= 8;        // 变动次数
+}
+
+/*主力持仓*/
+message F10Zlcc{  //->MSG
+	optional int64 Riqi = 1;                // 日期
+	optional int64 JiGouShuLiang = 2;       // 机构数量
+	optional int64 LeiJiChiGu = 3;          // 累积持股
+	optional double ZhanZongGuBenBiLi = 4;   // 占总股本比例
+	optional double ZhanLiuTongGuBiLi = 5;   // 占流通股比例
+	optional double GuJia = 6;        		// 股票价格
 }
