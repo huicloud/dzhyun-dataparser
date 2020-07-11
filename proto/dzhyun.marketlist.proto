@@ -1,0 +1,22 @@
+// 针对大行情的数据结构
+// 
+// protoc --go_out=../dzhyun.git dzhyun.stkdata.proto
+// 需要安装 https://github.com/google/protobuf
+package dzhyun;
+
+option java_package = "com.dzhyun.proto";
+
+message TypeSummary {
+		optional int32 TypeCode = 1;         // 品种类型码
+		optional string TypeName = 2;        // 品种类型名称
+		optional int32 ComponentCount = 3;   //品种类型下成员数量
+}
+
+message MarketList{ // ->MSG
+		required string MarketCode = 1;     //市场码
+		optional string MarketName = 2;     //市场名称
+		optional int32 MarketStatus = 3;    //市场状态
+		optional int32 TradeDate = 4;      //市场最近交易日期
+        repeated TypeSummary TypeList = 5;  //品种类型概要列表
+		
+}

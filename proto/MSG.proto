@@ -21,6 +21,7 @@ import "CldNewsShuJu.proto";
 import "dzhyun.counter.proto";
 import "CldDanShangPinShuXing.proto";
 import "dzhyun.historytrends.proto";
+import "dzhyun.marketlist.proto";
 
 enum EnumID{
 	IDId = 1;
@@ -199,6 +200,7 @@ enum EnumID{
 	IDSelfReport = 264;
 	IDQuoteFundFlowSingle = 265;
 	IDMonthTrends = 266;
+	IDMarketList = 267;  
 	IDQuoteQueueMinSingle = 269;
 	IDQuoteBOrderMinSingle = 302;
 }
@@ -380,6 +382,7 @@ message MSG {
 	repeated SelfReport RepDataSelfReport = 264;	//In file:CldNewsShuJu.proto, row:96,
 	repeated QuoteFundFlowSingle RepDataQuoteFundFlowSingle = 265;	//In file:dzhoutput.proto, row:219,
 	repeated MonthTrends RepDataMonthTrends = 266;	//In file:dzhyun.historytrends.proto, row:31,
+	repeated MarketList RepDataMarketList = 267;	//In file:dzhyun.marketlist.proto, row:14,  
 	repeated QuoteQueueMinSingle RepDataQuoteQueueMinSingle = 269;	//In file:dzhoutput.proto, row:226,
 	repeated QuoteBOrderMinSingle RepDataQuoteBOrderMinSingle = 302;	//In file:dzhoutput.proto, row:243,
 }
